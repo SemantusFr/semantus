@@ -45,7 +45,7 @@ messages_not_top1000 = [
 
 message_success = [
     "Trop de la balle&nbsp;!",
-    "Avoue ! Tu as triché&nbsp;?",
+    "Avoue&nbsp;! Tu as triché&nbsp;?",
 ]
 
 messages_top10 = [
@@ -58,7 +58,11 @@ messages_top10 = [
 
 messages_top100 = [
     "On se rapproche...",
-    "Tu chauffes !"
+    "Tu chauffes&nbsp;!",
+    "Bonne direction&nbsp;!",
+    "Creuse encore un peu cette idée.",
+    "Fonce !",
+    "Tu es dans le top 100&nbsp;!",
 ]
 
 messages_top1000 = [

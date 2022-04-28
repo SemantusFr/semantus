@@ -58,21 +58,6 @@ def get_score():
     # print(data["error"])
     return jsonify(data)
 
-@app.route('/get_hint/<int:score>')
-def get_hint(score):
-    # con = sqlite3.connect("word2vec.db")
-    # con.execute("PRAGMA journal_mode=WAL")
-    # cur = con.cursor()
-
-    # query = f'select * from day{puzzleNmber} where score={score}'
-    # check = cur.execute(query)
-
-
-    data = {'hint_word': get_word_from_position(puzzleNmber, score)}
-
-    return jsonify(data)
-
-
 def get_hash_client_ip():
     '''
     Get the hash of the client IP address to count the number of wins.
@@ -136,7 +121,14 @@ def win():
         return jsonify({})
 
 
-  
+@app.route('/get_hint')
+def get_hint():
+    best_user_score = int(request.args.get('score'))
+    if best_user_score < 999:
+        data = {'hint_word': get_word_from_position(puzzleNmber, best_user_score+1)}
+    else:
+        data = {}
+    return jsonify(data)  
 
 @app.route('/get_winners')
 def get_winners_today():

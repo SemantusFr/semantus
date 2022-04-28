@@ -212,6 +212,7 @@
                         <h5 id="score_message"></h5>
                     </div>
                     <div class="col-1 col-md-0">
+                        <input id="hint-btn" class="btn btn-primary" type="submit" value="Indice!">
                     </div>
                 </div>
                 
@@ -270,6 +271,7 @@
     const hot_color = '#7ddc1f';
     const cls_newguess = "table-danger";
     const cls_guess = "table-info";
+    const cls_hint = "hint";
     let puzzleNumber = {{puzzleNumber}};
 
     const storagePuzzleNumber = storage.getItem("puzzleNumber");
@@ -296,6 +298,7 @@
         guesses = [];
     }
     let guessNumber = guesses.length;  
+    createGuessTable()
     
 
     async function add_hint_at_start()
@@ -303,23 +306,21 @@
         if (guessNumber == 0)
         {
             await $.getJSON(
-                '/get_hint/1',
+                '/get_hint',
+                {
+                    score: 1
+                },
                 function(result){
                     
                     word = result.hint_word;
-                    // alert(word);
                     guessNumber = 1;
-                    guesses.push([word, guessNumber, 1]);
-                    // let guesses_inner = document.getElementById("guesses").innerHTML;        
-                    // guesses_inner = guessRow(1, word, 1, "hint") + guesses_inner;
-                    // document.getElementById("guesses").innerHTML = guesses_inner;
-                    // alert(guesses);
+                    add_new_guess(word, 1, 'hint');
                 });
             }
     }
     
     add_hint_at_start()
-    .then(a => createGuessTable()) 
+    // .then(a => createGuessTable()) 
 
     function saveDataToCache() {
         // If we are in a tab still open from yesterday, we're done here.
@@ -516,8 +517,31 @@
                 }            
         });
         initalized = 1;
+
+
+        var btn_hint = document.getElementById('hint-btn')
+               
+        btn_hint.addEventListener('click', function(){
+            $.getJSON(
+                    '/get_hint',
+                    $.param({ score: get_best_score()}, true),
+                    function(result){
+                        
+                    });
+        });
     }
 
+    function get_best_score(){
+        best = 0;
+        for (let [word, guessNumber, score, percentile]  of guesses)
+        {
+            if (score > best)
+            {
+                best = score;
+            }
+        }
+        return best;
+    }
 
     function progressBar(id, value) {
         var bar = new ProgressBar.Line(`#bar_${id}`, {
@@ -541,32 +565,34 @@
         let progress = "";
         let cls = "";
         
-        return `<tr class="${rowcls}" id="row_${number}"><td class="number">&nbsp;${number}</td>
-                    <td class="word ${cls}">${word}</td>
-                    <td class="number ${cls} ${score}">${String(score)}</td>
-                    <td><div id="bar_${number}" class = "progressbar"></div></td>
-                </tr>
-                `;
+        return `
+                    <tr class="${rowcls}" id="row_${number}">
+                        <td class="number">&nbsp;${number}</td>
+                        <td class="word ${cls}">${word}</td>
+                        <td class="number ${cls} ${score}">${String(score)}</td>
+                        <td><div id="bar_${number}" class = "progressbar"></div></td>
+                    </tr>
+                    `;
     }
 
     function createGuessTable() {   
-        // alert('guesses')
         // build the table from guesses array
         let guesses_inner = '';
-        // alert(guesses)
         // for (let entry of guesses) {
         guesses.forEach(function (entry, index, arr) {
-            let [word, number, score] = entry;
-            guesses_inner += guessRow(number, word, score, cls_guess);
+            let [[word, type], number, score] = entry;
+            // alert(type);
+            add_guess(number, word, score, type);
+            // guesses_inner += guessRow(number, word, score, cls_guess);
             
         });
         // Update the html
         
         // $('guesses').innerHTML = guesses_inner;
-        document.getElementById("guesses").innerHTML = guesses_inner;
+        // document.getElementById("guesses").innerHTML = guesses_inner;
 
         guesses.forEach(function (entry, index, arr) {
-            let [word, number, score] = entry;
+            let [tuple, number, score] = entry;
             
             if (score == 0)
             {
@@ -588,7 +614,7 @@
         guessNumber += 1;
         // check if work alread guessed
         for (let entry of guesses) {
-            let [oldword, number, score] = entry;
+            let [[oldword, type], number, score] = entry;
             if (oldword == word)
             {
                 guessNumber -= 1;
@@ -599,19 +625,7 @@
             
         }
         
-
-        let guesses_inner = document.getElementById("guesses").innerHTML;        
-        guesses_inner = guessRow(guessNumber, word, score, cls_newguess) + guesses_inner;
-
-        // add new guess to guesses array
-        guesses.push([word, guessNumber, score]);
-        
-        // Update the html
-        // $('guesses').innerHTML = guesses_inner;
-        document.getElementById("guesses").innerHTML = guesses_inner; 
-
-        // save guesses to cache
-        saveDataToCache();
+        add_new_guess(word, score, 'newguess');
         
         if (score == 0)
         {
@@ -623,17 +637,49 @@
         
     }
     
+    function add_guess(number, word, score, type) {
+        let guesses_inner = document.getElementById("guesses").innerHTML; 
+        if (type == 'hint')
+        {
+            cls = cls_hint;
+        } else if (type == 'guess')
+        {
+            cls = cls_guess;
+        } else
+        {
+            cls = cls_newguess;
+        } 
+        guesses_inner = guessRow(number, word, score, cls) + guesses_inner;
+        // Update the html
+        // $('guesses').innerHTML = guesses_inner;
+        document.getElementById("guesses").innerHTML = guesses_inner; 
+
+    }
+
+    function add_new_guess(word, score, type) {
+        add_guess(guessNumber, word, score, type)
+      
+        // add new guess to guesses array
+        guesses.push([[word,type], guessNumber, score]);
+        
+        
+
+        // save guesses to cache
+        saveDataToCache();
+    }
     
 
     function removeNewGuessClass()
     {
         table = document.getElementById("guesses_table");
-        
         for (i = 1; i < (table.rows.length); i++) {
-            table.rows[i].classList.remove(cls_newguess)
-            table.rows[i].classList.add(cls_guess)
+            // alert(table.rows[i].classList);
+            if (!table.rows[i].classList.contains(cls_hint))
+            {
+                table.rows[i].classList.remove(cls_newguess)
+                table.rows[i].classList.add(cls_guess)
+            }  
         }
-
     }
 
     function sortTable(n) {

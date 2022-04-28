@@ -32,7 +32,7 @@ messages_not_top1000 = [
     "Ouais mais en fait tu n'y est pas du tout...",
     "Sinon, t'as pas envie de vraiment essayer ?",
     "Oulalalala, tu y étais presque ! À quelque milliers de place près c'était bon !",
-    "Genre ! Ça n'a rien à voir !",
+    "Genre, ça n'a rien à voir !",
     "Alors là, je dis non !",
     "Mais clairement pas...",
     "Trop à l'ouest.",

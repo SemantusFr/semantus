@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+
+  <head>
+  {% block head %}
+    <meta charset="utf-8">
+    <title>Sementus - mot caché et prise de tête.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{{ url_for('static', filename='css/mfglabs_iconset.css') }}" rel="stylesheet">
+    <!-- <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"> -->
+    <!-- # custom things -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    {# Generated using https://favicon.io/favicon-generator/?t=W&ff=Alice&fs=120&fc=%23FFFFFF&b=rounded&bc=%23209CEE #}
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
+    <!-- <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script> -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    
+    <script src="{{ url_for('static', filename='js/progressbar.js') }}"></script>
+    
+    <!-- for icons -->
+    <!-- <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"> -->
+    {% block twitter_card %}
+      <meta name="twitter:card" content="summary_large_image"/>
+      <meta name="twitter:site" content="@Sementus"/>
+      <meta name="twitter:creator" content="@Sementus" />
+      <meta property="og:title" content="{% if title %}{{ title }} - {% endif %} Sementus.net" />
+      <meta property="og:image" content="{{ url_for('static', filename='images/preview.png', _external=True) }}" />
+      <meta property="og:description" content="Find the hidden word!" />
+    {% endblock %}
+  {% endblock %}
+  <style>
+
+    body {
+        background-color: #1d1f20;
+        color: #e5e5e5;
+        font: 16px/1.25 'Raleway', sans-serif;
+        margin: 0;
+        background: linear-gradient(to top right, #060628, #1F245A, #682359);
+    }
+
+    .progressbar {
+        height: 15px;
+        width: auto;
+        margin-bottom: 10px;
+        margin-right: 10px;
+    }
+    .progress {
+        margin-top: 10px;
+        height: 150px;
+        /* width: 150px; */
+        position:relative;
+        background-color: rgba(255, 255, 255, 0);
+    }
+    
+    .progress > svg {
+        height: 100%;
+        display: block;
+    }
+    /* table#guesses_table {
+        width: min(32em, 100%);
+        background-color: rgba(0, 0, 0, 0);
+        color: black;
+    }
+
+    table#guesses_table td {
+        width: auto;
+    }
+
+    table#guesses_table td:last-child {
+        width: min(10em, 100%);
+    }
+
+    table th {
+        border-bottom: 1px solid grey;
+    } */
+    .number{
+        margin-left: 20px;
+        margin-right: 2px;
+    }
+
+    .center {
+        text-align: center;
+        display: flex;
+        justify-content: center;
+    }
+
+    .accordion-body {
+        color: black;
+    }
+
+
+    .insidetable{
+        color: black;
+    }
+    .guess{
+        background-color: lightblue;
+    }
+    .newguess{
+        background-color: lightcoral;
+    }
+    .hint{
+        background-color: rgb(179, 135, 200);
+    }
+    .jumbotron{
+        height:150px;
+        margin-bottom: 15px;
+    }
+
+    .tbl-container {
+        /* width: 400px; */
+        margin-top: 10px;
+        margin-left: 10px;
+    }
+
+    .bdr {
+        border-radius: 6px;
+        overflow: hidden;
+    }
+    .card-top
+    {
+        margin-top: 20px;
+    }
+
+    .modal-content {
+        background-color: #1d1f20;
+        color: #e5e5e5;
+    }
+
+    /* .accordion-body {
+        background-color: #1d1f20;
+        color: #e5e5e5;
+    } */
+
+    .modal-title {
+        text-align: center;
+        width: 100%;
+    }
+    .icon{
+        font-size:30px;
+        padding-left: 25px;
+        color: white; 
+        text-decoration: none;
+    }
+  </style>
+</head>
+
+{% block content %}
+    <!-- <div class="jumbotron text-center"; style="x"> -->
+    <div class="jumbotron mt-4 p-5 bg-dark text-white text-center">
+        <h1>Sémentus</h1>
+        <h5>Trouvez le mot caché plus rapidement que votre beau-frère.</h5>
+    </div>
+
+    <div class="container text-center" style="margin-bottom: 20px;">
+        <a  href="#" class="icon" data-bs-toggle="modal" data-bs-target="#popup_info">
+            <i class="icon-information_white"></i>
+        </a>
+        <a  href="#" class="icon" data-bs-toggle="modal" data-bs-target="#popup_contact">
+            <i class="icon-at"></i>
+        </a>
+        <a  href="#" class="icon" data-bs-toggle="modal" data-bs-target="#popup_share">
+            <i class="icon-share"></i>
+        </a>
+    </div>
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2 col-sm-0">
+            </div>
+            <div class="col-md-8 col-sm-12">
+                <div class="text-center card text-white bg-success mb-3 " >
+                    <div class="card-header"><h4>Jour {{puzzleNumber}}</h4></div>
+                    <div class="card-body">
+                        <!-- <h5 class="card-title">Instructions</h5> -->
+                        <p class="card-title">Commencez avec le 1000ème mot le plus proche et faites votre chemin vers le mot caché.</p>
+                        <!-- <h5 class="card-title">Hier</h5> -->
+                        <p class="card-text">Le mot d'hier était  
+                            <a href="" style="color:rgb(160, 255, 250);" data-bs-toggle="modal" data-bs-target="#popup_history">
+                                <b>{{yesterday_word}}</b>
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-0">
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2 col-sm-0">
+            </div>
+            <div class="col-md-3 col-sm-12">
+                <div class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <input id="ids" class="form-control" name="ids" required type="text" value="">
+                    </div>
+                    <div class="col-auto">
+                        <input id="go" class="btn btn-primary" type="submit" value="Go!">
+                    </div>
+                    
+                    
+                </div>
+                <div class="row g-3 align-items-center">
+                    <div class = "center" style = "width:200px;">
+                        <div class="progress center" id="progress"></div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="col-md-5 col-sm-12">
+                <div class="tbl-container bdr">
+                    <div class="table-responsive">
+                        <table class="table  table-hover"; id="guesses_table">
+                            <thead>
+                            <tr class="table-light">
+                                <th class="number" id="number_order" onclick="sortTable(0)">&nbsp;#</th>
+                                <th class="word" id="alpha_order" onclick="sortTable(1)">Mot&nbsp;&nbsp;&nbsp;</th>
+                                <th class="score" id="score_order" onclick="sortTable(2)">Score</th>
+                                <th class="progress_bar">Progression</th>
+                            </tr>
+                            </thead>
+                            <tbody class = "insidetable"; id="guesses">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-0">
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2 col-sm-0">
+            </div>
+            <div class="col-md-8 col-sm-12">
+                
+            </div>
+            <div class="col-md-2 col-sm-0">
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Pop-up Info-->
+    <div id="popup_info" class="modal">
+        <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                <div class="modal-header text-center">
+                    <p> <h4>Information</h4> </p>
+                        </div>
+                <div class="modal-body">
+                    <div class="accordion" id="accordionExample">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button bg-secondary text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Comment ça marche ?
+                            </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                            <div class="accordion-body bg-dark text-white">
+                                <strong>Taper votre mot et cliquez sur le bouton.</strong> 
+                                Il y a alors quatre possibilités :
+                                <ul >
+                                    <li>
+                                        <strong>Le mot est dans le mot caché. Félicitation&nbsp;!</strong>
+                                        L'emoji 🤯 apparait. 
+                                        Vous pouvez désormais partager votre score et narguer vos collègues.
+                                    </li>
+                                    <li>
+                                        <strong>Le mot est dans le top 1000. Cool&nbsp;!</strong>
+                                        Le pourcentage (plus c'est proche de 1000, plus vous êtes proche) 
+                                        le mot est ajouté avec son score (de 1 à 1000) à la liste.
+                                    </li>
+                                    <li>
+                                        <strong>Le mot existe mais n'est pas dans le top 1000.</strong>
+                                        L'emoji 💩 s'affiche. 
+                                        Il est ajouté à la liste avec 💩, ce qui correspond à un score de 0. 
+                                    </li>
+                                    <li>
+                                        <strong>Le mot n'existe pas ou ne correspond pas aux critères.</strong>
+                                        L'emoji 🤔 s'affiche. Le mot n'est pas rajouté à la liste.
+                                    </li>
+                                   
+                                  </ul>
+                            
+                            </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button bg-secondary text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Accordion Item #2
+                            </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                            <div class="accordion-body bg-dark text-white">
+                                <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                            </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button bg-secondary text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Crédits
+                            </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                            <div class="accordion-body bg-dark text-white">
+                                <strong>This is the third item's accordion body.</strong> 
+                                It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                </button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Pop-up Show Previous Related Words-->
+    <div id="popup_history" class="modal">
+        <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Mot d'hier: <strong>{{yesterday_word}}</strong>.</h5>
+                        <!-- <h5 class="modal-title">Trouvé par XX personnes. </h5> -->
+                        
+                    </div>
+                    <div class="modal-body">
+                        <strong>Trouvé par XX personnes. </strong><br><br>
+                        Listes des mots proches :
+                        <div class="tbl-container bdr">
+                            <div class="table-responsive">
+                                <table class="table  table-hover"; id="history_table">
+                                    <thead>
+                                    <tr class="table-dark table-striped">
+                                        <th class="word" id="alpha_order">Mot</th>
+                                        <th class="score" id="score_order">Score</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class = "insidetable"; id="history_table_content">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>  
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                </button>
+            </div>
+        </div>
+        </div>
+    </div>
+    
+    <script>
+    // let guessNumber = 0;
+    // var puzzleNumber;
+    let initalized = 0;
+    const storage = window.localStorage;
+    const cold_color = '#ee0000';
+    const hot_color = '#7ddc1f';
+    const cls_newguess = "table-danger";
+    const cls_guess = "table-info";
+
+    // const now = Date.now();
+    // const today = Math.floor(now / 86400000);
+    // const initialDay = 19108;
+    // function getPuzzleNumber(day) {
+    //     return (day - initialDay+1);
+    // }
+    // function getSecretWord(day) {
+    //     return secretWords[getPuzzleNumber(day)];
+    // }
+
+    // puzzleNumber = getPuzzleNumber(today);
+
+
+    let guesses = JSON.parse(storage.getItem("guesses"));
+    if (guesses == null){
+        guesses = [];
+    }
+    let guessNumber = guesses.length;  
+    
+
+    async function add_hint_at_start()
+    {
+        if (guessNumber == 0)
+        {
+            await $.getJSON(
+                '/get_hint/1',
+                function(result){
+                    
+                    word = result.hint_word;
+                    // alert(word);
+                    guessNumber = 1;
+                    guesses.push([word, guessNumber, 1]);
+                    // let guesses_inner = document.getElementById("guesses").innerHTML;        
+                    // guesses_inner = guessRow(1, word, 1, "hint") + guesses_inner;
+                    // document.getElementById("guesses").innerHTML = guesses_inner;
+                    // alert(guesses);
+                });
+            }
+    }
+    
+    add_hint_at_start()
+    .then(a => createGuessTable())
+    
+
+    // createGuessTable();
+    createHistoryTable();
+    
+
+    function saveDataToCache() {
+        // If we are in a tab still open from yesterday, we're done here.
+        // Don't save anything because we may overwrite today's game!
+        // let savedPuzzleNumber = storage.getItem("puzzleNumber");
+        // if (savedPuzzleNumber != puzzleNumber)
+        //     return;
+
+        // storage.setItem("winState", winState);
+        // storage.setItem("secret", secret);
+        // storage.setItem("ranking", ranking);
+        storage.setItem("guesses", JSON.stringify(guesses));
+
+        // storage.setItem("day"+puzzleNumber, winState*guesses.length);
+    }
+    
+
+    // guesses = JSON.parse(storage.getItem("guesses"));
+    // for (let [word, guessNumber, score, percentile]  of guesses)
+    //     cache[word] = { num: puzzleNumber, score: score, percentile: percentile };
+    // guessCount = guesses.length;
+    
+
+
+    if (initalized == 0)
+    {
+        var input = document.getElementById("ids");
+        input.addEventListener("keyup", function(event) {
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.keyCode === 13) {
+                // Cancel the default action, if needed
+                event.preventDefault();
+                // Trigger the button element with a click
+                document.getElementById("go").click();
+                input.value = "";
+            }
+            
+        }); 
+
+        var btn = document.getElementById('go')
+        var bar = ''
+
+
+        btn.addEventListener('click', function(){
+            // get the word input
+            let word = document.getElementById("ids").value;
+            $.getJSON(
+                '/get_score',
+                $.param({ test: word}, true),
+                function(result){
+
+                    let score = result.score;                
+                    // Destroy the previous bar first (if any)
+                    try {
+                        bar.destroy()
+                    }
+                    catch {
+                        
+                    }
+
+                    bar = new ProgressBar.Circle(progress, {
+                        // color: '#aaa',
+                        // This has to be the same size as the maximum width to
+                        // prevent clipping
+                        strokeWidth: 10,
+                        trailWidth: 2,
+                        easing: 'easeInOut',
+                        duration: 1400,
+                        text: {
+                            autoStyleContainer: true
+                        },
+                        from: { color: cold_color, width: 10 },
+                        to: { color: hot_color, width: 10 },
+                        // Set default step function for all animate calls
+                        step: function(state, circle) {
+                            circle.path.setAttribute('stroke', state.color);
+                            circle.path.setAttribute('stroke-width', state.width);
+
+                            var value = Math.round(circle.value()*1000)/10;
+                            if (score == 0)
+                            {
+                                circle.setText('💩');
+                            } else if (score <= 0) {
+                                circle.setText('🤔');//
+                            }  else {
+                                if (value > 99.9)
+                                {
+                                    circle.text.style.fontSize = '3.5rem';
+                                    circle.setText('🤯');
+                                } else {
+                                    circle.setText(value + '%');
+                                }
+                                
+                            }
+                            circle.text.style.color = state.color;
+       
+                        }
+                        });
+
+                    bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+                    // bar.text.setText
+                    
+                    // for emojis
+                    
+
+                    if (score <= 0){
+                        bar.text.style.fontSize = '3.5rem';
+                    } else {
+                        bar.text.style.fontSize = '2.5rem';
+                    }
+                
+                    async function animate(score)
+                    {
+                        await bar.animate(score/1000)
+                    }
+
+                    animate(score).then(function() {});;
+                    // bar.animate(score/1000).then(function() {alert('coucou');});  // Number from 0.0 to 1.0
+
+                    // alert(score)
+                    // if (score == 1000) {
+                    //     bar.setText('🤯');
+                    //     bar.text.style.fontSize = '3.5rem';
+                    // }
+                    
+
+
+                    removeNewGuessClass();
+                    sortTable(2)
+                    sortTable(2)
+                    if (score >=0)
+                    {
+                        updateGuessTable(word, score)
+                    }
+
+                    // if (score == 1000) {
+                    //     bar.setText('🤯');
+                    //     bar.text.style.fontSize = '3.5rem';
+                    // }
+                    
+
+                    
+                    // alert(guesses_inner);
+                }
+            );
+            // alert(word);
+            // progressbar.js@1.0.0 version is used
+            // Docs: http://progressbarjs.readthedocs.org/en/1.0.0/
+
+            
+        });
+        initalized = 1;
+    }
+
+
+    function progressBar(id, value) {
+        var bar = new ProgressBar.Line(`#bar_${id}`, {
+        strokeWidth: 10,
+        easing: 'easeInOut',
+        duration: 1400,
+        color: '#FFEA82',
+        trailColor: '#999',
+        trailWidth: 10,
+        svgStyle: {width: '100%', height: '100%'},
+        from: {color: cold_color},
+        to: {color: hot_color},
+        step: (state, bar) => {
+            bar.path.setAttribute('stroke', state.color);
+        }
+        });
+
+        bar.animate(value/1000); 
+    }
+    function guessRow(number, word, score, rowcls) {
+        let progress = "";
+        let cls = "";
+        
+        return `<tr class="${rowcls}" id="row_${number}"><td class="number">&nbsp;${number}</td>
+                    <td class="word ${cls}">${word}</td>
+                    <td class="number ${cls} ${score}">${String(score)}</td>
+                    <td><div id="bar_${number}" class = "progressbar"></div></td>
+                </tr>
+                `;
+    }
+
+    function createHistoryTable()
+    {
+        $.getJSON(
+            '/get_yesterday_list',
+            function(result){
+                history = result.history;
+                let table_inner = "";
+
+
+                for (let entry  of result.history)
+                {
+                    let [word, value, score] = entry;
+                    table_inner += `<tr>
+                                        <td class="text-white">${word}</td>
+                                        <td class="text-white">${score}</td>
+                                    </tr>
+                                    `;
+                }                
+                document.getElementById("history_table_content").innerHTML = table_inner;
+            });
+    }
+
+    function createGuessTable() {   
+        // alert('guesses')
+        // build the table from guesses array
+        let guesses_inner = '';
+        // alert(guesses)
+        // for (let entry of guesses) {
+        guesses.forEach(function (entry, index, arr) {
+            let [word, number, score] = entry;
+            guesses_inner += guessRow(number, word, score, cls_guess);
+            
+        });
+        // Update the html
+        
+        // $('guesses').innerHTML = guesses_inner;
+        document.getElementById("guesses").innerHTML = guesses_inner;
+
+        guesses.forEach(function (entry, index, arr) {
+            let [word, number, score] = entry;
+            
+            if (score == 0)
+            {
+                document.getElementById(`bar_${number}`).innerHTML = "💩"
+            } else {
+                progressBar(number, score)
+            }
+            
+        });
+        sortTable(2)
+        sortTable(2)
+        
+ 
+              
+    }
+
+    function updateGuessTable(word, score) {   
+
+        guessNumber += 1;
+        // check if work alread guessed
+        for (let entry of guesses) {
+            let [oldword, number, score] = entry;
+            if (oldword == word)
+            {
+                guessNumber -= 1;
+                document.getElementById(`row_${number}`).classList.remove(cls_guess)
+                document.getElementById(`row_${number}`).classList.add(cls_newguess)
+                return
+            }
+            
+        }
+        
+
+        let guesses_inner = document.getElementById("guesses").innerHTML;        
+        guesses_inner = guessRow(guessNumber, word, score, cls_newguess) + guesses_inner;
+
+        // add new guess to guesses array
+        guesses.push([word, guessNumber, score]);
+        
+        // Update the html
+        // $('guesses').innerHTML = guesses_inner;
+        document.getElementById("guesses").innerHTML = guesses_inner; 
+
+        // save guesses to cache
+        saveDataToCache();
+        
+        if (score == 0)
+        {
+            document.getElementById(`bar_${guessNumber}`).innerHTML = "💩"
+        }
+        else{
+            progressBar(guessNumber, score)
+        }
+        
+    }
+    
+    
+
+    function removeNewGuessClass()
+    {
+        table = document.getElementById("guesses_table");
+        
+        for (i = 1; i < (table.rows.length); i++) {
+            table.rows[i].classList.remove(cls_newguess)
+            table.rows[i].classList.add(cls_guess)
+        }
+
+    }
+
+    function sortTable(n) {
+        
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("guesses_table");
+
+        let type = 'number';
+        if (n == 1)
+        {
+            type = 'text';
+        }
+        switching = true;
+        
+        dir = "desc"
+        /* Make a loop that will continue until
+        no switching has been done: */
+        while (switching) {
+            // Start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /* Loop through all table rows (except the
+            first, which contains table headers): */
+            for (i = 1; i < (rows.length - 1); i++) {
+            // Start by saying there should be no switching:
+            shouldSwitch = false;
+            
+            /* Get the two elements you want to compare,
+            one from current row and one from the next: */
+
+            if (type == 'number')
+            {
+                x = +(rows[i].getElementsByTagName("TD")[n].innerHTML);
+                y = +(rows[i + 1].getElementsByTagName("TD")[n].innerHTML);
+            } 
+            else
+            {
+                // remove accent to compare strings
+                // see https://stackoverflow.com/questions/990904/remove-accents-diacritics-in-a-string-in-javascript
+                x = rows[i].getElementsByTagName("TD")[n].innerHTML.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+                y = rows[i + 1].getElementsByTagName("TD")[n].innerHTML.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+            }
+
+            
+            /* Check if the two rows should switch place,
+            based on the direction, asc or desc: */
+            if (dir == "desc") {
+                if (x > y) {
+                // If so, mark as a switch and break the loop:
+                shouldSwitch = true;
+                break;
+                }
+            } else if (dir == "asc") {
+                if (x < y) {
+                // If so, mark as a switch and break the loop:
+                shouldSwitch = true;
+                break;
+                }
+            }
+            }
+            if (shouldSwitch) {
+            /* If a switch has been marked, make the switch
+            and mark that a switch has been done: */
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+            // Each time a switch is done, increase this count by 1:
+            switchcount ++;
+            } else {
+            /* If no switching has been done AND the direction is "asc",
+            set the direction to "desc" and run the while loop again. */
+            if (switchcount == 0 && dir == "desc") {
+                dir = "asc";
+                switching = true;
+            }
+            }
+        }
+    }
+    </script>
+
+    
+{% endblock %}
+
+
+{% block footer %}
+<footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+  <!-- Copyright --> 
+  <div class="container-fluid text-center">
+    <div class="row" >
+      <div class="col-md-2" ></div>
+      <div class="col-md-8" >
+        
+            <p class="navbar-text "> 
+                © 2022 Copyright:<a href="https://sementus.net/"> Sementus.net</a><br>
+                Inspiré de <a href="https://cemantix.herokuapp.com/">Cémantix</a> 
+                par <a href="https://twitter.com/enigmathix">enigmatix</a>
+                et de <a href="https://semantle.novalis.org/">Semantle</a> 
+                par <a href="https://gitlab.com/novalis_dt/semantle">David Turner</a>. 
+                Données de <a href="https://fauconnier.github.io/#data">Jean-Philippe Fauconnier</a>. 
+            </p>
+        
+  </div>  
+      
+    </div>
+  </div>
+</div>
+</footer>
+{% endblock %}
+
+</html>

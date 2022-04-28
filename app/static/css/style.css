@@ -1,0 +1,22 @@
+* {
+   /*font-size: 15px;*/
+   line-height: 1.428;
+}
+
+table.small-text tr td { 
+   font-size: 12px; 
+}
+
+span.small-text { 
+   font-size: 12px; 
+}
+
+
+
+
+/* table#pub_table.dataTable tbody tr:hover {
+   background-color: lightgray;
+} */
+
+
+

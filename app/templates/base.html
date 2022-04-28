@@ -313,10 +313,28 @@
                 function(result){
                     
                     word = result.hint_word;
-                    guessNumber = 1;
-                    add_new_guess(word, 1, 'hint');
+                    guessNumber = 0;
+                    updateGuessTable(word, 1, 'hint');
+                    // add_new_guess(word, 1, 'hint');
                 });
             }
+    }
+
+    function add_hint(score)
+    {
+        if (score < 999)
+        {
+            $.getJSON(
+                '/get_hint',
+                {
+                    score: score
+                },
+                function(result){
+                    word = result.hint_word;
+                    // add_new_guess(word, score, 'hint');
+                    updateGuessTable(word, score, 'hint');
+                });
+        }
     }
     
     add_hint_at_start()
@@ -493,11 +511,10 @@
 
 
                         removeNewGuessClass();
-                        sortTable(2)
-                        sortTable(2)
+                        
                         if (score >=0)
                         {
-                            updateGuessTable(word, score)
+                            updateGuessTable(word, score, 'newguess')
                         }
 
                         // empty the input field
@@ -513,12 +530,7 @@
         var btn_hint = document.getElementById('hint-btn')
                
         btn_hint.addEventListener('click', function(){
-            $.getJSON(
-                    '/get_hint',
-                    $.param({ score: get_best_score()}, true),
-                    function(result){
-                       alert(result.hint);
-                    });
+            add_hint(get_best_score()+1);
         });
     }
 
@@ -600,13 +612,13 @@
               
     }
 
-    function updateGuessTable(word, score) {   
+    function updateGuessTable(word, score, type) {   
 
         guessNumber += 1;
         // check if work alread guessed
         for (let entry of guesses) {
             let [[oldword, type], number, score] = entry;
-            if (oldword == word)
+            if (oldword == word && type == 'guess') 
             {
                 guessNumber -= 1;
                 document.getElementById(`row_${number}`).classList.remove(cls_guess)
@@ -616,7 +628,7 @@
             
         }
         
-        add_new_guess(word, score, 'newguess');
+        add_new_guess(word, score, type);
         
         if (score == 0)
         {
@@ -625,6 +637,8 @@
         else{
             progressBar(guessNumber, score)
         }
+        sortTable(2)
+        sortTable(2)
         
     }
     

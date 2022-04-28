@@ -62,6 +62,11 @@ def get_hint(score):
 
     return jsonify(data)
 
+@app.route('/ip')
+def proxy_client():
+    ip_addr = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
+    return '<h1> Your IP address is:' + ip_addr
+
 def get_word_from_position(day, score):
     con = sqlite3.connect(WORD_DB_PATH)
     con.execute("PRAGMA journal_mode=WAL")

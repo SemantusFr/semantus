@@ -257,6 +257,9 @@
 
     <!-- Pop-up Show Previous Related Words-->
     {% include '_popup_history.html' %}
+
+    <!-- Pop-up Win-->
+    {% include '_popup_win.html' %}
     
     
     <script>
@@ -278,6 +281,15 @@
 			storage.setItem("puzzleNumber", puzzleNumber);
 		}
 
+    var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
+        keyboard: false
+    })
+
+    function sleep(milliseconds) {  
+      return new Promise(resolve => setTimeout(resolve, milliseconds));  
+    }  
+
+    
 
     let guesses = JSON.parse(storage.getItem("guesses"));
     if (guesses == null){
@@ -322,6 +334,11 @@
         storage.setItem("guesses", JSON.stringify(guesses));
 
         // storage.setItem("day"+puzzleNumber, winState*guesses.length);
+    }
+
+    function win() 
+    {
+        modal_win.show();
     }
     
 
@@ -437,7 +454,13 @@
                             await bar.animate(score/1000)
                         }
 
-                        animate(score).then(function() {});;
+                        animate(score).then(function() {     
+                            if (score == 1000){
+                                sleep(2000).then(() => {
+                                    win();
+                                })   
+                            }
+                        });;
                         // bar.animate(score/1000).then(function() {alert('coucou');});  // Number from 0.0 to 1.0
 
                         // alert(score)

@@ -40,12 +40,16 @@ messages_not_top1000 = [
     "Aussi logique que Macron à la fête de l'huma.",
     "Tu est probablement doué·e à plein d'autres activités&nbsp;!",
     "Rien. n'a. voir.",
-    "Essaie encore&nbsp;!"
+    "Essaie encore&nbsp;!",
+    "Ouaaaaaaiiiiis, mais non.",
+    "On joue au même jeu là&nbsp;?"
 ]
 
 message_success = [
     "Trop de la balle&nbsp;!",
     "Avoue&nbsp;! Tu as triché&nbsp;?",
+    "Gagné&nbsp;! Allez, va vite narguer tes collègues&nbsp;!",
+    "Super&nbsp;! Mais Martine de la compta a été plus rapide...",
 ]
 
 messages_top10 = [

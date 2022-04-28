@@ -38,10 +38,13 @@ messages_not_top1000 = [
     "Trop à l'ouest.",
     "Touche le fond mais creuse encore.",
     "Aussi logique que Macron à la fête de l'huma.",
+    "Tu est probablement doué·e à plein d'autres activités !",
+    "Rien. n'a. voir.",
 ]
 
 message_success = [
-    "Trop de la balle !"
+    "Trop de la balle !",
+    "Avoue ! Tu as triché ?",
 ]
 
 messages_top10 = [

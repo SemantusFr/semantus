@@ -14,14 +14,17 @@ import sqlite3
 from app import app
 # from app.forms import SumbitForm
 from app import puzzleNmber
-
+from app.messages import get_message_from_score
 
 from pathlib import Path
 WORD_DB_PATH = f"{Path(__file__).parent.parent}/word2vec.db"
 
-print('*'*50)
-print(WORD_DB_PATH)
 
+@app.route('/get_message')
+def get_message():
+    score = int(request.args.get('score'))
+    data = {'message': get_message_from_score(score)}
+    return jsonify(data)
 
 @app.route('/')
 def hello_world():
@@ -35,15 +38,13 @@ def hello_world():
         puzzleNumber = puzzleNmber,
         yesterday_word = get_yesterday_word(),
         yesterday_list = yesterday_list,
-        message = 'Hello, World!')
+    )
 
 @app.route('/get_score')
-def test():
-    word = request.args.get('test')
-    print(f'Testing word {word}')
+def get_score():
+    word = request.args.get('word')
 
     data = {'score': check_word(1, word)}
-    print('*'*25)
     # print(data["error"])
     return jsonify(data)
 

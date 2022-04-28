@@ -195,10 +195,10 @@
             </div>
             <div class="col-md-3 col-sm-12">
                 <div class="row g-3 align-items-center">
-                    <div class="col-auto">
+                    <div class="col-10">
                         <input id="ids" class="form-control" name="ids" required type="text" value="">
                     </div>
-                    <div class="col-auto">
+                    <div class="col-2">
                         <input id="go" class="btn btn-primary" type="submit" value="Go!">
                     </div>
                     
@@ -207,6 +207,9 @@
                 <div class="row g-3 align-items-center">
                     <div class = "center" style = "width:200px;">
                         <div class="progress center" id="progress"></div>
+                    </div>
+                    <div>
+                        <h5 id="score_message"></h5>
                     </div>
                 </div>
                 
@@ -354,7 +357,7 @@
             
             $.getJSON(
                 '/get_score',
-                $.param({ test: word}, true),
+                $.param({ word: word}, true),
                 function(result){
 
                     let score = result.score;                
@@ -365,6 +368,15 @@
                     catch {
                         
                     }
+
+                    $.getJSON(
+                        '/get_message',
+                        $.param({ score: score}, true),
+                        function(result){
+                            let message = result.message;
+                            let score_message = document.getElementById("score_message");
+                            score_message.innerHTML = message;
+                        });
 
                     bar = new ProgressBar.Circle(progress, {
                         // color: '#aaa',

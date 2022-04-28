@@ -355,123 +355,120 @@
             var field = document.getElementById("ids");
             let word = field.value.trim().toLowerCase();
             
-            $.getJSON(
-                '/get_score',
-                $.param({ word: word}, true),
-                function(result){
+            if(word !== null && word !== '') {
+                $.getJSON(
+                    '/get_score',
+                    $.param({ word: word}, true),
+                    function(result){
 
-                    let score = result.score;                
-                    // Destroy the previous bar first (if any)
-                    try {
-                        bar.destroy()
-                    }
-                    catch {
+                        let score = result.score;                
+                        // Destroy the previous bar first (if any)
+                        try {
+                            bar.destroy()
+                        }
+                        catch {
+                            
+                        }
+
+                        $.getJSON(
+                            '/get_message',
+                            $.param({ score: score}, true),
+                            function(result){
+                                let message = result.message;
+                                let score_message = document.getElementById("score_message");
+                                score_message.innerHTML = message;
+                            });
+
+                        bar = new ProgressBar.Circle(progress, {
+                            // color: '#aaa',
+                            // This has to be the same size as the maximum width to
+                            // prevent clipping
+                            strokeWidth: 10,
+                            trailWidth: 2,
+                            easing: 'easeInOut',
+                            duration: 1400,
+                            text: {
+                                autoStyleContainer: true
+                            },
+                            from: { color: cold_color, width: 10 },
+                            to: { color: hot_color, width: 10 },
+                            // Set default step function for all animate calls
+                            step: function(state, circle) {
+                                circle.path.setAttribute('stroke', state.color);
+                                circle.path.setAttribute('stroke-width', state.width);
+
+                                var value = Math.round(circle.value()*1000)/10;
+                                if (score == 0)
+                                {
+                                    circle.setText('💩');
+                                } else if (score <= 0) {
+                                    circle.setText('🤔');//
+                                }  else {
+                                    if (value > 99.9)
+                                    {
+                                        circle.text.style.fontSize = '3.5rem';
+                                        circle.setText('🤯');
+                                    } else {
+                                        circle.setText(value + '%');
+                                    }
+                                    
+                                }
+                                circle.text.style.color = state.color;
+        
+                            }
+                            });
+
+                        bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+                        // bar.text.setText
+                        
+                        // for emojis
+                        
+
+                        if (score <= 0){
+                            bar.text.style.fontSize = '3.5rem';
+                        } else {
+                            bar.text.style.fontSize = '2.5rem';
+                        }
+                    
+                        async function animate(score)
+                        {
+                            await bar.animate(score/1000)
+                        }
+
+                        animate(score).then(function() {});;
+                        // bar.animate(score/1000).then(function() {alert('coucou');});  // Number from 0.0 to 1.0
+
+                        // alert(score)
+                        // if (score == 1000) {
+                        //     bar.setText('🤯');
+                        //     bar.text.style.fontSize = '3.5rem';
+                        // }
+                        
+
+
+                        removeNewGuessClass();
+                        sortTable(2)
+                        sortTable(2)
+                        if (score >=0)
+                        {
+                            updateGuessTable(word, score)
+                        }
+
+                        // if (score == 1000) {
+                        //     bar.setText('🤯');
+                        //     bar.text.style.fontSize = '3.5rem';
+                        // }
+                        
+
+                        
+                        // alert(guesses_inner);
+
+                        // empty the input field
+                        field.value = "";
                         
                     }
-
-                    $.getJSON(
-                        '/get_message',
-                        $.param({ score: score}, true),
-                        function(result){
-                            let message = result.message;
-                            let score_message = document.getElementById("score_message");
-                            score_message.innerHTML = message;
-                        });
-
-                    bar = new ProgressBar.Circle(progress, {
-                        // color: '#aaa',
-                        // This has to be the same size as the maximum width to
-                        // prevent clipping
-                        strokeWidth: 10,
-                        trailWidth: 2,
-                        easing: 'easeInOut',
-                        duration: 1400,
-                        text: {
-                            autoStyleContainer: true
-                        },
-                        from: { color: cold_color, width: 10 },
-                        to: { color: hot_color, width: 10 },
-                        // Set default step function for all animate calls
-                        step: function(state, circle) {
-                            circle.path.setAttribute('stroke', state.color);
-                            circle.path.setAttribute('stroke-width', state.width);
-
-                            var value = Math.round(circle.value()*1000)/10;
-                            if (score == 0)
-                            {
-                                circle.setText('💩');
-                            } else if (score <= 0) {
-                                circle.setText('🤔');//
-                            }  else {
-                                if (value > 99.9)
-                                {
-                                    circle.text.style.fontSize = '3.5rem';
-                                    circle.setText('🤯');
-                                } else {
-                                    circle.setText(value + '%');
-                                }
-                                
-                            }
-                            circle.text.style.color = state.color;
-       
-                        }
-                        });
-
-                    bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
-                    // bar.text.setText
-                    
-                    // for emojis
-                    
-
-                    if (score <= 0){
-                        bar.text.style.fontSize = '3.5rem';
-                    } else {
-                        bar.text.style.fontSize = '2.5rem';
-                    }
-                
-                    async function animate(score)
-                    {
-                        await bar.animate(score/1000)
-                    }
-
-                    animate(score).then(function() {});;
-                    // bar.animate(score/1000).then(function() {alert('coucou');});  // Number from 0.0 to 1.0
-
-                    // alert(score)
-                    // if (score == 1000) {
-                    //     bar.setText('🤯');
-                    //     bar.text.style.fontSize = '3.5rem';
-                    // }
-                    
-
-
-                    removeNewGuessClass();
-                    sortTable(2)
-                    sortTable(2)
-                    if (score >=0)
-                    {
-                        updateGuessTable(word, score)
-                    }
-
-                    // if (score == 1000) {
-                    //     bar.setText('🤯');
-                    //     bar.text.style.fontSize = '3.5rem';
-                    // }
-                    
-
-                    
-                    // alert(guesses_inner);
-
-                    // empty the input field
-                    field.value = "";
-                    
-                }
-            );
-            // alert(word);
-            // progressbar.js@1.0.0 version is used
-            // Docs: http://progressbarjs.readthedocs.org/en/1.0.0/
-
-            
+                );
+                }            
         });
         initalized = 1;
     }

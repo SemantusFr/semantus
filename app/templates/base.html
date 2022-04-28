@@ -212,7 +212,7 @@
                         <h5 id="score_message"></h5>
                     </div>
                     <div class="col-1 col-md-0">
-                        <input id="hint-btn" class="btn btn-primary" type="submit" value="Indice!">
+                        <input id="hint-btn" class="btn btn-primary disabled" type="submit" value="Indice!">
                     </div>
                 </div>
                 
@@ -266,6 +266,8 @@
     <script>
 
     let initalized = 0;
+    let guesses_since_last_hint = 0;
+    const interval_between_guesses = 5;
     const storage = window.localStorage;
     const cold_color = '#ee0000';
     const hot_color = '#7ddc1f';
@@ -322,7 +324,7 @@
 
     function add_hint(score)
     {
-        if (score < 999)
+        if (score < 999 )
         {
             $.getJSON(
                 '/get_hint',
@@ -333,6 +335,9 @@
                     word = result.hint_word;
                     // add_new_guess(word, score, 'hint');
                     updateGuessTable(word, score, 'hint');
+                    guesses_since_last_hint = 0;
+                    document.getElementById('hint-btn').classList.add('disabled');//.prop("disabled", true);
+                    document.getElementById('hint-btn').value = `Indice dans ${interval_between_guesses-guesses_since_last_hint} mots`;
                 });
         }
     }
@@ -405,7 +410,7 @@
 
         var btn = document.getElementById('go')
         var bar = ''
-
+        document.getElementById('hint-btn').value = `Indice dans ${interval_between_guesses-guesses_since_last_hint} mots`;
         
 
         btn.addEventListener('click', function(){
@@ -517,6 +522,18 @@
                             updateGuessTable(word, score, 'newguess')
                         }
 
+                        guesses_since_last_hint+=1;
+                        if (guesses_since_last_hint >= interval_between_guesses)
+                        {
+                            document.getElementById('hint-btn').value ='Indice !';
+                        } else {
+                            document.getElementById('hint-btn').value = `Indice dans ${interval_between_guesses-guesses_since_last_hint} mots`;
+                        }
+                        
+                        if (guesses_since_last_hint >= interval_between_guesses)
+                        {
+                            document.getElementById('hint-btn').classList.remove('disabled');//prop("disabled", false);
+                        }
                         // empty the input field
                         field.value = "";
                         

@@ -500,15 +500,6 @@
                             updateGuessTable(word, score)
                         }
 
-                        // if (score == 1000) {
-                        //     bar.setText('🤯');
-                        //     bar.text.style.fontSize = '3.5rem';
-                        // }
-                        
-
-                        
-                        // alert(guesses_inner);
-
                         // empty the input field
                         field.value = "";
                         
@@ -526,7 +517,7 @@
                     '/get_hint',
                     $.param({ score: get_best_score()}, true),
                     function(result){
-                        
+                       alert(result.hint);
                     });
         });
     }
@@ -659,6 +650,10 @@
     function add_new_guess(word, score, type) {
         add_guess(guessNumber, word, score, type)
       
+        if (type == 'newguess')
+        {
+            type = 'guess;'
+        }
         // add new guess to guesses array
         guesses.push([[word,type], guessNumber, score]);
         

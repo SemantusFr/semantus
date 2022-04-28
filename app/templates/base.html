@@ -357,10 +357,11 @@
         var btn = document.getElementById('go')
         var bar = ''
 
+        
 
         btn.addEventListener('click', function(){
             // get the word input
-            let word = document.getElementById("ids").value;
+            let word = document.getElementById("ids").value.trim().toLowerCase();
             $.getJSON(
                 '/get_score',
                 $.param({ test: word}, true),

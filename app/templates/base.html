@@ -305,12 +305,7 @@
     }
     
     add_hint_at_start()
-    .then(a => createGuessTable())
-    
-
-    // createGuessTable();
-    createHistoryTable();
-    
+    .then(a => createGuessTable()) 
 
     function saveDataToCache() {
         // If we are in a tab still open from yesterday, we're done here.
@@ -494,28 +489,6 @@
                     <td><div id="bar_${number}" class = "progressbar"></div></td>
                 </tr>
                 `;
-    }
-
-    function createHistoryTable()
-    {
-        $.getJSON(
-            '/get_yesterday_list',
-            function(result){
-                history = result.history;
-                let table_inner = "";
-
-
-                for (let entry  of result.history)
-                {
-                    let [word, value, score] = entry;
-                    table_inner += `<tr>
-                                        <td class="text-white">${word}</td>
-                                        <td class="text-white">${score}</td>
-                                    </tr>
-                                    `;
-                }                
-                document.getElementById("history_table_content").innerHTML = table_inner;
-            });
     }
 
     function createGuessTable() {   

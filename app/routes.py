@@ -12,7 +12,7 @@ import sqlite3
 # from flask_login import current_user, login_user, logout_user, login_required
 
 from app import app
-from app.forms import SumbitForm
+# from app.forms import SumbitForm
 from app import puzzleNmber
 
 
@@ -20,14 +20,16 @@ from app import puzzleNmber
 
 @app.route('/')
 def hello_world():
-    form = SumbitForm()
-    print('*'*100)
+    # form = SumbitForm()
+    # print('*'*100)
 
+    yesterday_list = get_history(puzzleNmber-1)
 
     return render_template(
         'base.html', 
         puzzleNumber = puzzleNmber,
         yesterday_word = get_yesterday_word(),
+        yesterday_list = yesterday_list,
         message = 'Hello, World!')
 
 @app.route('/get_score')

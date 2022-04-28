@@ -264,18 +264,6 @@
     const cls_guess = "table-info";
     let puzzleNumber = {{puzzleNumber}};
 
-    // const now = Date.now();
-    // const today = Math.floor(now / 86400000);
-    // const initialDay = 19108;
-    // function getPuzzleNumber(day) {
-    //     return (day - initialDay+1);
-    // }
-    // function getSecretWord(day) {
-    //     return secretWords[getPuzzleNumber(day)];
-    // }
-
-    // puzzleNumber = getPuzzleNumber(today);
-
     const storagePuzzleNumber = storage.getItem("puzzleNumber");
 		if (storagePuzzleNumber != puzzleNumber) {
 			// storage.removeItem("secret");
@@ -349,7 +337,7 @@
                 event.preventDefault();
                 // Trigger the button element with a click
                 document.getElementById("go").click();
-                input.value = "";
+                
             }
             
         }); 
@@ -361,7 +349,9 @@
 
         btn.addEventListener('click', function(){
             // get the word input
-            let word = document.getElementById("ids").value.trim().toLowerCase();
+            var field = document.getElementById("ids");
+            let word = field.value.trim().toLowerCase();
+            
             $.getJSON(
                 '/get_score',
                 $.param({ test: word}, true),
@@ -459,6 +449,10 @@
 
                     
                     // alert(guesses_inner);
+
+                    // empty the input field
+                    field.value = "";
+                    
                 }
             );
             // alert(word);

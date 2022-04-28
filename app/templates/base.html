@@ -3,7 +3,7 @@
   <head>
   {% block head %}
     <meta charset="utf-8">
-    <title>Sementus - mot caché et prise de tête.</title>
+    <title>Semantus - mot caché et prise de tête.</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="{{ url_for('static', filename='css/mfglabs_iconset.css') }}" rel="stylesheet">
     <!-- <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"> -->
@@ -22,9 +22,9 @@
     <!-- <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"> -->
     {% block twitter_card %}
       <meta name="twitter:card" content="summary"/>
-      <meta name="twitter:site" content="@Sementus"/>
-      <meta name="twitter:creator" content="@Sementus" />
-      <meta property="og:title" content="{% if title %}{{ title }} - {% endif %} Sementus.net" />
+      <meta name="twitter:site" content="@Semantus"/>
+      <meta name="twitter:creator" content="@Semantus" />
+      <meta property="og:title" content="{% if title %}{{ title }} - {% endif %} Semantus.net" />
       <meta property="og:image" content="{{ url_for('static', filename='images/preview.png', _external=True) }}" />
       <meta property="og:description" content="Trouve le mot caché !" />
     {% endblock %}
@@ -672,7 +672,7 @@
       <div class="col-md-8" >
         
             <p class="navbar-text "> 
-                © 2022 Copyright:<a href="https://sementus.net/"> Sementus.net</a><br>
+                © 2022 Copyright:<a href="https://semantus.fr/"> Semantus.fr</a><br>
                 Inspiré de <a href="https://cemantix.herokuapp.com/">Cémantix</a> 
                 par <a href="https://twitter.com/enigmathix">enigmatix</a>
                 et de <a href="https://semantle.novalis.org/">Semantle</a> 

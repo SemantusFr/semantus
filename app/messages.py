@@ -72,7 +72,7 @@ messages_top1000 = [
     "Je suis à court de réplique, mains continue !",
     "Sur la bonne voie !",
     "Aller ! Encore un gros effort !",
-    "AB, contitnue comme ça.",
+    "AB, continue comme ça.",
     "Tu as raison, on y va doucement.",
     "Bien.",
     "OK, mais faudrait penser à accélérer un peu.",

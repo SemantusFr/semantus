@@ -336,9 +336,29 @@
         // storage.setItem("day"+puzzleNumber, winState*guesses.length);
     }
 
-    function win() 
+    function win(word) 
     {
         modal_win.show();
+        $.getJSON(
+            '/win',
+            $.param({ word: word, guesses: 100, hints: 100}, true),
+            function(result){
+                var winners = document.getElementById("winners-msg");
+                let nb_winners = result.winners;
+                let already_won = result.already_won;
+                if (result.already_won) {
+                    winners.innerHTML = "Félicitation, mais tu as déjà gagné aujourd'hui !";
+                } else {
+                    if (nb_winners == 1)
+                    {
+                        text_winners = `${result.winners}<sup>er·e</sup>`
+                    } else {
+                        text_winners = `${result.winners}<sup>ème</sup>`
+                    }
+                    winners.innerHTML = `Félicitation. Tu es le·a <bold>${text_winners}</bold>ème joueur à avoir trouvé le mot aujourd'hui !`;
+                }
+            }
+        );
     }
     
 
@@ -457,7 +477,7 @@
                         animate(score).then(function() {     
                             if (score == 1000){
                                 sleep(2000).then(() => {
-                                    win();
+                                    win(word);
                                 })   
                             }
                         });;

@@ -18,6 +18,16 @@ from app.messages import get_message_from_score
 
 from pathlib import Path
 WORD_DB_PATH = f"{Path(__file__).parent.parent}/word2vec.db"
+STAT_DB_PATH = f"{Path(__file__).parent.parent}/stats.db"
+
+
+from hashlib import sha1
+
+def hash(s):
+    h = sha1()
+    h.update(s.encode("ascii"))
+    hash = h.hexdigest()
+    return hash
 
 
 @app.route('/get_message')
@@ -62,10 +72,93 @@ def get_hint(score):
 
     return jsonify(data)
 
-@app.route('/ip')
-def proxy_client():
+
+def get_hash_client_ip():
+    '''
+    Get the hash of the client IP address to count the number of wins.
+    Hash to preserve privacy.
+    '''
     ip_addr = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
-    return '<h1> Your IP address is:' + ip_addr
+    print('-'*100)
+    print(hash(ip_addr))
+    print(hash(ip_addr))
+    return hash(ip_addr)
+
+@app.route('/win')
+def win():
+    '''
+    Update the database to add the win.
+    Give the win to check it is not a hack.
+    '''
+    print('*'*100)
+    word = request.args.get('word')
+    guesses = int(request.args.get('guesses'))
+    hints = int(request.args.get('hints'))
+
+    # check if really a win 
+    if (word == get_today_word()):     
+        ip_hash = get_hash_client_ip()
+        con = sqlite3.connect(STAT_DB_PATH)
+        con.execute("PRAGMA journal_mode=WAL")
+        cur = con.cursor()
+        con.commit()
+        cur.execute(f"create table if not exists day{puzzleNmber} (hash_user_ip TEXT PRIMARY KEY, guesses INT, hints INT)")
+        con.commit()
+
+        
+        already_won = False
+        # check if the same user alread won
+        with con:
+            query = f'SELECT * FROM day{puzzleNmber} WHERE hash_user_ip = "{ip_hash}"'
+            cur.execute(query)
+            res = cur.fetchall()
+            if len(res) > 0:
+                already_won = True
+            else:
+                with con:
+                    query = f"""insert into day{puzzleNmber} (hash_user_ip, guesses, hints)
+                             values (\"{ip_hash}\", {guesses}, {hints})"""
+                    cur.execute(query)
+                    con.commit()
+
+
+            query = f"SELECT * FROM day{puzzleNmber}"
+            print(query)
+            cur.execute(query)
+            res = cur.fetchall()
+            print(res)
+            data = {
+                'already_won':already_won,
+                'winners':get_winners_today()
+            }
+            return jsonify(data)
+    else:
+        return jsonify({})
+
+
+  
+
+@app.route('/get_winners')
+def get_winners_today():
+    con = sqlite3.connect(STAT_DB_PATH)
+    con.execute("PRAGMA journal_mode=WAL")
+    cur = con.cursor()
+    cur.execute(f"create table if not exists day{puzzleNmber} (hash_user_ip INT PRIMARY KEY, guesses INT, hints INT)")
+    con.commit()
+    total_winners = -1
+    with con:
+        query = f"SELECT COUNT(*) FROM day{puzzleNmber}"
+        print(query)
+        cur.execute(query)
+        res = cur.fetchall()
+        total_winners = res[0][0] 
+    return total_winners
+    # data = {'total_winners': total_winners}
+
+    # return jsonify(data)
+
+def get_today_word():
+    return get_word_from_position(puzzleNmber, 1000)
 
 def get_word_from_position(day, score):
     con = sqlite3.connect(WORD_DB_PATH)

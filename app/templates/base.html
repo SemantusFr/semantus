@@ -263,6 +263,7 @@
     const hot_color = '#7ddc1f';
     const cls_newguess = "table-danger";
     const cls_guess = "table-info";
+    let puzzleNumber = {{puzzleNumber}};
 
     // const now = Date.now();
     // const today = Math.floor(now / 86400000);
@@ -275,6 +276,15 @@
     // }
 
     // puzzleNumber = getPuzzleNumber(today);
+
+    const storagePuzzleNumber = storage.getItem("puzzleNumber");
+		if (storagePuzzleNumber != puzzleNumber) {
+			// storage.removeItem("secret");
+			// storage.removeItem("ranking");
+			storage.removeItem("guesses");
+			// storage.removeItem("winState");
+			storage.setItem("puzzleNumber", puzzleNumber);
+		}
 
 
     let guesses = JSON.parse(storage.getItem("guesses"));
@@ -310,9 +320,9 @@
     function saveDataToCache() {
         // If we are in a tab still open from yesterday, we're done here.
         // Don't save anything because we may overwrite today's game!
-        // let savedPuzzleNumber = storage.getItem("puzzleNumber");
-        // if (savedPuzzleNumber != puzzleNumber)
-        //     return;
+        let savedPuzzleNumber = storage.getItem("puzzleNumber");
+        if (savedPuzzleNumber != puzzleNumber)
+            return;
 
         // storage.setItem("winState", winState);
         // storage.setItem("secret", secret);

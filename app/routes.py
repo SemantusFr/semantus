@@ -16,6 +16,11 @@ from app import app
 from app import puzzleNmber
 
 
+from pathlib import Path
+WORD_DB_PATH = f"{Path(__file__).parent.parent}/word2vec.db"
+
+print('*'*50)
+print(WORD_DB_PATH)
 
 
 @app.route('/')
@@ -57,7 +62,7 @@ def get_hint(score):
     return jsonify(data)
 
 def get_word_from_position(day, score):
-    con = sqlite3.connect("word2vec.db")
+    con = sqlite3.connect(WORD_DB_PATH)
     con.execute("PRAGMA journal_mode=WAL")
     cur = con.cursor()
 
@@ -73,7 +78,7 @@ def get_yesterday_word():
     return get_word_from_position(puzzleNmber-1, score = 1000)
 
 def get_history(day):
-    con = sqlite3.connect("word2vec.db")
+    con = sqlite3.connect(WORD_DB_PATH)
     con.execute("PRAGMA journal_mode=WAL")
     cur = con.cursor()
 
@@ -87,7 +92,7 @@ def get_yesterday_list():
     return data
 
 def check_word(day, word):
-    con = sqlite3.connect("word2vec.db")
+    con = sqlite3.connect(WORD_DB_PATH)
     con.execute("PRAGMA journal_mode=WAL")
     cur = con.cursor()
 

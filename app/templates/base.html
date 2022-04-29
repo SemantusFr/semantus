@@ -426,7 +426,7 @@
     // for (let [word, guessNumber, score, percentile]  of guesses)
     //     cache[word] = { num: puzzleNumber, score: score, percentile: percentile };
     // guessCount = guesses.length;
-
+    focus();
 
     if (initalized == 0)
     {
@@ -570,7 +570,7 @@
                         }
                         // empty the input field
                         field.value = "";
-                        
+                        focus();
                     }
                 );
                 }            
@@ -598,6 +598,11 @@
             }
         });
         return [nb_guesses, nb_hints];
+    }
+
+    function focus()
+    {
+        document.getElementById("ids").focus();
     }
 
     function get_best_score(){

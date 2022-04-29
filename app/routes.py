@@ -9,6 +9,13 @@ from flask import (
 import requests
 from datetime import date
 import sqlite3
+import io
+import base64
+import matplotlib.pyplot as plt
+import seaborn as sns
+import matplotlib
+matplotlib.use('Agg')
+
 # from flask_login import current_user, login_user, logout_user, login_required
 
 from app import app
@@ -18,6 +25,7 @@ from app.messages import get_message_from_score
 from pathlib import Path
 WORD_DB_PATH = f"{Path(__file__).parent.parent}/word2vec.db"
 STAT_DB_PATH = f"{Path(__file__).parent.parent}/stats.db"
+HINT_PENALTY = 5 # 5 point less per hint
 
 
 from hashlib import sha1
@@ -64,6 +72,39 @@ def index():
         winners_today = winners_today,
         game_mode = game_mode
     )
+
+def compute_points(guesses, hints):
+    return 1000 - guesses - HINT_PENALTY*hints
+
+@app.route('/get_stat_hist.png')
+def get_stat_hist():
+
+    con = sqlite3.connect(STAT_DB_PATH)
+    con.execute("PRAGMA journal_mode=WAL")
+    cur = con.cursor()
+    query = f"SELECT * FROM day{get_puzzle_number()}"
+    cur.execute(query)
+    res = cur.fetchall()
+
+    data = [[nb_guesses, nb_hints] for _, nb_guesses, nb_hints in res]
+    # data_guesses, data_hints, data_points = list(zip(*data))
+    data_points = [compute_points(x,y) for x,y in data]
+
+    plt.figure(figsize = (6,5))
+    sns.histplot(data=data_points, element="step")
+    plt.tick_params(axis='both', which='major', labelsize=14)
+    plt.xlabel(r'Score', fontsize = 18)
+    plt.ylabel(r'Joueurs', fontsize = 18)
+    plt.xrange(0,1000)
+    
+    my_stringIObytes = io.BytesIO()
+    # plt.savefig('test.png', format='png')
+    plt.savefig(my_stringIObytes, format='png')
+    plt.xrange(0,1000)
+    my_stringIObytes.seek(0)
+    # my_base64_pngData = base64.b64encode(my_stringIObytes.read())
+    # plain_data = base64.b64decode(data)
+    return Response(my_stringIObytes, mimetype=f'image/png')
 
 @app.route('/get_score')
 def get_score():

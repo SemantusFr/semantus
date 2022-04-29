@@ -24,6 +24,8 @@ message_not_word = [
     "¿&nbsp;Hablas francés&nbsp;?",
     "ты говоришь по французски&nbsp;?",
     "Demande des conseils d'orthographe à Trump.",
+    "Ce n'est pas dans mon dictionnaire.",
+    "Tu as tapé au clavier avec tes poings&nbsp;?",
 ]
 
 messages_not_top1000 = [
@@ -39,11 +41,14 @@ messages_not_top1000 = [
     "Touche le fond mais creuse encore.",
     "Aussi logique que Macron à la fête de l'huma.",
     "Tu es probablement doué·e à plein d'autres activités&nbsp;!",
-    "Rien. n'a. voir.",
+    "Rien. À. Voir.",
     "Essaie encore&nbsp;!",
     "Ouaaaaaaiiiiis, mais non.",
     "On joue au même jeu là&nbsp;?",
     "Kamoulox&nbsp;!",
+    "Nope.",
+    "Tu es froid.",
+    "Pas du tout&nbsp;!",
 ]
 
 message_success = [
@@ -83,5 +88,6 @@ messages_top1000 = [
     "OK, mais faudrait penser à accélérer un peu.",
     "Je crois que Martine à la compta a bientôt trouvé.",
     "Je dis oui, mais pas trop fort.",
-
+    "Pas si mal.",
+    "Pourquoi bas.",
 ]

@@ -298,7 +298,7 @@
 
     let initalized = 0;
     let guesses_since_last_hint = 0;
-    const interval_between_guesses = 5;
+    const interval_between_hints = 5;
     const storage = window.localStorage;
     const cold_color = '#ee0000';
     const hot_color = '#7ddc1f';
@@ -368,7 +368,7 @@
                     updateGuessTable(word, score, 'hint');
                     guesses_since_last_hint = 0;
                     document.getElementById('hint-btn').classList.add('disabled');//.prop("disabled", true);
-                    document.getElementById('hint-btn').value = `Indice dans ${interval_between_guesses-guesses_since_last_hint} mots`;
+                    document.getElementById('hint-btn').value = `Indice dans ${interval_between_hints-guesses_since_last_hint} mots`;
                 });
         }
     }
@@ -399,19 +399,24 @@
             $.param({ word: word, guesses: 100, hints: 100}, true),
             function(result){
                 var winners = document.getElementById("winners-msg");
+                let [nb_guesses, nb_hints] = get_results();
                 let nb_winners = result.winners;
                 let already_won = result.already_won;
+                let message = "";
                 if (result.already_won) {
-                    winners.innerHTML = "Félicitation, mais tu as déjà gagné aujourd'hui !";
+                    message += "Félicitation, mais tu as déjà gagné aujourd'hui !";
                 } else {
                     if (nb_winners == 1)
                     {
-                        text_winners = `${result.winners}<sup>er·e</sup>`
+                        message += `${result.winners}<sup>er·e</sup>`
                     } else {
-                        text_winners = `${result.winners}<sup>ème</sup>`
+                        message += `${result.winners}<sup>ème</sup>`
                     }
-                    winners.innerHTML = `Félicitation. Tu es la·le <bold>${text_winners}</bold> joueur·se à avoir trouvé le mot aujourd'hui !`;
+                    message += `Félicitation. Tu es la·le <bold>${text_winners}</bold> joueur·se à avoir trouvé le mot aujourd'hui !`;
                 }
+                message += `<br>Tu as trouvé le mot <b>${word}</b> en <b>${nb_guesses} tentatives</b> et <b>${nb_hints} indices.</b>`;
+
+                winners.innerHTML = message;
             }
         );
     }
@@ -421,7 +426,6 @@
     // for (let [word, guessNumber, score, percentile]  of guesses)
     //     cache[word] = { num: puzzleNumber, score: score, percentile: percentile };
     // guessCount = guesses.length;
-    
 
 
     if (initalized == 0)
@@ -441,7 +445,7 @@
 
         var btn = document.getElementById('go')
         var bar = ''
-        document.getElementById('hint-btn').value = `Indice dans ${interval_between_guesses-guesses_since_last_hint} mots`;
+        document.getElementById('hint-btn').value = `Indice dans ${interval_between_hints-guesses_since_last_hint} mots`;
         
 
         btn.addEventListener('click', function(){
@@ -553,14 +557,14 @@
                             updateGuessTable(word, score, 'newguess')
                         }
 
-                        if (guesses_since_last_hint >= interval_between_guesses)
+                        if (guesses_since_last_hint >= interval_between_hints)
                         {
                             document.getElementById('hint-btn').value ='Indice !';
                         } else {
-                            document.getElementById('hint-btn').value = `Indice dans ${interval_between_guesses-guesses_since_last_hint} mots`;
+                            document.getElementById('hint-btn').value = `Indice dans ${interval_between_hints-guesses_since_last_hint} mots`;
                         }
                         
-                        if (guesses_since_last_hint >= interval_between_guesses)
+                        if (guesses_since_last_hint >= interval_between_hints)
                         {
                             document.getElementById('hint-btn').classList.remove('disabled');//prop("disabled", false);
                         }
@@ -581,15 +585,30 @@
         });
     }
 
+    function get_results(){
+        nb_guesses = 0;
+        nb_hints = 0;
+        guesses.forEach(function (entry, index, arr) {
+            let [[word, type], number, score] = entry;
+            if (type == 'guess')
+            {
+                nb_guesses += 1;
+            } else {
+                nb_hints += 1;
+            }
+        });
+        return [nb_guesses, nb_hints];
+    }
+
     function get_best_score(){
         best = 0;
-        for (let [word, guessNumber, score, percentile]  of guesses)
-        {
+        guesses.forEach(function (entry, index, arr) {
+            let [[word, type], number, score] = entry;
             if (score > best)
             {
                 best = score;
             }
-        }
+        });
         return best;
     }
 

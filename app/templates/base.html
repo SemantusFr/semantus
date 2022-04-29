@@ -176,8 +176,15 @@
                         <!-- <h5 class="card-title">Instructions</h5> -->
                         <p class="card-title">
                             Commencez avec le 1000<sup>ème</sup> mot le plus proche et fais ton chemin justqu'au mot caché.<br>
-                            <bold>{{winners_today}}</bold> joueurs ont déjà trouvé le mot du jour.
-                        </p>
+
+                            {% if winners_today == 0 %}
+                                <bold>Aucun</bold> joueur n'a
+                            {% elif winners_today == 1 %}
+                                <bold>Un seul</bold> joueur a déjà 
+                            {% else %}
+                                <bold>{{winners_today}}</bold> joueurs ont déjà 
+                            {% endif %}
+                            trouvé le mot du jour.
                         <!-- <h5 class="card-title">Hier</h5> -->
 
                         

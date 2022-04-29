@@ -393,13 +393,13 @@
 
     function win(word) 
     {
+        let [nb_guesses, nb_hints] = get_results();
         modal_win.show();
         $.getJSON(
             '/win',
-            $.param({ word: word, guesses: 100, hints: 100}, true),
+            $.param({ word: word, guesses: nb_guesses, hints: nb_hints}, true),
             function(result){
                 var winners = document.getElementById("winners-msg");
-                let [nb_guesses, nb_hints] = get_results();
                 let nb_winners = result.winners;
                 let already_won = result.already_won;
                 let message = "";

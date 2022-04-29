@@ -79,6 +79,9 @@ def compute_points(guesses, hints):
 @app.route('/get_stat_hist.png')
 def get_stat_hist():
 
+    print('**'*100)
+    print(get_puzzle_number())
+
     con = sqlite3.connect(STAT_DB_PATH)
     con.execute("PRAGMA journal_mode=WAL")
     cur = con.cursor()
@@ -89,6 +92,7 @@ def get_stat_hist():
     data = [[nb_guesses, nb_hints] for _, nb_guesses, nb_hints in res]
     # data_guesses, data_hints, data_points = list(zip(*data))
     data_points = [compute_points(x,y) for x,y in data]
+    print(data)
 
     plt.figure(figsize = (6,5))
     sns.histplot(data=data_points, element="step")
@@ -100,7 +104,6 @@ def get_stat_hist():
     my_stringIObytes = io.BytesIO()
     # plt.savefig('test.png', format='png')
     plt.savefig(my_stringIObytes, format='png')
-    plt.xrange(0,1000)
     my_stringIObytes.seek(0)
     # my_base64_pngData = base64.b64encode(my_stringIObytes.read())
     # plain_data = base64.b64decode(data)

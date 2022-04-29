@@ -54,6 +54,7 @@ def index():
     puzzleNmber = get_puzzle_number()
     yesterday_list = get_history(puzzleNmber-1)
     winners_today = get_winners_today()
+    game_mode = "classique"
 
     return render_template(
         'base.html', 
@@ -61,6 +62,7 @@ def index():
         yesterday_word = get_yesterday_word(),
         yesterday_list = yesterday_list,
         winners_today = winners_today,
+        game_mode = game_mode
     )
 
 @app.route('/get_score')

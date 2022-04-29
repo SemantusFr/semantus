@@ -149,13 +149,17 @@
         color: white; 
         text-decoration: none;
     }
+
+    i {
+        font-style: italic;
+    }
   </style>
 </head>
 
 {% block content %}
     <!-- <div class="jumbotron text-center"; style="x"> -->
     <div class="jumbotron mt-4 p-4 bg-dark text-white text-center">
-        <h1>Sémantus</h1>
+        <h1>Sémantus <i>{{game_mode}}</i></h1>
         <h5>Trouve le mot caché plus rapidement que ton beau-frère.</h5>
     </div>
 

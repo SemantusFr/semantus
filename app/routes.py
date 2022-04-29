@@ -116,7 +116,7 @@ def win():
     Update the database to add the win.
     Give the win to check it is not a hack.
     '''
-    print('*'*100)
+    # print('*'*100)
     word = request.args.get('word')
     guesses = int(request.args.get('guesses'))
     hints = int(request.args.get('hints'))

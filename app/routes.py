@@ -54,7 +54,7 @@ def index():
     puzzleNmber = get_puzzle_number()
     yesterday_list = get_history(puzzleNmber-1)
     winners_today = get_winners_today()
-    game_mode = "classique"
+    game_mode = "Classique"
 
     return render_template(
         'base.html', 

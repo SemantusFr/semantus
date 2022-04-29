@@ -538,7 +538,6 @@
                             updateGuessTable(word, score, 'newguess')
                         }
 
-                        guesses_since_last_hint+=1;
                         if (guesses_since_last_hint >= interval_between_guesses)
                         {
                             document.getElementById('hint-btn').value ='Indice !';
@@ -597,6 +596,7 @@
 
         bar.animate(value/1000); 
     }
+
     function guessRow(number, word, score, rowcls) {
         let progress = "";
         let cls = "";
@@ -640,6 +640,8 @@
         });
         sortTable(2)
         sortTable(2)
+
+
         
  
               
@@ -647,6 +649,7 @@
 
     function updateGuessTable(word, score, type) {   
 
+        let already_guessed = false;
         guessNumber += 1;
         // check if work alread guessed
         for (let entry of guesses) {
@@ -658,7 +661,18 @@
                 document.getElementById(`row_${number}`).classList.add(cls_newguess)
                 return
             }
+            if (oldword == word) 
+            {
+                already_guessed= true;
+            }
             
+        }
+
+        // only if it is a real word that was not already guessed
+        // increment the counter for hints
+        if (already_guessed == false) 
+        {
+            guesses_since_last_hint+=1;
         }
         
         add_new_guess(word, score, type);
@@ -689,7 +703,6 @@
         } 
         guesses_inner = guessRow(number, word, score, cls) + guesses_inner;
         // Update the html
-        // $('guesses').innerHTML = guesses_inner;
         document.getElementById("guesses").innerHTML = guesses_inner; 
 
     }
@@ -699,7 +712,7 @@
       
         if (type == 'newguess')
         {
-            type = 'guess;'
+            type = 'guess'
         }
         // add new guess to guesses array
         guesses.push([[word,type], guessNumber, score]);

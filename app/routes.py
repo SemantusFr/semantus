@@ -13,7 +13,6 @@ import sqlite3
 
 from app import app
 # from app.forms import SumbitForm
-from app import puzzleNmber
 from app.messages import get_message_from_score
 
 from pathlib import Path
@@ -23,11 +22,22 @@ STAT_DB_PATH = f"{Path(__file__).parent.parent}/stats.db"
 
 from hashlib import sha1
 
+puzzleNmber = 0
+
 def hash(s):
     h = sha1()
     h.update(s.encode("ascii"))
     hash = h.hexdigest()
     return hash
+
+def get_puzzle_number():
+    today = date.today()
+    day0 = date(*app.config['DAY0'])
+    delta_days = (today-day0).days
+    assert(delta_days > 0)
+    return delta_days
+    
+
 
 
 @app.route('/get_message')
@@ -37,10 +47,11 @@ def get_message():
     return jsonify(data)
 
 @app.route('/')
-def hello_world():
+def index():
     # form = SumbitForm()
     # print('*'*100)
-
+    global puzzleNmber
+    puzzleNmber = get_puzzle_number()
     yesterday_list = get_history(puzzleNmber-1)
 
     return render_template(

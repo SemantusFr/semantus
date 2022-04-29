@@ -167,10 +167,8 @@ def win():
 
 
             query = f"SELECT * FROM day{puzzleNmber}"
-            print(query)
             cur.execute(query)
             res = cur.fetchall()
-            print(res)
             data = {
                 'already_won':already_won,
                 'winners':get_winners_today()
@@ -199,7 +197,6 @@ def get_winners_today():
     total_winners = -1
     with con:
         query = f"SELECT COUNT(*) FROM day{puzzleNmber}"
-        print(query)
         cur.execute(query)
         res = cur.fetchall()
         total_winners = res[0][0] 
@@ -266,14 +263,11 @@ def check_word(day, word):
             else:
                 return 0
 
-    print('Checking if word exist')
     word_exists = does_word_exist(word)
     if not (word_exists):
         return -1
 
-    print('Getting score')
     score = get_score(word)
-    print(score)
     return score
 
 

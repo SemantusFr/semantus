@@ -95,7 +95,7 @@ def get_stat_hist():
     plt.tick_params(axis='both', which='major', labelsize=14)
     plt.xlabel(r'Score', fontsize = 18)
     plt.ylabel(r'Joueurs', fontsize = 18)
-    plt.xrange(0,1000)
+    plt.xlim([0, 1000])
     
     my_stringIObytes = io.BytesIO()
     # plt.savefig('test.png', format='png')

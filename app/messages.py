@@ -23,26 +23,27 @@ message_not_word = [
     "T'as pas un petit cousin de 6 ans qui peut te proposer des vrais mots&nbsp;?",
     "¿&nbsp;Hablas francés&nbsp;?",
     "ты говоришь по французски&nbsp;?",
-    "Demande des conseils d'orthographe à Trump."
+    "Demande des conseils d'orthographe à Trump.",
 ]
 
 messages_not_top1000 = [
     "Pas dans le top 1000, et pas top du tout",
     "Ce n'est pas dans le top 1000 (ni dans le top 1000000&nbsp;!)",
-    "Ouais mais en fait tu n'y est pas du tout...",
+    "Ouais mais en fait tu n'y es pas du tout...",
     "Sinon, t'as pas envie de vraiment essayer&nbsp;?",
-    "Oulalalala, tu y étais presque&nbsp;! À quelque milliers de place près c'était bon&nbsp;!",
+    "Oulalalala, tu y étais presque&nbsp;! À quelques milliers de places près c'était bon&nbsp;!",
     "Genre, ça n'a rien à voir&nbsp;!",
     "Alors là, je dis non&nbsp;!",
     "Mais clairement pas...",
     "Trop à l'ouest.",
     "Touche le fond mais creuse encore.",
     "Aussi logique que Macron à la fête de l'huma.",
-    "Tu est probablement doué·e à plein d'autres activités&nbsp;!",
+    "Tu es probablement doué·e à plein d'autres activités&nbsp;!",
     "Rien. n'a. voir.",
     "Essaie encore&nbsp;!",
     "Ouaaaaaaiiiiis, mais non.",
-    "On joue au même jeu là&nbsp;?"
+    "On joue au même jeu là&nbsp;?",
+    "Kamoulox&nbsp;!",
 ]
 
 message_success = [

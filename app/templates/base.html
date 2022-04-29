@@ -416,7 +416,7 @@
                 }
                 message += `<br>Tu as trouvé le mot <b>${word}</b> en <b>${nb_guesses} tentatives</b> et <b>${nb_hints} indices.</b>`;
 
-                winners.innerHTML += message;
+                winners.innerHTML = message;
             }
         );
     }

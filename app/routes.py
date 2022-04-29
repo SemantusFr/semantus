@@ -53,12 +53,14 @@ def index():
     global puzzleNmber
     puzzleNmber = get_puzzle_number()
     yesterday_list = get_history(puzzleNmber-1)
+    winners_today = get_winners_today()
 
     return render_template(
         'base.html', 
         puzzleNumber = puzzleNmber,
         yesterday_word = get_yesterday_word(),
         yesterday_list = yesterday_list,
+        winners_today = winners_today,
     )
 
 @app.route('/get_score')

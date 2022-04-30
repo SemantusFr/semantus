@@ -562,15 +562,6 @@
                                 })   
                             }
                         });;
-                        // bar.animate(score/1000).then(function() {alert('coucou');});  // Number from 0.0 to 1.0
-
-                        // alert(score)
-                        // if (score == 1000) {
-                        //     bar.setText('🤯');
-                        //     bar.text.style.fontSize = '3.5rem';
-                        // }
-                        
-
 
                         removeNewGuessClass();
                         
@@ -681,10 +672,7 @@
         // for (let entry of guesses) {
         guesses.forEach(function (entry, index, arr) {
             let [[word, type], number, score] = entry;
-            // alert(type);
             add_guess(number, word, score, type);
-            // guesses_inner += guessRow(number, word, score, cls_guess);
-            
         });
         // Update the html
         
@@ -791,7 +779,6 @@
     {
         table = document.getElementById("guesses_table");
         for (i = 1; i < (table.rows.length); i++) {
-            // alert(table.rows[i].classList);
             if (!table.rows[i].classList.contains(cls_hint))
             {
                 table.rows[i].classList.remove(cls_newguess)

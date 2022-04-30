@@ -316,7 +316,17 @@
 			// storage.removeItem("winState");
 			storage.setItem("puzzleNumber", puzzleNumber);
 		}
-    guesses_since_last_hint = storage.getItem("guesses_since_last_hint");
+    guesses_since_last_hint = parseInt(storage.getItem("guesses_since_last_hint"));
+    if (isNaN(guesses_since_last_hint)) {
+        guesses_since_last_hint = 0;
+    }
+
+    if (guesses_since_last_hint >= interval_between_hints) {
+        document.getElementById('hint-btn').classList.remove("disabled");
+        document.getElementById('hint-btn').value ='Indice !';
+    } else {
+        document.getElementById('hint-btn').value = `Indice dans ${interval_between_hints-guesses_since_last_hint} mots`;
+    }
 
     var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
         keyboard: false
@@ -357,8 +367,7 @@
 
     function add_hint(score)
     {
-        alert(score);
-        if (score < 999 )
+        if (score < 1000 )
         {
             $.getJSON(
                 '/get_hint',
@@ -370,7 +379,7 @@
                     // add_new_guess(word, score, 'hint');
                     updateGuessTable(word, score, 'hint');
                     guesses_since_last_hint = 0;
-                    document.getElementById('hint-btn').classList.add('disabled');//.prop("disabled", true);
+                    document.getElementById('hint-btn').classList.add('disabled');
                     document.getElementById('hint-btn').value = `Indice dans ${interval_between_hints-guesses_since_last_hint} mots`;
                 });
         }
@@ -449,7 +458,6 @@
 
         var btn = document.getElementById('go')
         var bar = ''
-        document.getElementById('hint-btn').value = `Indice dans ${interval_between_hints-guesses_since_last_hint} mots`;
         
 
         btn.addEventListener('click', function(){
@@ -570,7 +578,7 @@
                         
                         if (guesses_since_last_hint >= interval_between_hints)
                         {
-                            document.getElementById('hint-btn').classList.remove('disabled');//prop("disabled", false);
+                            document.getElementById('hint-btn').classList.remove('disabled');
                         }
                         // empty the input field
                         field.value = "";

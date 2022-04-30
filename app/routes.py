@@ -163,8 +163,10 @@ def win():
 @app.route('/get_hint')
 def get_hint():
     best_user_score = int(request.args.get('score'))
-    if best_user_score < 999:
-        data = {'hint_word': get_word_from_position(puzzleNmber, best_user_score+1)}
+    print("/"*100)
+    print(f"{best_user_score=}")
+    if best_user_score < 1000:
+        data = {'hint_word': get_word_from_position(puzzleNmber, best_user_score)}
     else:
         data = {}
     return jsonify(data)  
@@ -236,6 +238,8 @@ def check_word(day, word):
                 return 0
 
     def get_score(word):
+        print('--'*10)
+        print(f"{puzzleNmber=}")
         with con:
             query = f'select * from day{puzzleNmber} where word="{word}" collate nocase'
             check = cur.execute(query)

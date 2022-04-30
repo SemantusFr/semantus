@@ -312,9 +312,11 @@
 			// storage.removeItem("secret");
 			// storage.removeItem("ranking");
 			storage.removeItem("guesses");
+            storage.removeItem("guesses_since_last_hint");
 			// storage.removeItem("winState");
 			storage.setItem("puzzleNumber", puzzleNumber);
 		}
+    guesses_since_last_hint = storage.getItem("guesses_since_last_hint");
 
     var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
         keyboard: false
@@ -355,6 +357,7 @@
 
     function add_hint(score)
     {
+        alert(score);
         if (score < 999 )
         {
             $.getJSON(
@@ -387,6 +390,7 @@
         // storage.setItem("secret", secret);
         // storage.setItem("ranking", ranking);
         storage.setItem("guesses", JSON.stringify(guesses));
+        storage.setItem("guesses_since_last_hint", JSON.stringify(guesses_since_last_hint));
 
         // storage.setItem("day"+puzzleNumber, winState*guesses.length);
     }

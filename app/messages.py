@@ -89,5 +89,8 @@ messages_top1000 = [
     "Je crois que Martine à la compta a bientôt trouvé.",
     "Je dis oui, mais pas trop fort.",
     "Pas si mal.",
-    "Pourquoi bas.",
+    "Pourquoi pas.",
+    "Mouais.",
+    "Y a un vague lien...",
+    "Ça me dis vaguement quelque chose."
 ]

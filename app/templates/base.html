@@ -422,18 +422,20 @@
                 var winners = document.getElementById("winners-msg");
                 let nb_winners = result.winners;
                 let already_won = result.already_won;
+                let nb_points = result.nb_points;
                 let message = "";
                 if (result.already_won) {
-                    message += "Félicitation, mais tu as déjà gagné aujourd'hui !";
+                    message += "<h5>Félicitation, mais tu as déjà gagné aujourd'hui&nbsp;!</h5>";
                 } else {
                     if (nb_winners == 1)
                     {
-                        message += `${result.winners}<sup>er·e</sup>`
+                        text_winner = `${result.winners}<sup>er·e</sup>`
                     } else {
-                        message += `${result.winners}<sup>ème</sup>`
+                        text_winner = `${result.winners}<sup>ème</sup>`
                     }
-                    message += `Félicitation. Tu es la·le <bold>${nb_winners}</bold> joueur·se à avoir trouvé le mot aujourd'hui !`;
+                    message += `<h5>Félicitation. Tu es la·le <b>${text_winner}</b> joueur·se à avoir trouvé le mot aujourd'hui !</h5>`;
                 }
+                message += `<br><h5>Tu as obtenu un score de <b>${nb_points}</b>&nbsp;! (1000 est le max)</h5> `;
                 message += `<br>Tu as trouvé le mot <b>${word}</b> en <b>${nb_guesses} tentatives</b> et <b>${nb_hints} indices.</b>`;
 
                 winners.innerHTML = message;

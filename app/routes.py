@@ -69,7 +69,9 @@ def index():
     )
 
 def compute_points(guesses, hints):
-    return 1000 - guesses - HINT_PENALTY*hints
+    return 1000 - (guesses-1) - HINT_PENALTY*(hints-1)
+
+
 
 @app.route('/get_stat_hist.png')
 def get_stat_hist():
@@ -151,10 +153,16 @@ def win():
             query = f"SELECT * FROM day{puzzleNumber}"
             cur.execute(query)
             res = cur.fetchall()
+            nb_points = compute_points(guesses, hints) 
+
             data = {
                 'already_won':already_won,
-                'winners':get_winners_today()
+                'winners':get_winners_today(),
+                'nb_points':nb_points
             }
+            
+
+
             return jsonify(data)
     else:
         return jsonify({})

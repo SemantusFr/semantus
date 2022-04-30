@@ -432,7 +432,7 @@
                     } else {
                         message += `${result.winners}<sup>ème</sup>`
                     }
-                    message += `Félicitation. Tu es la·le <bold>${text_winners}</bold> joueur·se à avoir trouvé le mot aujourd'hui !`;
+                    message += `Félicitation. Tu es la·le <bold>${nb_winners}</bold> joueur·se à avoir trouvé le mot aujourd'hui !`;
                 }
                 message += `<br>Tu as trouvé le mot <b>${word}</b> en <b>${nb_guesses} tentatives</b> et <b>${nb_hints} indices.</b>`;
 
@@ -441,16 +441,7 @@
         );
     }
     
-    if (get_best_score() == 999) {
-        document.getElementById('hint-btn').value ="Plus d'indice pour toi !";
-        document.getElementById('hint-btn').classList.add("disabled");
-    }
-    else if (guesses_since_last_hint >= interval_between_hints) {
-        document.getElementById('hint-btn').classList.remove("disabled");
-        document.getElementById('hint-btn').value ='Indice !';
-    } else {
-        document.getElementById('hint-btn').value = `Indice dans ${interval_between_hints-guesses_since_last_hint} mots`;
-    }
+    update_hint_btn();
 
     // guesses = JSON.parse(storage.getItem("guesses"));
     // for (let [word, guessNumber, score, percentile]  of guesses)
@@ -586,17 +577,7 @@
                             updateGuessTable(word, score, 'newguess')
                         }
 
-                        if (guesses_since_last_hint >= interval_between_hints)
-                        {
-                            document.getElementById('hint-btn').value ='Indice !';
-                        } else {
-                            document.getElementById('hint-btn').value = `Indice dans ${interval_between_hints-guesses_since_last_hint} mots`;
-                        }
-                        
-                        if (guesses_since_last_hint >= interval_between_hints)
-                        {
-                            document.getElementById('hint-btn').classList.remove('disabled');
-                        }
+                        update_hint_btn();
                         // empty the input field
                         field.value = "";
                         focus();
@@ -612,6 +593,19 @@
         btn_hint.addEventListener('click', function(){
             add_hint(get_best_score()+1);
         });
+    }
+
+    function update_hint_btn() {
+        if (get_best_score() == 999) {
+            document.getElementById('hint-btn').value ="Plus d'indice pour toi !";
+            document.getElementById('hint-btn').classList.add("disabled");
+        }
+        else if (guesses_since_last_hint >= interval_between_hints) {
+            document.getElementById('hint-btn').classList.remove("disabled");
+            document.getElementById('hint-btn').value ='Indice !';
+        } else {
+            document.getElementById('hint-btn').value = `Indice dans ${interval_between_hints-guesses_since_last_hint} mots`;
+        }
     }
 
     function get_results(){

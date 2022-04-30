@@ -5,7 +5,44 @@
                 <p> <h4>Information</h4> </p>
                     </div>
             <div class="modal-body">
+                
                 <div class="accordion" id="accordionExample">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button bg-secondary text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            C'est quoi l'idée ?
+                        </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                        <div class="accordion-body bg-dark text-white">
+                            <strong>Distance entre les mots</strong> <br>
+                            Dans la discipline du <i>NLP</i> (natural language programming en anglais, 
+                            ou traitement du langage naturel), 
+                            sous discipline du machine learning qui traite du langage, 
+                            il est pratique de représenter les mots par des <i>vecteurs</i> de grande dimension. 
+                            Ces vecteurs ne représentent pas grand chose, mais la distance entre ces vecteurs 
+                            renseigne sur la proximités entre les mots. 
+                            On alors entraine un algorithme de deep learning sur une très grande base de donnée, 
+                            constitués d'une collection de texte d'un même langage (merci internet). 
+                            Le modèle ainsi entrainé permet d'associer à un mot un vecteur. 
+                            Des mots qui apparaissent souvent proches l'un de l'autre dans un texte vont être 
+                            représentés par des vecteurs ayant une distance proches. 
+                            Cela ne veux pas dire pour autant que les mots ont un sense proche ni mêmes 
+                            qu'ils font parti du même champ lexical !<br><br>
+                            <strong>Liste de mots</strong><br>
+                            Chaque jour, un mot est choisi, et on trouve la liste des 1000 mots les plus proches 
+                            dans le modèle. 
+                            On vous donne pour commencer le mot le plus éloigné de cette liste 
+                            et vous devez proposer des mots en espérant vous approcher du mot caché. 
+                            Le cheminement n'est pas forcént linéaire et peut même semblé illogique, 
+                            mais c'est la base de donnée d'entrainement utilisée qui présente des rapprochement 
+                            entre les différents mots qui guide la classement.
+                            
+
+                        </div>
+                    </div>
+                </div>
+
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingOne">
                         <button class="accordion-button bg-secondary text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
@@ -37,23 +74,27 @@
                                     L'emoji 🤔 s'affiche. Le mot n'est pas rajouté à la liste.
                                 </li>
                                
-                              </ul>
+                              </ul><br>
+
+                              <strong>Indices</strong><br>
+                              Toutes les 5 tentatives (nouveaux mots uniquement), tu as le droit à un nouvel indice. 
+                              Le mot sera à la position juste au dessus de ton meilleur mot. 
+                              Donc si ton meilleurs mot est à la position 498, 
+                              tu recevras le mot 499.<br><br>
+
+                              <strong>Score</strong><br>
+                              Lorsque tu trouves le mot, on calcule ton score en fonction du nombre de tentatives et
+                              du nombre d'indices que tu as reçu. 
+                              Tu pars à 1000 points et tu pers un point par tentative (sauf la première qui est gratuite) 
+                              et 5 points par indice (sauf l'indice de départ qui est gratuit aussi).
+                        </div>
+                        </div>
+                    </div>
+
+
+                    
                         
-                        </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingTwo">
-                        <button class="accordion-button bg-secondary text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                            Accordion Item #2
-                        </button>
-                        </h2>
-                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-                        <div class="accordion-body bg-dark text-white">
-                            <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-                        </div>
-                        </div>
-                    </div>
+                    
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingThree">
                         <button class="accordion-button bg-secondary text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
@@ -62,8 +103,8 @@
                         </h2>
                         <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
                         <div class="accordion-body bg-dark text-white">
-                            <strong>This is the third item's accordion body.</strong> 
-                            It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                            <strong>PROUT</strong> 
+                            
                         </div>
                         </div>
                     </div>

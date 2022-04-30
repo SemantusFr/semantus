@@ -292,6 +292,9 @@
 
     <!-- Pop-up Win-->
     {% include '_popup_win.html' %}
+
+    <!-- Pop-up for messages (warnings, etc.)-->
+    {% include '_popup_message.html' %}
     
     
     <script>
@@ -321,18 +324,17 @@
         guesses_since_last_hint = 0;
     }
 
-    if (guesses_since_last_hint >= interval_between_hints) {
-        document.getElementById('hint-btn').classList.remove("disabled");
-        document.getElementById('hint-btn').value ='Indice !';
-    } else {
-        document.getElementById('hint-btn').value = `Indice dans ${interval_between_hints-guesses_since_last_hint} mots`;
-    }
+    
 
     var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
         keyboard: false
     })
 
-    function sleep(milliseconds) {  
+    var modal_message = new bootstrap.Modal(document.getElementById('popup_msg'), {
+        keyboard: false
+        })
+
+        function sleep(milliseconds) {  
       return new Promise(resolve => setTimeout(resolve, milliseconds));  
     }  
 
@@ -382,6 +384,11 @@
                     document.getElementById('hint-btn').classList.add('disabled');
                     document.getElementById('hint-btn').value = `Indice dans ${interval_between_hints-guesses_since_last_hint} mots`;
                 });
+        } else 
+        {
+            document.getElementById('popup-header-msg').innerHTML = "Bien tenté !"
+            document.getElementById('popup-msg').innerHTML = "Plus d'indice pour toi&nbsp;! Tu es tombé dedans quand tu étais petit."
+            modal_message.show();
         }
     }
     
@@ -434,6 +441,16 @@
         );
     }
     
+    if (get_best_score() == 999) {
+        document.getElementById('hint-btn').value ="Plus d'indice pour toi !";
+        document.getElementById('hint-btn').classList.add("disabled");
+    }
+    else if (guesses_since_last_hint >= interval_between_hints) {
+        document.getElementById('hint-btn').classList.remove("disabled");
+        document.getElementById('hint-btn').value ='Indice !';
+    } else {
+        document.getElementById('hint-btn').value = `Indice dans ${interval_between_hints-guesses_since_last_hint} mots`;
+    }
 
     // guesses = JSON.parse(storage.getItem("guesses"));
     // for (let [word, guessNumber, score, percentile]  of guesses)

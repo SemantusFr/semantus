@@ -377,7 +377,6 @@
                 },
                 function(result){
                     word = result.hint_word;
-                    // add_new_guess(word, score, 'hint');
                     updateGuessTable(word, score, 'hint');
                     createCircularProgressBar(score);
                     guesses_since_last_hint = 0;
@@ -641,7 +640,7 @@
 
         let already_guessed = false;
         guessNumber += 1;
-        // check if work alread guessed
+        // check if work already guessed
         for (let entry of guesses) {
             let [[oldword, type], number, score] = entry;
             if (oldword == word && type == 'guess') 
@@ -664,9 +663,10 @@
         if (already_guessed == false) 
         {
             guesses_since_last_hint+=1;
+            add_new_guess(word, score, type);
         }
         
-        add_new_guess(word, score, type);
+        
        
         if (score == 0)
         {

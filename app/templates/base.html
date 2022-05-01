@@ -361,7 +361,7 @@
                     word = result.hint_word;
                     guessNumber = 0;
                     updateGuessTable(word, 1, 'hint');
-                    createCircularProgressBar(score);
+                    createCircularProgressBar(1);
                 });
             }
     }
@@ -639,16 +639,20 @@
     function updateGuessTable(word, score, type) {   
 
         let already_guessed = false;
-        guessNumber += 1;
+        
         // check if work already guessed
         for (let entry of guesses) {
             let [[oldword, type], number, score] = entry;
             if (oldword == word && type == 'guess') 
             // if word already guessed, simply highlight the word in the table
             {
-                guessNumber -= 1;
+                
                 document.getElementById(`row_${number}`).classList.remove(cls_guess)
                 document.getElementById(`row_${number}`).classList.add(cls_newguess)
+
+                firstRow = document.getElementById("guesses_table").rows[0];
+                oldRow = document.getElementById("guesses_table")
+                // rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
                 return
             }
             if (oldword == word) 
@@ -662,6 +666,7 @@
         // increment the counter for hints
         if (already_guessed == false) 
         {
+            guessNumber += 1;
             guesses_since_last_hint+=1;
             add_new_guess(word, score, type);
         }
@@ -792,6 +797,11 @@
             }
         });;
         return bar;
+    }
+
+    function switchRows(ind1, ind2) {
+        rows = document.getElementById("guesses_table").rows;
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
     }
 
     function sortTable(n) {

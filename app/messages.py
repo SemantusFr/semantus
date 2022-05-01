@@ -1,7 +1,11 @@
 from random import choice
 
-def get_message_from_score(score):
-    if score == 1000:
+def get_message_from_score(score, word_type):
+    if word_type == 'hint':
+        return choice(message_indice)
+    elif word_type == 'already_guessed':
+        return choice(message_already_guessed)
+    elif score == 1000:
         return choice(message_success)
     elif score > 990:
         return choice(messages_top10)
@@ -11,8 +15,25 @@ def get_message_from_score(score):
         return choice(messages_top1000)
     elif score == 0:
         return choice(messages_not_top1000)
-    else:
+    elif score == -1:
         return choice(message_not_word)
+    else:
+        return ""
+
+message_indice = [
+    "Aller, cadeau&nbsp;!",
+    "C'est mieux avec ça&nbsp;?",
+    "Je ne vais pas faire tout le boulot&nbsp;!",
+    "Encore un indice&nbsp;!",
+    "Tu ne peux la jouer tout seul commeun grand&nbsp;?",
+]
+
+message_already_guessed = [
+    "Encore&nbsp;?",
+    "Déja tenté...",
+    "Tu pers la mémoires&nbsp;?",
+    "Même cause, même effet...",
+]
 
 message_not_word = [
     "C'est du du Polonais&nbsp;?",

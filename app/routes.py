@@ -46,7 +46,10 @@ def get_puzzle_number():
 @app.route('/get_message')
 def get_message():
     score = int(request.args.get('score'))
-    data = {'message': get_message_from_score(score)}
+    word_type = request.args.get('type')
+    print('/'*100)
+    print(word_type)
+    data = {'message': get_message_from_score(score, word_type)}
     return jsonify(data)
 
 @app.route('/')

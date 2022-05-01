@@ -358,11 +358,10 @@
                     score: 1
                 },
                 function(result){
-                    
                     word = result.hint_word;
                     guessNumber = 0;
                     updateGuessTable(word, 1, 'hint');
-                    // add_new_guess(word, 1, 'hint');
+                    createCircularProgressBar(score);
                 });
             }
     }
@@ -380,6 +379,7 @@
                     word = result.hint_word;
                     // add_new_guess(word, score, 'hint');
                     updateGuessTable(word, score, 'hint');
+                    createCircularProgressBar(score);
                     guesses_since_last_hint = 0;
                     document.getElementById('hint-btn').classList.add('disabled');
                     document.getElementById('hint-btn').value = `Indice dans ${interval_between_hints-guesses_since_last_hint} mots`;
@@ -499,69 +499,7 @@
                                 score_message.innerHTML = message;
                             });
 
-                        bar = new ProgressBar.Circle(progress, {
-                            // color: '#aaa',
-                            // This has to be the same size as the maximum width to
-                            // prevent clipping
-                            strokeWidth: 10,
-                            trailWidth: 2,
-                            easing: 'easeInOut',
-                            duration: 1400,
-                            text: {
-                                autoStyleContainer: true
-                            },
-                            from: { color: cold_color, width: 10 },
-                            to: { color: hot_color, width: 10 },
-                            // Set default step function for all animate calls
-                            step: function(state, circle) {
-                                circle.path.setAttribute('stroke', state.color);
-                                circle.path.setAttribute('stroke-width', state.width);
-
-                                var value = Math.round(circle.value()*1000)/10;
-                                if (score == 0)
-                                {
-                                    circle.setText('💩');
-                                } else if (score <= 0) {
-                                    circle.setText('🤔');//
-                                }  else {
-                                    if (value > 99.9)
-                                    {
-                                        circle.text.style.fontSize = '3.5rem';
-                                        circle.setText('🤯');
-                                    } else {
-                                        circle.setText(value + '%');
-                                    }
-                                    
-                                }
-                                circle.text.style.color = state.color;
-        
-                            }
-                            });
-
-                        bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
-                        // bar.text.setText
-                        
-                        // for emojis
-                        
-
-                        if (score <= 0){
-                            bar.text.style.fontSize = '3.5rem';
-                        } else {
-                            bar.text.style.fontSize = '2.5rem';
-                        }
-                    
-                        async function animate(score)
-                        {
-                            await bar.animate(score/1000)
-                        }
-
-                        animate(score).then(function() {     
-                            if (score == 1000){
-                                sleep(2000).then(() => {
-                                    win(word);
-                                })   
-                            }
-                        });;
+                        createCircularProgressBar(score)
 
                         removeNewGuessClass();
                         
@@ -794,6 +732,66 @@
                 table.rows[i].classList.add(cls_guess)
             }  
         }
+    }
+
+    function createCircularProgressBar(score) {
+        bar = new ProgressBar.Circle(progress, {
+            strokeWidth: 10,
+            trailWidth: 2,
+            easing: 'easeInOut',
+            duration: 1400,
+            text: {
+                autoStyleContainer: true
+            },
+            from: { color: cold_color, width: 10 },
+            to: { color: hot_color, width: 10 },
+            // Set default step function for all animate calls
+            step: function(state, circle) {
+                circle.path.setAttribute('stroke', state.color);
+                circle.path.setAttribute('stroke-width', state.width);
+
+                var value = Math.round(circle.value()*1000)/10;
+                if (score == 0)
+                {
+                    circle.setText('💩');
+                } else if (score <= 0) {
+                    circle.setText('🤔');//
+                }  else {
+                    if (value > 99.9)
+                    {
+                        circle.text.style.fontSize = '3.5rem';
+                        circle.setText('🤯');
+                    } else {
+                        circle.setText(value + '%');
+                    }
+                    
+                }
+                circle.text.style.color = state.color;
+
+            }
+            });
+        bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+
+        // for emojis
+        if (score <= 0){
+            bar.text.style.fontSize = '3.5rem';
+        } else {
+            bar.text.style.fontSize = '2.5rem';
+        }
+    
+        async function animate(score)
+        {
+            await bar.animate(score/1000)
+        }
+
+        animate(score).then(function() {     
+            if (score == 1000){
+                sleep(1600).then(() => {
+                    win(word);
+                })   
+            }
+        });;
+        return bar;
     }
 
     function sortTable(n) {

@@ -11,7 +11,7 @@ params = {"ytick.color" : "w",
           "axes.edgecolor" : "w"}
 plt.rcParams.update(params)
 
-def get_hist_image(data_points, user_points = 400):
+def get_hist_image(data_points, user_points):
 
     # plt.figure(figsize = (6,5))
     # sns.histplot(data=data_points, element="step")
@@ -36,7 +36,7 @@ def get_hist_image(data_points, user_points = 400):
         dx = ax.get_xlim()[1]-ax.get_xlim()[0]
         dy = ax.get_ylim()[1]-ax.get_ylim()[0]
 
-        ind = 400
+        ind = user_points
         lenArrow = dy/2
         lenHead = lenArrow/4
         wiArrow = dx/20

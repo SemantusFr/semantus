@@ -290,17 +290,18 @@
     <!-- Pop-up Show Previous Related Words-->
     {% include '_popup_history.html' %}
 
-    <!-- Pop-up Win-->
-    {% include '_popup_win.html' %}
-
     <!-- Pop-up for messages (warnings, etc.)-->
     {% include '_popup_message.html' %}
+
+    <!-- Pop-up Win-->
+    {% include '_popup_win.html' %}
     
     
     <script>
 
     let initalized = 0;
     let guesses_since_last_hint = 0;
+    let already_won = false;
     const interval_between_hints = 5;
     const storage = window.localStorage;
     const cold_color = '#ee0000';
@@ -338,6 +339,11 @@
         keyboard: false
     })
 
+    var modal_info = new bootstrap.Modal(document.getElementById('popup_info'), {
+        keyboard: false
+    })
+    
+
     var modal_message = new bootstrap.Modal(document.getElementById('popup_msg'), {
         keyboard: false
         })
@@ -346,7 +352,7 @@
       return new Promise(resolve => setTimeout(resolve, milliseconds));  
     }  
 
-    
+   
 
     let guesses = JSON.parse(storage.getItem("guesses"));
     if (guesses == null){
@@ -354,6 +360,30 @@
     }
     let guessNumber = guesses.length;  
     createGuessTable()
+
+    /**
+     * from https://andywalpole.me/blog/140739/using-javascript-create-guid-from-users-browser-information
+     * @function _guid
+     * @description Creates GUID for user based on several different browser variables
+     * It will never be RFC4122 compliant but it is robust
+     * @returns {Number}
+     * @private
+     */
+    // I DO NOT STORE THIS, I HASH IT AND STORE THAT
+    function get_user_id() {
+
+        var nav = window.navigator;
+        var screen = window.screen;
+        var guid = nav.mimeTypes.length;
+        guid += nav.userAgent.replace(/\D+/g, '');
+        guid += nav.plugins.length;
+        guid += screen.height || '';
+        guid += screen.width || '';
+        guid += screen.pixelDepth || '';
+
+        return guid;
+    };
+
     
 
     async function add_hint_at_start()
@@ -418,14 +448,17 @@
         // storage.setItem("day"+puzzleNumber, winState*guesses.length);
     }
 
+    
     function win(word) 
     {
         let [nb_guesses, nb_hints] = get_results();
         modal_win.show();
+
         $.getJSON(
             '/win',
-            $.param({ word: word, guesses: nb_guesses, hints: nb_hints}, true),
+            $.param({ word: word, guesses: nb_guesses, hints: nb_hints, user_id: get_user_id()}, true),
             function(result){
+                
                 var winners = document.getElementById("winners-msg");
                 let nb_winners = result.winners;
                 let already_won = result.already_won;
@@ -444,7 +477,8 @@
                 }
                 message += `<br><h5>Tu as obtenu un score de <b>${nb_points}</b>&nbsp;! (1000 est le max)</h5> `;
                 message += `<br>Tu as trouvé le mot <b>${word}</b> en <b>${nb_guesses} tentatives</b> et <b>${nb_hints} indices.</b>`;
-
+                
+                document.getElementById("hist-winners-user").src = `/get_stat_hist_${nb_points}.png`
                 winners.innerHTML = message;
             }
         );
@@ -494,7 +528,22 @@
 
                         updateWordMessage(score, "guess");
 
-                        createCircularProgressBar(score);
+                        // createCircularProgressBar(score).then(function() {     
+                        //     if (score == 1000){
+                        //         sleep(1600).then(() => {
+                        //             win(word);
+                        //         })   
+                        //     }
+                        // });
+
+                        
+                        createCircularProgressBar(score) 
+                        if (score == 1000){
+                            sleep(1600).then(() => {
+                                win(word);
+                            })   
+                        }
+                        
 
                         removeNewGuessClass();
                         
@@ -825,14 +874,9 @@
             await bar.animate(score/1000)
         }
 
-        animate(score).then(function() {     
-            if (score == 1000){
-                sleep(1600).then(() => {
-                    win(word);
-                })   
-            }
-        });;
-        return bar;
+        animate(score);
+
+        return Promise.resolve("Success");
     }
 
     function switchRows(ind1, ind2) {

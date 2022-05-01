@@ -75,25 +75,32 @@ def compute_points(guesses, hints):
     return 1000 - (guesses-1) - HINT_PENALTY*(hints-1)
 
 
-
 @app.route('/get_stat_hist.png')
 def get_stat_hist():
+    return _get_stat_hist(None)
 
-    print('**'*100)
-    print(get_puzzle_number())
 
+@app.route('/get_stat_hist_<int:user_points>.png')
+def get_stat_hist_user(user_points):
+    return _get_stat_hist(user_points)
+
+def _get_stat_hist(user_points):
+    # user_points = request.args.get('user_points')
+    # user_points = 0 if user_points == None else user_points
     con = sqlite3.connect(STAT_DB_PATH)
     con.execute("PRAGMA journal_mode=WAL")
     cur = con.cursor()
     query = f"SELECT * FROM day{get_puzzle_number()}"
     cur.execute(query)
     res = cur.fetchall()
+    print(res)
 
-    data = [[nb_guesses, nb_hints] for _, nb_guesses, nb_hints in res]
+    data_points = list(zip(*res))[-1]
+    # data = [[nb_guesses, nb_hints] for _,_,_, nb_guesses, nb_hints, nb_points in res]
     # data_guesses, data_hints, data_points = list(zip(*data))
-    data_points = [compute_points(x,y) for x,y in data]
-    print(data)
-    return get_hist_image(data_points)
+    # data_points = [compute_points(x,y) for x,y in data]
+    # print(data)
+    return get_hist_image(data_points, user_points)
 
 
 @app.route('/get_score')
@@ -110,9 +117,6 @@ def get_hash_client_ip():
     Hash to preserve privacy.
     '''
     ip_addr = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
-    print('-'*100)
-    print(hash(ip_addr))
-    print(hash(ip_addr))
     return hash(ip_addr)
 
 @app.route('/win')
@@ -125,39 +129,47 @@ def win():
     word = request.args.get('word')
     guesses = int(request.args.get('guesses'))
     hints = int(request.args.get('hints'))
+    user_id = request.args.get('user_id')
 
     # check if really a win 
     if (word == get_today_word()):     
         ip_hash = get_hash_client_ip()
+        user_hash = hash(user_id)
+        unique_hash = ip_hash+user_hash
         con = sqlite3.connect(STAT_DB_PATH)
         con.execute("PRAGMA journal_mode=WAL")
         cur = con.cursor()
         con.commit()
-        cur.execute(f"create table if not exists day{puzzleNumber} (hash_user_ip TEXT PRIMARY KEY, guesses INT, hints INT)")
+        query = f"create table if not exists day{puzzleNumber}"
+        query += "(unique_hash TEXT PRIMARY KEY, ip_hash TEXT, user_hash TEXT, guesses INT, hints INT, points INT)"
+        cur.execute(query)
         con.commit()
+        print(query)
+        print('P'*100)
 
-        
+        nb_points = compute_points(guesses, hints) 
+
         already_won = False
         # check if the same user alread won
         with con:
-            query = f'SELECT * FROM day{puzzleNumber} WHERE hash_user_ip = "{ip_hash}"'
+            query = f'SELECT * FROM day{puzzleNumber} WHERE unique_hash = "{unique_hash}"'
             cur.execute(query)
             res = cur.fetchall()
             if len(res) > 0:
                 already_won = True
             else:
                 with con:
-                    query = f"""insert into day{puzzleNumber} (hash_user_ip, guesses, hints)
-                             values (\"{ip_hash}\", {guesses}, {hints})"""
+                    query = f"insert into day{puzzleNumber} (unique_hash, ip_hash, user_hash, guesses, hints, points)"
+                    query += f"values (\"{unique_hash}\", \"{ip_hash}\", \"{user_hash}\", {guesses}, {hints}, {nb_points})"""
                     cur.execute(query)
                     con.commit()
+                    
 
 
             query = f"SELECT * FROM day{puzzleNumber}"
             cur.execute(query)
             res = cur.fetchall()
-            nb_points = compute_points(guesses, hints) 
-
+            
             data = {
                 'already_won':already_won,
                 'winners':get_winners_today(),
@@ -185,7 +197,7 @@ def get_winners_today():
     con = sqlite3.connect(STAT_DB_PATH)
     con.execute("PRAGMA journal_mode=WAL")
     cur = con.cursor()
-    cur.execute(f"create table if not exists day{puzzleNumber} (hash_user_ip INT PRIMARY KEY, guesses INT, hints INT)")
+    cur.execute(f"create table if not exists day{puzzleNumber} (ip_hash INT PRIMARY KEY, guesses INT, hints INT)")
     con.commit()
     total_winners = -1
     with con:

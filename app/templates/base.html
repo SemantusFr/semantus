@@ -643,23 +643,24 @@
         // check if work already guessed
         for (let entry of guesses) {
             let [[oldword, type], number, score] = entry;
-            if (oldword == word && type == 'guess') 
-            // if word already guessed, simply highlight the word in the table
-            {
-                
-                document.getElementById(`row_${number}`).classList.remove(cls_guess)
-                document.getElementById(`row_${number}`).classList.add(cls_newguess)
-
-                firstRow = document.getElementById("guesses_table").rows[0];
-                oldRow = document.getElementById("guesses_table")
-                // rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                return
-            }
             if (oldword == word) 
+            // if word already guessed 
             {
                 already_guessed = true;
-            }
-            
+                oldRow = document.getElementById(`row_${number}`)
+
+                if (type == 'guess')
+                {
+                    // highlight the word in the table
+                    oldRow.classList.remove(cls_guess)
+                    oldRow.classList.add(cls_newguess)
+                }
+
+                // put it back to first place
+                rows = document.getElementById("guesses_table").rows;
+                rows[1].parentNode.insertBefore(oldRow, rows[1]);
+                return
+            }           
         }
 
         // only if it is a real word that was not already guessed

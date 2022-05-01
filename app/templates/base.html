@@ -186,14 +186,14 @@
                     <div class="card-body">
                         <!-- <h5 class="card-title">Instructions</h5> -->
                         <p class="card-title">
-                            Commencez avec le 1000<sup>ème</sup> mot le plus proche et fais ton chemin justqu'au mot caché.<br>
+                            Commence avec le 1000<sup>ème</sup> mot le plus proche et fais ton chemin jusqu'au mot caché.<br>
 
                             {% if winners_today == 0 %}
-                                <bold>Aucun</bold> joueur n'a
+                                <bold>Aucun·e</bold> joueur·euse n'a
                             {% elif winners_today == 1 %}
-                                <bold>Un seul</bold> joueur a  
+                                <bold>Un seul</bold> joueur·euse a  
                             {% else %}
-                                <bold>{{winners_today}}</bold> joueurs ont déjà 
+                                <bold>{{winners_today}}</bold> joueurs·euses ont déjà 
                             {% endif %}
                             trouvé le mot du jour.
                         <!-- <h5 class="card-title">Hier</h5> -->
@@ -482,23 +482,11 @@
 
                         let score = result.score;                
                         // Destroy the previous bar first (if any)
-                        try {
-                            bar.destroy()
-                        }
-                        catch {
-                            
-                        }
+                        
 
-                        $.getJSON(
-                            '/get_message',
-                            $.param({ score: score}, true),
-                            function(result){
-                                let message = result.message;
-                                let score_message = document.getElementById("score_message");
-                                score_message.innerHTML = message;
-                            });
+                        updateWordMessage(score, "guess");
 
-                        createCircularProgressBar(score)
+                        createCircularProgressBar(score);
 
                         removeNewGuessClass();
                         
@@ -523,6 +511,18 @@
         btn_hint.addEventListener('click', function(){
             add_hint(get_best_score()+1);
         });
+    }
+
+    function updateWordMessage(score, type)
+    {
+        $.getJSON(
+            '/get_message',
+            $.param({ score: score, type: type}, true),
+            function(result){
+                let message = result.message;
+                let score_message = document.getElementById("score_message");
+                score_message.innerHTML = message;
+            });
     }
 
     function update_hint_btn() {
@@ -638,6 +638,9 @@
 
     function updateGuessTable(word, score, type) {   
 
+        sortTable(2)
+        sortTable(2)
+
         let already_guessed = false;
         
         // check if work already guessed
@@ -649,29 +652,33 @@
                 already_guessed = true;
                 oldRow = document.getElementById(`row_${number}`)
 
+                // put it back to first place
+                rows = document.getElementById("guesses_table").rows;
+                rows[1].parentNode.insertBefore(oldRow, rows[1]);
+
                 if (type == 'guess')
                 {
                     // highlight the word in the table
                     oldRow.classList.remove(cls_guess)
                     oldRow.classList.add(cls_newguess)
-                }
+                    
+                }   
+                let score_message = document.getElementById("score_message");
+                score_message.innerHTML = "";  
 
-                // put it back to first place
-                rows = document.getElementById("guesses_table").rows;
-                rows[1].parentNode.insertBefore(oldRow, rows[1]);
-                return
+                // update message for already guessed word (-2)
+                updateWordMessage(score, 'already_guessed');
+                return;
             }           
         }
 
         // only if it is a real word that was not already guessed
         // increment the counter for hints
-        if (already_guessed == false) 
-        {
-            guessNumber += 1;
-            guesses_since_last_hint+=1;
-            add_new_guess(word, score, type);
-        }
-        
+
+        guessNumber += 1;
+        guesses_since_last_hint+=1;
+        addNewGuess(word, score, type);
+
         
        
         if (score == 0)
@@ -684,13 +691,12 @@
 
         if (type == 'hint')
         {
-            let score_message = document.getElementById("score_message");
-            score_message.innerHTML = "";
+            // update message for hint (-3)
+            updateWordMessage(score, type);
         }
         
 
-        sortTable(2)
-        sortTable(2)
+        
         
     }
     
@@ -712,7 +718,7 @@
 
     }
 
-    function add_new_guess(word, score, type) {
+    function addNewGuess(word, score, type) {
         add_guess(guessNumber, word, score, type)
       
         if (type == 'newguess')
@@ -741,6 +747,12 @@
     }
 
     function createCircularProgressBar(score) {
+        try {
+            bar.destroy()
+        }
+        catch {
+            // do nothing
+        }
         bar = new ProgressBar.Circle(progress, {
             strokeWidth: 10,
             trailWidth: 2,

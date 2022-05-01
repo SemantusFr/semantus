@@ -707,6 +707,7 @@
         for (let entry of guesses) {
             let [[oldword, type], number, score] = entry;
             if (oldword == word && type == 'guess') 
+            // if word already guessed, simply highlight the word in the table
             {
                 guessNumber -= 1;
                 document.getElementById(`row_${number}`).classList.remove(cls_guess)
@@ -715,7 +716,7 @@
             }
             if (oldword == word) 
             {
-                already_guessed= true;
+                already_guessed = true;
             }
             
         }
@@ -728,7 +729,7 @@
         }
         
         add_new_guess(word, score, type);
-        
+       
         if (score == 0)
         {
             document.getElementById(`bar_${guessNumber}`).innerHTML = "💩"
@@ -736,6 +737,14 @@
         else{
             progressBar(guessNumber, score)
         }
+
+        if (type == 'hint')
+        {
+            let score_message = document.getElementById("score_message");
+            score_message.innerHTML = "";
+        }
+        
+
         sortTable(2)
         sortTable(2)
         

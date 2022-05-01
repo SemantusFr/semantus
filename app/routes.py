@@ -47,15 +47,11 @@ def get_puzzle_number():
 def get_message():
     score = int(request.args.get('score'))
     word_type = request.args.get('type')
-    print('/'*100)
-    print(word_type)
     data = {'message': get_message_from_score(score, word_type)}
     return jsonify(data)
 
 @app.route('/')
 def index():
-    # form = SumbitForm()
-    # print('*'*100)
     global puzzleNumber
     puzzleNumber = get_puzzle_number()
     yesterday_list = get_history(puzzleNumber-1)
@@ -67,8 +63,9 @@ def index():
         puzzleNumber = puzzleNumber,
         yesterday_word = get_yesterday_word(),
         yesterday_list = yesterday_list,
+        winners_yesterday = get_winners(puzzleNumber-1),
         winners_today = winners_today,
-        game_mode = game_mode
+        game_mode = game_mode,
     )
 
 def compute_points(guesses, hints):
@@ -93,13 +90,8 @@ def _get_stat_hist(user_points):
     query = f"SELECT * FROM day{get_puzzle_number()}"
     cur.execute(query)
     res = cur.fetchall()
-    print(res)
 
     data_points = list(zip(*res))[-1]
-    # data = [[nb_guesses, nb_hints] for _,_,_, nb_guesses, nb_hints, nb_points in res]
-    # data_guesses, data_hints, data_points = list(zip(*data))
-    # data_points = [compute_points(x,y) for x,y in data]
-    # print(data)
     return get_hist_image(data_points, user_points)
 
 
@@ -108,7 +100,6 @@ def get_score():
     word = request.args.get('word')
 
     data = {'score': check_word(1, word)}
-    # print(data["error"])
     return jsonify(data)
 
 def get_hash_client_ip():
@@ -125,7 +116,7 @@ def win():
     Update the database to add the win.
     Give the win to check it is not a hack.
     '''
-    # print('*'*100)
+
     word = request.args.get('word')
     guesses = int(request.args.get('guesses'))
     hints = int(request.args.get('hints'))
@@ -144,8 +135,6 @@ def win():
         query += "(unique_hash TEXT PRIMARY KEY, ip_hash TEXT, user_hash TEXT, guesses INT, hints INT, points INT)"
         cur.execute(query)
         con.commit()
-        print(query)
-        print('P'*100)
 
         nb_points = compute_points(guesses, hints) 
 
@@ -194,21 +183,21 @@ def get_hint():
 
 @app.route('/get_winners')
 def get_winners_today():
+    return get_winners(puzzleNumber)
+
+def get_winners(day):
     con = sqlite3.connect(STAT_DB_PATH)
     con.execute("PRAGMA journal_mode=WAL")
     cur = con.cursor()
-    cur.execute(f"create table if not exists day{puzzleNumber} (ip_hash INT PRIMARY KEY, guesses INT, hints INT)")
+    cur.execute(f"create table if not exists day{day} (ip_hash INT PRIMARY KEY, guesses INT, hints INT)")
     con.commit()
     total_winners = -1
     with con:
-        query = f"SELECT COUNT(*) FROM day{puzzleNumber}"
+        query = f"SELECT COUNT(*) FROM day{day}"
         cur.execute(query)
         res = cur.fetchall()
         total_winners = res[0][0] 
     return total_winners
-    # data = {'total_winners': total_winners}
-
-    # return jsonify(data)
 
 def get_today_word():
     return get_word_from_position(puzzleNumber, 1000)

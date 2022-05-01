@@ -1,19 +1,19 @@
 <div id="popup_info" class="modal">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
             <div class="modal-header text-center">
                 <p> <h4>Information</h4> </p>
                     </div>
             <div class="modal-body">
                 
-                <div class="accordion" id="accordionExample">
+                <div class="accordion" id="accordion-info">
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingTwo">
                         <button class="accordion-button bg-secondary text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                             C'est quoi l'idée ?
                         </button>
                         </h2>
-                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordion-info">
                         <div class="accordion-body bg-dark text-white">
                             <strong>Distance entre les mots</strong> <br>
                             Dans la discipline du <i>NLP</i> (natural language programming en anglais, 
@@ -49,7 +49,7 @@
                             Comment ça marche ?
                         </button>
                         </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordion-info">
                         <div class="accordion-body bg-dark text-white">
                             <strong>Taper votre mot et cliquez sur le bouton.</strong> 
                             Il y a alors quatre possibilités :
@@ -89,11 +89,7 @@
                               et 5 points par indice (sauf l'indice de départ qui est gratuit aussi).
                         </div>
                         </div>
-                    </div>
-
-
-                    
-                        
+                    </div>         
                     
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingThree">
@@ -101,10 +97,24 @@
                             Crédits
                         </button>
                         </h2>
-                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
                         <div class="accordion-body bg-dark text-white">
-                            <strong>PROUT</strong> 
-                            
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordion-info">
+                            Ce jeu est très largement inspiré de <a href="https://cemantix.herokuapp.com/">Cémantix</a> 
+                            par <a href="https://twitter.com/enigmathix">enigmatix</a>, 
+                            qui lui même est inspiré de
+                            <a href="https://semantle.novalis.org/">Semantle</a> (en langue anglaise)
+                            par <a href="https://gitlab.com/novalis_dt/semantle">David Turner</a>. 
+                            Comme Cémantix, il utilise les données générées par 
+                            <a href="https://fauconnier.github.io/#data">Jean-Philippe Fauconnier</a>.<br><br>
+                            <strong>Mais alors, pourquoi faire un autre jeu ?</strong><br>
+                            L'idée est d'avoir un jeu plus rapide et surtout de ne pas être bloqué 
+                            lorsque l'on tombe dans un champ sémantique qui, 
+                            par le hasard des bases de données, 
+                            se retrouve assez éloigné du mot caché. 
+                            L'utilisation d'indices est censé palier à cela, mais je suis ouvert 
+                            à toute idée ou critique sur ce sujet.
+                            <br>
+                        </div>
                         </div>
                         </div>
                     </div>

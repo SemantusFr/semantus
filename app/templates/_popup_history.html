@@ -1,39 +1,37 @@
 <div id="popup_history" class="modal">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Mot d'hier: <strong>{{yesterday_word}}</strong>.</h5>
-                    <!-- <h5 class="modal-title">Trouvé par XX personnes. </h5> -->
-                    
-                </div>
-                <div class="modal-body">
-                    <strong>Trouvé par XX personnes. </strong><br><br>
-                    Listes des mots proches :
-                    <div class="tbl-container bdr">
-                        <div class="table-responsive">
-                            <table class="table  table-hover"; id="history_table">
-                                <thead>
-                                <tr class="table-dark table-striped">
-                                    <th class="word" id="alpha_order">Mot</th>
-                                    <th class="score" id="score_order">Score</th>
-                                </tr>
-                                </thead>
-                                <tbody class = "insidetable"; id="history_table_content">
-                                    {% for word, value, score in yesterday_list %}
-                                        <tr>
-                                            <td class="text-white">{{word}}</td>
-                                            <td class="text-white">{{score}}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Mot d'hier: <strong>{{yesterday_word}}</strong>.</h5>
+            </div>
+            <div class="modal-body">
+                <strong">Trouvé par XX personnes. </strong><br><br>
+                Listes des mots proches :
+                <div class="tbl-container bdr">
+                    <div class="table-responsive">
+                        <table class="table  table-hover"; id="history_table">
+                            <thead>
+                            <tr class="table-dark table-striped">
+                                <th class="word" id="alpha_order">Mot</th>
+                                <th class="score" id="score_order">Score</th>
+                            </tr>
+                            </thead>
+                            <tbody class = "insidetable"; id="history_table_content">
+                                {% for word, value, score in yesterday_list %}
+                                    <tr>
+                                        <td class="text-white">{{word}}</td>
+                                        <td class="text-white">{{score}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                </div>  
+                </div>
+            </div>  
             <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
-            </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                </button>
+            </div>
         </div>
-    </div>
     </div>
 </div>

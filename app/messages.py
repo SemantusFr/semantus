@@ -26,6 +26,7 @@ message_not_word = [
     "Demande des conseils d'orthographe à Trump.",
     "Ce n'est pas dans mon dictionnaire.",
     "Tu as tapé au clavier avec tes poings&nbsp;?",
+    "Connais pas."
 ]
 
 messages_not_top1000 = [
@@ -49,6 +50,7 @@ messages_not_top1000 = [
     "Nope.",
     "Tu es froid.",
     "Pas du tout&nbsp;!",
+    "Oublie et va prendre l'air."
 ]
 
 message_success = [
@@ -73,6 +75,7 @@ messages_top100 = [
     "Creuse encore un peu cette idée.",
     "Fonce !",
     "Tu es dans le top 100&nbsp;!",
+    "On se rapproche&nbsp;!",
 ]
 
 messages_top1000 = [
@@ -92,5 +95,8 @@ messages_top1000 = [
     "Pourquoi pas.",
     "Mouais.",
     "Y a un vague lien...",
-    "Ça me dis vaguement quelque chose."
+    "Ça me dis vaguement quelque chose.",
+    "Oui, mais encore&nbsp;?",
+    "Et, donc&nbsp;?",
+    "Tu crois que tu auras terminé avant de tirer la chasse&nbsp;?",
 ]

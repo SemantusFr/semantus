@@ -167,6 +167,9 @@
         <a  href="#" class="icon" data-bs-toggle="modal" data-bs-target="#popup_info">
             <i class="icon-information_white"></i>
         </a>
+        <a  href="#" class="icon" data-bs-toggle="modal" id="link-user-history">
+            <i class="icon-trophy"></i>
+        </a>
         <a  href="#" class="icon" data-bs-toggle="modal" data-bs-target="#popup_contact">
             <i class="icon-at"></i>
         </a>
@@ -278,6 +281,9 @@
     <!-- Pop-up Show Previous Related Words-->
     {% include '_popup_history.html' %}
 
+    <!-- Pop-up Show User Stats-->
+    {% include '_popup_user_history.html' %}
+
     <!-- Pop-up for messages (warnings, etc.)-->
     {% include '_popup_message.html' %}
 
@@ -321,13 +327,13 @@
         guesses_since_last_hint = 0;
     }
 
-    
-
     var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
         keyboard: false
     })
 
-    
+    var modal_user_history = new bootstrap.Modal(document.getElementById('popup_user_history'), {
+        keyboard: false
+    })
 
     var modal_message = new bootstrap.Modal(document.getElementById('popup_msg'), {
         keyboard: false
@@ -336,6 +342,13 @@
         function sleep(milliseconds) {  
       return new Promise(resolve => setTimeout(resolve, milliseconds));  
     }  
+
+    var userHistoryLink = document.getElementById("link-user-history");
+    userHistoryLink.onclick = function() {
+        const history = getUserHistory();
+        document.getElementById("hist-nb-games").innerHTML = history.nb_games;
+        modal_user_history.show();
+    }
 
    
 
@@ -368,8 +381,6 @@
 
         return guid;
     };
-
-    
 
     async function add_hint_at_start()
     {
@@ -417,6 +428,10 @@
     add_hint_at_start()
     // .then(a => createGuessTable()) 
 
+    /*
+     * THINGS ABOUT HISTORY AND STORED DATA 
+     */
+
     function saveDataToCache() {
         // If we are in a tab still open from yesterday, we're done here.
         // Don't save anything because we may overwrite today's game!
@@ -431,6 +446,67 @@
         storage.setItem("guesses_since_last_hint", JSON.stringify(guesses_since_last_hint));
 
         // storage.setItem("day"+puzzleNumber, winState*guesses.length);
+    }
+
+
+    function initUserHistory() {
+            const history = {
+                'first_game' : puzzleNumber,
+                'last_game' : puzzleNumber,
+                'last_win' : puzzleNumber-1,
+                'win_streak' : 0,
+                'play_streak' : 0,
+                'totalGuesses' : 0,
+                'nb_wins' : 0,
+                'nb_no_win' : 0,
+                'nb_games' : 10000,
+            }
+            storage.setItem("history", JSON.stringify(history));
+            return history
+    }
+
+    function getUserHistory() {
+        const history = storage.getItem("history");
+        if (history == null) {
+            return initUserHistory();
+        } else {
+            // if the last history is form another day, we update it
+            if (history['last_game'] != puzzleNumber) {
+                // did the user play yesterday?
+                if (history['last_game'] == puzzleNumber - 1) {
+                    history['play_streak'] += 1;
+                } else {
+                    history['play_streak'] = 1;
+                }
+                history['nb_games'] += 1;
+                history['last_game'] = puzzleNumber;
+                if (history['last_win'] != puzzleNumber - 1) {
+                    history['nb_no_win'] += 1;
+                    history['win_streak'] = 0;
+                }
+            return JSON.parse(history);
+        }
+    }
+
+    function saveWin() {
+        saveDataToCache()
+        const history = getUserHistory();
+        
+
+
+
+            history['nb_wins'] += 1;
+            history['totalGuesses'] += guesses.length;
+            history['win_streak'] += 1;
+            storage.history(history, JSON.stringify(history));
+            return history;
+        }
+            
+        storage.setItem("nb_points_win", JSON.stringify(nb_points));
+        storage.setItem("nb_guesses_win", JSON.stringify(nb_points));
+        storage.setItem("nb_hints_win", JSON.stringify(nb_points));
+        storage.setItem("rank", JSON.stringify(nb_points));
+        storage.setItem("win", JSON.stringify(true));
     }
 
     
@@ -459,6 +535,7 @@
                         text_winner = `${result.winners}<sup>ème</sup>`
                     }
                     message += `<h5>Félicitation. Tu es la·le <b>${text_winner}</b> joueur·se à avoir trouvé le mot aujourd'hui !</h5>`;
+                    saveWin()
                 }
                 message += `<br><h5>Tu as obtenu un score de <b>${nb_points}</b>&nbsp;! (1000 est le max)</h5> `;
                 message += `<br>Tu as trouvé le mot <b>${word}</b> en <b>${nb_guesses} tentatives</b> et <b>${nb_hints} indices.</b>`;
@@ -974,3 +1051,4 @@
 {% endblock %}
 
 </html>
+

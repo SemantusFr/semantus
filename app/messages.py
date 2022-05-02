@@ -2,25 +2,37 @@ from random import choice
 
 def get_message_from_score(score, word_type):
     if word_type == 'hint':
-        return choice(message_indice)
+        if score == 1:
+            return prepare(message_first_hint)
+        else:
+            return prepare(message_hint)
     elif word_type == 'already_guessed':
-        return choice(message_already_guessed)
+        return prepare(message_already_guessed)
     elif score == 1000:
-        return choice(message_success)
+        return prepare(message_success)
     elif score > 990:
-        return choice(messages_top10)
+        return prepare(messages_top10)
     elif score > 900:
-        return choice(messages_top100)
+        return prepare(messages_top100)
     elif score > 0:
-        return choice(messages_top1000)
+        return prepare(messages_top1000)
     elif score == 0:
-        return choice(messages_not_top1000)
+        return prepare(messages_not_top1000)
     elif score == -1:
-        return choice(message_not_word)
+        return prepare(message_not_word)
     else:
         return ""
 
-message_indice = [
+def prepare(list_of_msg):
+    return choice(list_of_msg).replace(' !', '&nbsp;!').replace(' ?', '&nbsp;?')
+
+message_first_hint = [
+    "Voici un premier indice.",
+    "Commence avec ça.",
+    "Pas l'air utile cet indice, bonne chance !"
+]
+
+message_hint = [
     "Aller, cadeau&nbsp;!",
     "C'est mieux avec ça&nbsp;?",
     "Je ne vais pas faire tout le boulot&nbsp;!",

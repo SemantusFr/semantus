@@ -7,7 +7,7 @@ from flask import (
     Response
 )
 import requests
-from datetime import date
+from datetime import date, timedelta
 import sqlite3
 
 # from flask_login import current_user, login_user, logout_user, login_required
@@ -33,13 +33,22 @@ def hash(s):
     hash = h.hexdigest()
     return hash
 
+
 def get_puzzle_number():
     today = date.today()
     day0 = date(*app.config['DAY0'])
     delta_days = (today-day0).days
     assert(delta_days > 0)
     return delta_days
+
+@app.route('/get_date_from_puzzle_number')   
+def get_date_from_puzzle_number():
+    number = int(request.args.get('number'))
+    day0 = date(*app.config['DAY0'])
+    day = day0+ timedelta(days=number)
+    return jsonify({'date': day.strftime('%d-%m-%Y')})
     
+
 
 
 

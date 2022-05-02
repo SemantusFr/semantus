@@ -29,7 +29,9 @@ def prepare(list_of_msg):
 message_first_hint = [
     "Voici un premier indice.",
     "Commence avec ça.",
-    "Pas l'air utile cet indice, bonne chance !"
+    "Pas l'air très utile cet indice, bonne chance !",
+    "Va falloir se contenter de ce premier indice.",
+    "C'est un début",
 ]
 
 message_hint = [

@@ -27,7 +27,6 @@ HIST_PLACEHOLDER_PATH = 'static/images/empty_stats.png'
 
 from hashlib import sha1
 
-puzzleNumber = 0
 
 def hash(s):
     h = sha1()
@@ -63,7 +62,6 @@ def get_message():
 
 @app.route('/')
 def index():
-    global puzzleNumber
     puzzleNumber = get_puzzle_number()
     yesterday_list = get_history(puzzleNumber-1)
     winners_today = get_winners_today()
@@ -71,7 +69,7 @@ def index():
 
     return render_template(
         'base.html', 
-        puzzleNumber = puzzleNumber,
+        puzzleNumber = get_puzzle_number()
         yesterday_word = get_yesterday_word(),
         yesterday_list = yesterday_list,
         winners_yesterday = get_winners(puzzleNumber-1),
@@ -135,6 +133,7 @@ def win():
     guesses = int(request.args.get('guesses'))
     hints = int(request.args.get('hints'))
     user_id = request.args.get('user_id')
+    puzzleNumber = get_puzzle_number()
 
     # check if really a win 
     if (word == get_today_word()):     
@@ -198,6 +197,7 @@ def get_hint():
 
 @app.route('/get_winners')
 def get_winners_today():
+    puzzleNumber = get_puzzle_number()
     return get_winners(puzzleNumber)
 
 def get_winners(day):
@@ -215,6 +215,7 @@ def get_winners(day):
     return total_winners
 
 def get_today_word():
+    puzzleNumber = get_puzzle_number()
     return get_word_from_position(puzzleNumber, 1000)
 
 def get_word_from_position(day, score):
@@ -231,6 +232,7 @@ def get_word_from_position(day, score):
 def get_yesterday_word():
     # data = {'hint_word': get_word_from_position(puzzleNumber-1, score = 1000)}
     # return jsonify(data)
+    puzzleNumber = get_puzzle_number()
     return get_word_from_position(puzzleNumber-1, score = 1000)
 
 def get_history(day):
@@ -244,6 +246,7 @@ def get_history(day):
 
 @app.route('/get_yesterday_list')
 def get_yesterday_list():
+    puzzleNumber = get_puzzle_number()
     data = {'history': get_history(puzzleNumber-1)}
     return data
 

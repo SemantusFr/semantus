@@ -189,6 +189,7 @@ def win():
 @app.route('/get_hint')
 def get_hint():
     best_user_score = int(request.args.get('score'))
+    puzzleNumber = get_puzzle_number()
     if best_user_score < 1000:
         data = {'hint_word': get_word_from_position(puzzleNumber, best_user_score)}
     else:

@@ -4,7 +4,8 @@ from flask import (
     url_for,
     request,
     jsonify,
-    Response
+    Response,
+    send_file
 )
 import requests
 from datetime import date, timedelta
@@ -21,6 +22,7 @@ from pathlib import Path
 WORD_DB_PATH = f"{Path(__file__).parent.parent}/word2vec.db"
 STAT_DB_PATH = f"{Path(__file__).parent.parent}/stats.db"
 HINT_PENALTY = 5 # 5 point less per hint
+HIST_PLACEHOLDER_PATH = 'static/images/empty_stats.png'
 
 
 from hashlib import sha1
@@ -100,15 +102,18 @@ def _get_stat_hist(user_points):
     cur.execute(query)
     res = cur.fetchall()
 
-    data_points = list(zip(*res))[-1]
-    return get_hist_image(data_points, user_points)
+    if res:
+        data_points = list(zip(*res))[-1]
+        return get_hist_image(data_points, user_points)
+    else:
+        return send_file(HIST_PLACEHOLDER_PATH, mimetype='image/png')
 
 
 @app.route('/get_score')
 def get_score():
     word = request.args.get('word')
 
-    data = {'score': check_word(1, word)}
+    data = {'score': check_word(get_puzzle_number(), word)}
     return jsonify(data)
 
 def get_hash_client_ip():
@@ -258,9 +263,9 @@ def check_word(day, word):
 
     def get_score(word):
         print('--'*10)
-        print(f"{puzzleNumber=}")
+        print(f"{day=}")
         with con:
-            query = f'select * from day{puzzleNumber} where word="{word}" collate nocase'
+            query = f'select * from day{day} where word="{word}" collate nocase'
             check = cur.execute(query)
             found = check.fetchone()
             if found:

@@ -69,7 +69,7 @@ def index():
 
     return render_template(
         'base.html', 
-        puzzleNumber = get_puzzle_number()
+        puzzleNumber = get_puzzle_number(),
         yesterday_word = get_yesterday_word(),
         yesterday_list = yesterday_list,
         winners_yesterday = get_winners(puzzleNumber-1),

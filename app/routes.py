@@ -141,7 +141,7 @@ def win():
         user_hash = hash(user_id)
         unique_hash = ip_hash+user_hash
         con = sqlite3.connect(STAT_DB_PATH)
-        con.execute("PRAGMA journal_mode=WAL")
+        # con.execute("PRAGMA journal_mode=WAL")
         cur = con.cursor()
         con.commit()
         query = f"create table if not exists day{puzzleNumber}"
@@ -204,7 +204,7 @@ def get_winners(day):
     con = sqlite3.connect(STAT_DB_PATH)
     con.execute("PRAGMA journal_mode=WAL")
     cur = con.cursor()
-    cur.execute(f"create table if not exists day{day} (ip_hash INT PRIMARY KEY, guesses INT, hints INT)")
+    cur.execute(f"create table if not exists day{day} (unique_hash TEXT PRIMARY KEY, ip_hash TEXT, user_hash TEXT, guesses INT, hints INT, points INT)")
     con.commit()
     total_winners = -1
     with con:

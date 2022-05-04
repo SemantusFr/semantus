@@ -462,7 +462,7 @@
         return [nb_guesses, nb_hints, nb_guesses + nb_hints];
     }
 
-    function saveDataToCache() {
+    function saveDataToCache(rank = 0) {
         // If we are in a tab still open from yesterday, we're done here.
         // Don't save anything because we may overwrite today's game!
         let savedPuzzleNumber = storage.getItem("puzzleNumber");
@@ -481,6 +481,7 @@
             "nb_guesses": nb_guesses,
             "nb_hints": nb_hints,
             "nb_guesses_and_hints": nb_guesses_and_hints,
+            "rank": rank,
         }
         storage.setItem("day_"+puzzleNumber, JSON.stringify(data_day));
 
@@ -528,10 +529,8 @@
                 }
             }
             return history;
-        }
-        
+        }   
     }
-
 
     function getGuessesStats()
     {
@@ -551,17 +550,18 @@
         return [nb_guesses_tot, nb_hints_tot, nb_guesses_and_hints_tot];
     }
 
-    function saveWin() {
+    function saveWin(winners) {
         saveDataToCache()
-        const history = getUserHistory();
-        
+        const history = getUserHistory(winners);
+        const onWinStreak = (history['last_win'] == puzzleNumber - 1);
 
-            
-        storage.setItem("nb_points_win", JSON.stringify(nb_points));
-        storage.setItem("nb_guesses_win", JSON.stringify(nb_points));
-        storage.setItem("nb_hints_win", JSON.stringify(nb_points));
-        storage.setItem("rank", JSON.stringify(nb_points));
-        storage.setItem("win", JSON.stringify(true));
+        history['last_win'] = puzzleNumber;
+        history['nb_wins'] += 1;
+        if (onWinStreak) {
+            history['win_streak'] += 1;
+        } else {
+            history['win_streak'] = 1;
+        }
     }
 
     
@@ -590,7 +590,7 @@
                         text_winner = `${result.winners}<sup>ème</sup>`
                     }
                     message += `<h5>Félicitation. Tu es la·le <b>${text_winner}</b> joueur·se à avoir trouvé le mot aujourd'hui !</h5>`;
-                    saveWin()
+                    saveWin(winners)
                 }
                 message += `<br><h5>Tu as obtenu un score de <b>${nb_points}</b>&nbsp;! (1000 est le max)</h5> `;
                 message += `<br>Tu as trouvé le mot <b>${word}</b> en <b>${nb_guesses} tentatives</b> et <b>${nb_hints} indices.</b>`;

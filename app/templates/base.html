@@ -311,14 +311,28 @@
         location.href = "#";
         location.href = "#ids";
     }
+
+    function reload() {
+        document.getElementById('popup-header-msg').innerHTML = "Nouveau jour !"
+        message = "Temps écoulé, aujourd'hui est un nouveau jour !<br>";
+        message += "Rechargement de la page en cours."
+        document.getElementById('popup-msg').innerHTML = message;
+        modal_message.show();
+        setInterval(function() { window.location.reload(); }, 2000);
+    }
+
+    function checkDay() {
+        const storagePuzzleNumber = storage.getItem("puzzleNumber");
+        if (storagePuzzleNumber != puzzleNumber) { reload(); }
+    }
     
 
     const storagePuzzleNumber = storage.getItem("puzzleNumber");
-		if (storagePuzzleNumber != puzzleNumber) {
-			storage.removeItem("guesses");
-            storage.removeItem("guesses_since_last_hint");
-			storage.setItem("puzzleNumber", puzzleNumber);
-		}
+    if (storagePuzzleNumber != puzzleNumber) {
+        storage.removeItem("guesses");
+        storage.removeItem("guesses_since_last_hint");
+        storage.setItem("puzzleNumber", puzzleNumber);
+    }
     guesses_since_last_hint = parseInt(storage.getItem("guesses_since_last_hint"));
     if (isNaN(guesses_since_last_hint)) {
         guesses_since_last_hint = 0;
@@ -419,7 +433,6 @@
     
     // add first hint
     add_hint(1);
-    // .then(a => createGuessTable()) 
 
     /*
      * THINGS ABOUT HISTORY AND STORED DATA 
@@ -626,9 +639,10 @@
 
         var btn = document.getElementById('go')
         var bar = ''
-        
 
         btn.addEventListener('click', function(){
+            // first check if we need to reload the page    
+            checkDay();
             // get the word input
             var field = document.getElementById("ids");
             let word = field.value.trim().toLowerCase();

@@ -753,11 +753,14 @@
         let nb_no_poop = 0;
         guesses.forEach(function (entry, index, arr) {
             let [[word, type], number, score] = entry;
-            if (score == 0)
+            if (type == 'guess')
             {
-                nb_poop+=1;
-            } else {
-                nb_no_poop += 1;
+                if (score == 0)
+                {
+                    nb_poop+=1;
+                } else {
+                    nb_no_poop += 1;
+                }
             }
         });
         return [nb_poop, nb_no_poop];
@@ -768,7 +771,7 @@
         // alert(data_day);
         let [nb_guesses_tot, nb_hints_tot, nb_guesses_and_hints_tot, rank, nb_points] = data_day;
         function strong(text) {return(`<strong>${text}</strong>`)}
-        let message = `J'ai fait un score de ${strong(nb_points)} à #semantus (jour ${strong(puzzleNumber)}) !<br>`
+        let message = `J'ai fait un score de ${nb_points} 🏆 à #semantus (jour ${puzzleNumber}) !<br>`
         let text_winner = '';
         let [nb_poop, nb_no_poop] = countPoops();
         if (rank == 1)
@@ -777,15 +780,16 @@
         } else {
             text_winner = `${rank}ème`;
         }
-        message += `Je suis le ${strong(text_winner)} a avoir trouvé le mot caché du en ${strong(nb_guesses)} tentative`
-        message +=` et ${strong(nb_hints)} indices !<br>`;
-        message += `(${nb_poop} 💩 et ${nb_no_poop} 👍🏽)<br>`;
+        // message += `Je suis le ${strong(text_winner)} a avoir trouvé le mot caché du en ${strong(nb_guesses)} tentatives`
+        message += `${nb_guesses} tentatives `
+        message += `(${nb_poop} 💩 et ${nb_no_poop} 👍🏽) ` ;
+        message += `et ${nb_hints} indices !<br>`;
         message += `https://www.semantus.fr/`;
         
         
 
         try {
-            await navigator.clipboard.writeText(message);
+            await navigator.clipboard.writeText(message.replace('<br>',/\n/gu) );
             message += "<br><br>Copié dans le presse-papiers";
         } catch (err) {
             message += `<br><br>Erreur en copiant dans le presse-papiers<br>${err}`;

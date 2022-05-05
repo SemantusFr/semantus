@@ -130,7 +130,7 @@ messages_top1000 = [
     "Pourquoi pas.",
     "Mouais.",
     "Y a un vague lien...",
-    "Ça me dis vaguement quelque chose.",
+    "Ça me dit vaguement quelque chose.",
     "Oui, mais encore&nbsp;?",
     "Et, donc&nbsp;?",
     "Tu crois que tu auras terminé avant de tirer la chasse&nbsp;?",

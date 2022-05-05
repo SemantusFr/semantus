@@ -60,6 +60,23 @@ def get_message():
     data = {'message': get_message_from_score(score, word_type)}
     return jsonify(data)
 
+# @app.route('/flash')
+# def index():
+#     puzzleNumber = get_puzzle_number()
+#     yesterday_list = get_history(puzzleNumber-1)
+#     winners_today = get_winners_today()
+#     game_mode = "Flash"
+
+#     return render_template(
+#         'base.html', 
+#         puzzleNumber = get_puzzle_number(),
+#         yesterday_word = get_yesterday_word(),
+#         yesterday_list = yesterday_list,
+#         winners_yesterday = get_winners(puzzleNumber-1),
+#         winners_today = winners_today,
+#         game_mode = game_mode,
+#     )
+
 @app.route('/')
 def index():
     puzzleNumber = get_puzzle_number()
@@ -68,7 +85,7 @@ def index():
     game_mode = "Classique"
 
     return render_template(
-        'base.html', 
+        'classic.html', 
         puzzleNumber = get_puzzle_number(),
         yesterday_word = get_yesterday_word(),
         yesterday_list = yesterday_list,

@@ -787,12 +787,13 @@
         message += `${nb_guesses} tentatives `
         message += `(${nb_poop} 💩 et ${nb_no_poop} 👍🏽) ` ;
         message += `et ${nb_hints} indices !<br>`;
-        message += `https://www.semantus.fr`;
+        message += `www.semantus.fr`;
         
         
 
         try {
-            await navigator.clipboard.writeText(message.replace('<br>','\n') );
+            await navigator.clipboard.writeText(message.replace(/<br>/g,'\n'));
+            console.log(message.replace(/<br>/g,'\n'))
             message += "<br><br>Copié dans le presse-papiers";
         } catch (err) {
             message += `<br><br>Erreur en copiant dans le presse-papiers<br>${err}`;

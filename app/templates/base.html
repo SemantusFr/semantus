@@ -655,18 +655,7 @@
 
                         let score = result.score;                
                         // Destroy the previous bar first (if any)
-                        
-
                         updateWordMessage(score, "guess");
-
-                        // createCircularProgressBar(score).then(function() {     
-                        //     if (score == 1000){
-                        //         sleep(1600).then(() => {
-                        //             win(word);
-                        //         })   
-                        //     }
-                        // });
-
                         
                         createCircularProgressBar(score) 
                         if (score == 1000){
@@ -803,7 +792,7 @@
         
 
         try {
-            await navigator.clipboard.writeText(message.replace('<br>',/\n/gu) );
+            await navigator.clipboard.writeText(message.replace('<br>','\n') );
             message += "<br><br>Copié dans le presse-papiers";
         } catch (err) {
             message += `<br><br>Erreur en copiant dans le presse-papiers<br>${err}`;

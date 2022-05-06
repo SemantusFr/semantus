@@ -45,7 +45,7 @@ message_hint = [
 message_already_guessed = [
     "Encore&nbsp;?",
     "Déja tenté...",
-    "Tu pers la mémoires&nbsp;?",
+    "Tu perds la mémoires&nbsp;?",
     "Même cause, même effet...",
 ]
 
@@ -85,7 +85,8 @@ messages_not_top1000 = [
     "Nope.",
     "Tu es froid.",
     "Pas du tout&nbsp;!",
-    "Oublie et va prendre l'air."
+    "Oublie et va prendre l'air.",
+    "Pas du tout",
 ]
 
 message_success = [
@@ -93,6 +94,7 @@ message_success = [
     "Avoue&nbsp;! Tu as triché&nbsp;?",
     "Gagné&nbsp;! Allez, va vite narguer tes collègues&nbsp;!",
     "Super&nbsp;! Mais Martine de la compta a été plus rapide...",
+    "Waouh&nbsp;!",
 ]
 
 messages_top10 = [
@@ -101,6 +103,7 @@ messages_top10 = [
     "Pas mal ! Et dire qu'il va te falloir encore 97 essais...",
     "Chaud chaud chaud&nbsp;!!! (Cacao)",
     "Tu es dans le top 10&nbsp;!",
+    "Pas loin du tout !",
 ]
 
 messages_top100 = [
@@ -111,6 +114,7 @@ messages_top100 = [
     "Fonce !",
     "Tu es dans le top 100&nbsp;!",
     "On se rapproche&nbsp;!",
+    "Encore un effort !",
 ]
 
 messages_top1000 = [

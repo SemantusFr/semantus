@@ -753,7 +753,10 @@
         // increment the counter for hints
 
         guessNumber += 1;
-        guesses_since_last_hint+=1;
+        if (type != 'hint'){
+            guesses_since_last_hint+=1;
+        }
+        
         addNewGuess(word, score, type);
 
         

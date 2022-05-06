@@ -61,22 +61,22 @@ def get_message():
     data = {'message': get_message_from_score(score, word_type)}
     return jsonify(data)
 
-# @app.route('/flash')
-# def index():
-#     puzzleNumber = get_puzzle_number()
-#     yesterday_list = get_history(puzzleNumber-1)
-#     winners_today = get_winners_today()
-#     game_mode = "Flash"
+@app.route('/flash')
+def flash():
+    puzzleNumber = get_puzzle_number()
+    yesterday_list = get_history(puzzleNumber-1)
+    winners_today = get_winners_today()
+    game_mode = "Flash"
 
-#     return render_template(
-#         'base.html', 
-#         puzzleNumber = get_puzzle_number(),
-#         yesterday_word = get_yesterday_word(),
-#         yesterday_list = yesterday_list,
-#         winners_yesterday = get_winners(puzzleNumber-1),
-#         winners_today = winners_today,
-#         game_mode = game_mode,
-#     )
+    return render_template(
+        'flash.html', 
+        puzzleNumber = get_puzzle_number(),
+        yesterday_word = get_yesterday_word(),
+        yesterday_list = yesterday_list,
+        winners_yesterday = get_winners(puzzleNumber-1),
+        winners_today = winners_today,
+        game_mode = game_mode,
+    )
 
 @app.route('/')
 def index():
@@ -111,13 +111,11 @@ def get_stat_hist_user(user_points):
 def _get_stat_hist(user_points):
     # user_points = request.args.get('user_points')
     # user_points = 0 if user_points == None else user_points
-    con = sqlite3.connect(STAT_DB_PATH)
-    con.execute("PRAGMA journal_mode=WAL")
-    cur = con.cursor()
+    con, cur = connect_to_db(STAT_DB_PATH)
     query = f"SELECT * FROM day{get_puzzle_number()}"
     cur.execute(query)
     res = cur.fetchall()
-
+    con.close()
     if res:
         data_points = list(zip(*res))[-1]
         return get_hist_image(data_points, user_points)
@@ -158,9 +156,7 @@ def win():
         ip_hash = get_hash_client_ip()
         user_hash = hash(user_id)
         unique_hash = ip_hash+user_hash
-        con = sqlite3.connect(STAT_DB_PATH)
-        # con.execute("PRAGMA journal_mode=WAL")
-        cur = con.cursor()
+        con, cur = connect_to_db(STAT_DB_PATH)
         con.commit()
         query = f"create table if not exists day{puzzleNumber}"
         query += "(unique_hash TEXT PRIMARY KEY, ip_hash TEXT, user_hash TEXT, guesses INT, hints INT, points INT)"
@@ -197,7 +193,7 @@ def win():
             }
             
 
-
+        
             return jsonify(data)
     else:
         return jsonify({})
@@ -219,9 +215,8 @@ def get_winners_today():
     return get_winners(puzzleNumber)
 
 def get_winners(day):
-    con = sqlite3.connect(STAT_DB_PATH)
-    con.execute("PRAGMA journal_mode=WAL")
-    cur = con.cursor()
+    con, cur = connect_to_db(STAT_DB_PATH)
+    
     cur.execute(f"create table if not exists day{day} (unique_hash TEXT PRIMARY KEY, ip_hash TEXT, user_hash TEXT, guesses INT, hints INT, points INT)")
     con.commit()
     total_winners = -1
@@ -230,6 +225,7 @@ def get_winners(day):
         cur.execute(query)
         res = cur.fetchall()
         total_winners = res[0][0] 
+
     return total_winners
 
 def get_today_word():
@@ -237,9 +233,7 @@ def get_today_word():
     return get_word_from_position(puzzleNumber, 1000)
 
 def get_word_from_position(day, score):
-    con = sqlite3.connect(WORD_DB_PATH)
-    con.execute("PRAGMA journal_mode=WAL")
-    cur = con.cursor()
+    con, cur = connect_to_db(WORD_DB_PATH)
 
     query = f'select * from day{day} where score={score}'
     check = cur.execute(query)
@@ -254,13 +248,12 @@ def get_yesterday_word():
     return get_word_from_position(puzzleNumber-1, score = 1000)
 
 def get_history(day):
-    con = sqlite3.connect(WORD_DB_PATH)
-    con.execute("PRAGMA journal_mode=WAL")
-    cur = con.cursor()
+    con, cur = connect_to_db(WORD_DB_PATH)
 
     query = f'select * from day{day}'
     check = cur.execute(query)
-    return check.fetchall()
+    res = check.fetchall()
+    return res
 
 @app.route('/get_yesterday_list')
 def get_yesterday_list():
@@ -268,11 +261,14 @@ def get_yesterday_list():
     data = {'history': get_history(puzzleNumber-1)}
     return data
 
-def check_word(day, word):
-    con = sqlite3.connect(WORD_DB_PATH)
+def connect_to_db(db_path):
+    con = sqlite3.connect(db_path)
     con.execute("PRAGMA journal_mode=WAL")
     cur = con.cursor()
+    return con, cur
 
+def check_word(day, word):
+    con, cur = connect_to_db(WORD_DB_PATH)
     def does_word_exist(word):
         with con:
             query=f'select exists(select 1 from all_words_fr where word="{word}" collate nocase) limit 1'
@@ -296,10 +292,13 @@ def check_word(day, word):
                 return 0
 
     word_exists = does_word_exist(word)
+    
     if not (word_exists):
+        con.close()
         return -1
 
     score = get_score(word)
+    con.close()
     return score
 
 

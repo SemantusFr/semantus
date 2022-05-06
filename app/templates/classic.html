@@ -205,6 +205,13 @@
     let guessNumber = guesses.length;  
     createGuessTable()
 
+    if (guessNumber == 0){
+        // add first hint
+        alert('hint')
+    }
+
+    
+
     /**
      * from https://andywalpole.me/blog/140739/using-javascript-create-guid-from-users-browser-information
      * @function _guid
@@ -253,8 +260,7 @@
         }
     }
     
-    // add first hint
-    add_hint(1);
+    
 
     
 

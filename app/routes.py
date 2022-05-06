@@ -21,7 +21,8 @@ from app.figures import get_hist_image
 from pathlib import Path
 WORD_DB_PATH = f"{Path(__file__).parent.parent}/word2vec.db"
 STAT_DB_PATH = f"{Path(__file__).parent.parent}/stats.db"
-HINT_PENALTY = 5 # 5 point less per hint
+HINT_PENALTY = 10 # 5 point less per hint
+GUESS_PENALTY = 2 # 5 point less per hint
 HIST_PLACEHOLDER_PATH = 'static/images/empty_stats.png'
 
 
@@ -95,7 +96,7 @@ def index():
     )
 
 def compute_points(guesses, hints):
-    return 1000 - (guesses-1) - HINT_PENALTY*(hints-1)
+    return 1000 - GUESS_PENALTY*(guesses-1) - HINT_PENALTY*(hints-1)
 
 
 @app.route('/get_stat_hist.png')

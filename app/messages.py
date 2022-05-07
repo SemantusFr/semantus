@@ -87,11 +87,14 @@ messages_not_top1000 = [
     "Pas du tout&nbsp;!",
     "Oublie et va prendre l'air.",
     "Pas du tout",
-    "Demande un conseil à Martine...",
+    "Demande plutôt à Martine...",
     "Essaie plutôt un mot du dico au hasard.",
     "Tu gèles !",
     "Ce n'est pas comme ça que tu vas y arriver !",
     "<insère ici un message d'encouragement quelconque>",
+    "Tu as lu les indices ?",
+    "Non mais en fait il est trop difficile ce mot, abandonne...",
+    "Je prendrais bien une bière.",
 ]
 
 message_success = [
@@ -147,5 +150,5 @@ messages_top1000 = [
     "Tu crois que tu auras terminé avant de tirer la chasse&nbsp;?",
     "Pourquoi pas...",
     "Bof",
-    "Martine en est à 997",
+    "Martine en est à 997.",
 ]

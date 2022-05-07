@@ -52,8 +52,8 @@
                 </div>
                 <div class="row g-3 align-items-center">
                     <div class="col-5 col-md-12">
-                        <div style="height: 150px;">
-                            <div class="progress center" id="progress" ></div>
+                        <div id='circle-container' style="height: 150px;">
+                            <div class="progress center" id="progress" style="height: 100%;" ></div>
                         </div>
                     </div>
                     <div class="col-6 col-md-12 text-center">
@@ -126,6 +126,24 @@
     const cls_guess = "table-info";
     const cls_hint = "hint";
     const puzzleNumber = {{puzzleNumber}};
+    const fontSizeTextLargeScreen = '2.3rem';
+    const fontSizeEmojiLargeScreen = '3.5rem';
+    const fontSizeTextSmallScreen = '2.0rem';
+    const fontSizeEmojiSmallScreen = '3.0rem';
+    const circleSizeLargeScreen = '150px';
+    const circleSizeSmallScreen = '125px';
+
+    var fontSizeText = fontSizeTextLargeScreen;
+    var fontSizeEmoji = fontSizeEmojiLargeScreen;
+    var circleSize = circleSizeLargeScreen;
+
+    if (isMobileDevice()) {
+        fontSizeText = fontSizeTextSmallScreen;
+        fontSizeEmoji = fontSizeEmojiSmallScreen;
+        circleSize = circleSizeSmallScreen;
+    }
+
+    document.getElementById("circle-container").style = `height: ${circleSize};`;
 
     function scrollToField()
     {
@@ -838,6 +856,7 @@
             trailWidth: 2,
             easing: 'easeInOut',
             duration: 1400,
+            svgStyle: {width: circleSize, height: circleSize},
             text: {
                 autoStyleContainer: true
             },
@@ -857,7 +876,8 @@
                 }  else {
                     if (value > 99.9)
                     {
-                        circle.text.style.fontSize = '3.5rem';
+                        
+                        circle.text.style.fontSize = fontSizeEmojiLargeScreen;
                         circle.setText('🤯');
                     } else {
                         circle.setText(value + '%');
@@ -872,9 +892,9 @@
 
         // for emojis
         if (score <= 0){
-            bar.text.style.fontSize = '3.5rem';
+            bar.text.style.fontSize = fontSizeEmoji;
         } else {
-            bar.text.style.fontSize = '2.5rem';
+            bar.text.style.fontSize = fontSizeText;
         }
     
         async function animate(score)

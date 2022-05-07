@@ -10,31 +10,24 @@ from flask import (
 import requests
 from datetime import date, timedelta
 import sqlite3
-
-# from flask_login import current_user, login_user, logout_user, login_required
+from hashlib import sha1
 
 from app import app
-# from app.forms import SumbitForm
 from app.messages import get_message_from_score
 from app.figures import get_hist_image
 
 from pathlib import Path
 WORD_DB_PATH = f"{Path(__file__).parent.parent}/word2vec.db"
 STAT_DB_PATH = f"{Path(__file__).parent.parent}/stats.db"
-HINT_PENALTY = 10 # 5 point less per hint
-GUESS_PENALTY = 2 # 5 point less per hint
+HINT_PENALTY = 10 # 10 point less per hint
+GUESS_PENALTY = 2 # 2 point less per guess
 HIST_PLACEHOLDER_PATH = 'static/images/empty_stats.png'
-
-
-from hashlib import sha1
-
 
 def hash(s):
     h = sha1()
     h.update(s.encode("ascii"))
     hash = h.hexdigest()
     return hash
-
 
 def get_puzzle_number():
     today = date.today()
@@ -49,10 +42,6 @@ def get_date_from_puzzle_number():
     day0 = date(*app.config['DAY0'])
     day = day0+ timedelta(days=number)
     return jsonify({'date': day.strftime('%d-%m-%Y')})
-    
-
-
-
 
 @app.route('/get_message')
 def get_message():
@@ -98,19 +87,15 @@ def index():
 def compute_points(guesses, hints):
     return 1000 - GUESS_PENALTY*(guesses-1) - HINT_PENALTY*(hints-1)
 
-
 @app.route('/get_stat_hist.png')
 def get_stat_hist():
     return _get_stat_hist(None)
-
 
 @app.route('/get_stat_hist_<int:user_points>.png')
 def get_stat_hist_user(user_points):
     return _get_stat_hist(user_points)
 
 def _get_stat_hist(user_points):
-    # user_points = request.args.get('user_points')
-    # user_points = 0 if user_points == None else user_points
     con, cur = connect_to_db(STAT_DB_PATH)
     query = f"SELECT * FROM day{get_puzzle_number()}"
     cur.execute(query)
@@ -122,11 +107,9 @@ def _get_stat_hist(user_points):
     else:
         return send_file(HIST_PLACEHOLDER_PATH, mimetype='image/png')
 
-
 @app.route('/get_score')
 def get_score():
     word = request.args.get('word')
-
     data = {'score': check_word(get_puzzle_number(), word)}
     return jsonify(data)
 
@@ -144,7 +127,6 @@ def win():
     Update the database to add the win.
     Give the win to check it is not a hack.
     '''
-
     word = request.args.get('word')
     guesses = int(request.args.get('guesses'))
     hints = int(request.args.get('hints'))
@@ -179,9 +161,6 @@ def win():
                     query += f"values (\"{unique_hash}\", \"{ip_hash}\", \"{user_hash}\", {guesses}, {hints}, {nb_points})"""
                     cur.execute(query)
                     con.commit()
-                    
-
-
             query = f"SELECT * FROM day{puzzleNumber}"
             cur.execute(query)
             res = cur.fetchall()
@@ -191,13 +170,9 @@ def win():
                 'winners':get_winners_today(),
                 'nb_points':nb_points
             }
-            
-
-        
             return jsonify(data)
     else:
         return jsonify({})
-
 
 @app.route('/get_hint')
 def get_hint():
@@ -240,10 +215,7 @@ def get_word_from_position(day, score):
 
     return check.fetchone()[0]
 
-# @app.route('/get_yesterday_word')
 def get_yesterday_word():
-    # data = {'hint_word': get_word_from_position(puzzleNumber-1, score = 1000)}
-    # return jsonify(data)
     puzzleNumber = get_puzzle_number()
     return get_word_from_position(puzzleNumber-1, score = 1000)
 
@@ -300,21 +272,3 @@ def check_word(day, word):
     score = get_score(word)
     con.close()
     return score
-
-
-# def get_score(word):
-#     url = 'https://cemantix.herokuapp.com/score'
-#     headers = { "Content-Type": "application/x-www-form-urlencoded" }
-#     payload = {'word': word}
-
-#     r = requests.post(url, data=payload, headers = headers)
-
-#     if r.json().get("error"):
-#         return -1
-
-#     try:
-#         score = int(r.json().get('percentile', 0))
-#     except:
-#         return -1
-
-#     return score

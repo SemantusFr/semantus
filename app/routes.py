@@ -239,6 +239,9 @@ def connect_to_db(db_path):
     cur = con.cursor()
     return con, cur
 
+def clean_word(word):
+    return word.replace('œ', 'oe').replace('æ', 'ae')
+
 def check_word(day, word):
     con, cur = connect_to_db(WORD_DB_PATH)
     def does_word_exist(word):

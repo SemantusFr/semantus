@@ -61,7 +61,7 @@ message_not_word = [
     "Demande des conseils d'orthographe à Trump.",
     "Ce n'est pas dans mon dictionnaire.",
     "Tu as tapé au clavier avec tes poings&nbsp;?",
-    "Connais pas."
+    "Connais pas.",
 ]
 
 messages_not_top1000 = [
@@ -87,6 +87,11 @@ messages_not_top1000 = [
     "Pas du tout&nbsp;!",
     "Oublie et va prendre l'air.",
     "Pas du tout",
+    "Demande un conseil à Martine...",
+    "Essaie plutôt un mot du dico au hasard.",
+    "Tu gèles !",
+    "Ce n'est pas comme ça que tu vas y arriver !",
+    "<insère ici un message d'encouragement quelconque>",
 ]
 
 message_success = [
@@ -95,6 +100,7 @@ message_success = [
     "Gagné&nbsp;! Allez, va vite narguer tes collègues&nbsp;!",
     "Super&nbsp;! Mais Martine de la compta a été plus rapide...",
     "Waouh&nbsp;!",
+    "Et maintenant tu tires la chasse et tu vas travailler !",
 ]
 
 messages_top10 = [
@@ -104,6 +110,7 @@ messages_top10 = [
     "Chaud chaud chaud&nbsp;!!! (Cacao)",
     "Tu es dans le top 10&nbsp;!",
     "Pas loin du tout !",
+    "Dernière ligne droite !",
 ]
 
 messages_top100 = [
@@ -138,4 +145,7 @@ messages_top1000 = [
     "Oui, mais encore&nbsp;?",
     "Et, donc&nbsp;?",
     "Tu crois que tu auras terminé avant de tirer la chasse&nbsp;?",
+    "Pourquoi pas...",
+    "Bof",
+    "Martine en est à 997",
 ]

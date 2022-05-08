@@ -199,8 +199,7 @@
     var userHistoryLink = document.getElementById("link-user-history");
     userHistoryLink.onclick = function() {
         const history = getUserHistory();
-        // alert(JSON.stringify(history));
-        let [nb_guesses_tot, nb_hints_tot, nb_guesses_and_hints_tot, rank, nb_points] = getGuessesStats();
+        let [nb_guesses_tot, nb_hints_tot, nb_guesses_and_hints_tot, rank, nb_points] = getStatsFromStorage();
         document.getElementById("hist-nb-games").innerHTML = history.nb_games;
         document.getElementById("hist-nb-wins").innerHTML = history.nb_wins;
         document.getElementById("hist-nb-no-win").innerHTML = history.nb_no_win;
@@ -318,7 +317,7 @@
         let [nb_guesses, nb_hints, nb_guesses_and_hints] = getStatsFromGuesses();
         
         if (rank == 0){
-            let data_day = getGuessesStats();
+            let data_day = getStatsFromStorage();
             rank = data_day[3];
             nb_points = data_day[4];
         }
@@ -333,7 +332,6 @@
         storage.setItem("day_"+puzzleNumber, JSON.stringify(data_day));
 
         const history = getUserHistory();
-        // alert(JSON.stringify(history));
         storage.setItem("history", JSON.stringify(history));
     }
 
@@ -355,7 +353,6 @@
 
     function getUserHistory() {
         const stored_history = storage.getItem("history");
-        // alert(stored_history)
         if (stored_history == null) {
             return initUserHistory();
         } else {
@@ -379,7 +376,7 @@
         }   
     }
 
-    function getGuessesStats()
+    function getStatsFromStorage()
     {
         let nb_guesses_tot = 0;
         let nb_hints_tot = 0;
@@ -397,12 +394,10 @@
                 nb_points = data_day.nb_points;
             }
         }
-        // alert(nb_hints_tot);
         return [nb_guesses_tot, nb_hints_tot, nb_guesses_and_hints_tot, rank, nb_points];
     }
 
     function saveWin(winners, nb_points) {
-
         saveDataToCache(winners, nb_points) 
         const history = getUserHistory();
         const onWinStreak = (history['last_win'] == puzzleNumber - 1);
@@ -414,6 +409,7 @@
         } else {
             history['win_streak'] = 1;
         }
+        storage.setItem("history", JSON.stringify(history));
     }
 
     
@@ -618,8 +614,7 @@
     }
 
     async function share() {
-        let data_day = getGuessesStats();
-        // alert(data_day);
+        let data_day = getStatsFromStorage();
         let [nb_guesses_tot, nb_hints_tot, nb_guesses_and_hints_tot, rank, nb_points] = data_day;
         function strong(text) {return(`<strong>${text}</strong>`)}
         let message = `J'ai fait un score de ${nb_points} 🏆 à #semantus (jour ${puzzleNumber}) !<br>`
@@ -825,7 +820,6 @@
         }
         // add new guess to guesses array
         guesses.push([[word,type], guessNumber, score]);
-        
     
         // save guesses to cache
         saveDataToCache();

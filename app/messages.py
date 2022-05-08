@@ -95,6 +95,10 @@ messages_not_top1000 = [
     "Tu as lu les indices ?",
     "Non mais en fait il est trop difficile ce mot, abandonne...",
     "Je prendrais bien une bière.",
+    "Rhoooooooo !!!!",
+    "Grave pas !",
+    "Ton esprit fonctionne étrangement...",
+    "Et la marmotte elle met le chocolat dans le papier d'alu...",
 ]
 
 message_success = [

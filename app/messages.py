@@ -99,6 +99,7 @@ messages_not_top1000 = [
     "Grave pas !",
     "Ton esprit fonctionne étrangement...",
     "Et la marmotte elle met le chocolat dans le papier d'alu...",
+    "Comme donner le prix Nobel à Raoult...",
 ]
 
 message_success = [

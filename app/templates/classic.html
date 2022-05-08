@@ -204,8 +204,8 @@
         document.getElementById("hist-nb-games").innerHTML = history.nb_games;
         document.getElementById("hist-nb-wins").innerHTML = history.nb_wins;
         document.getElementById("hist-nb-no-win").innerHTML = history.nb_no_win;
-        document.getElementById("hist-average-guesses").innerHTML = nb_guesses_tot/history.nb_games;
-        document.getElementById("hist-average-hints").innerHTML = nb_hints_tot/history.nb_games;
+        document.getElementById("hist-average-guesses").innerHTML = (nb_guesses_tot/history.nb_games).toFixed(1);
+        document.getElementById("hist-average-hints").innerHTML = (nb_hints_tot/history.nb_games).toFixed(1);
         document.getElementById("hist-nb-games").innerHTML = history.nb_games;
         $.getJSON(
             '/get_date_from_puzzle_number',

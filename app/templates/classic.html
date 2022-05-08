@@ -309,9 +309,6 @@
         if (savedPuzzleNumber != puzzleNumber)
             return;
 
-        // storage.setItem("winState", winState);
-        // storage.setItem("secret", secret);
-        // storage.setItem("ranking", ranking);
         storage.setItem("guesses", JSON.stringify(guesses));
         storage.setItem("guesses_since_last_hint", JSON.stringify(guesses_since_last_hint));
         let [nb_guesses, nb_hints, nb_guesses_and_hints] = getStatsFromGuesses();

@@ -50,7 +50,7 @@ message_already_guessed = [
 ]
 
 message_not_word = [
-    "C'est du du Polonais&nbsp;?",
+    "C'est du Polonais&nbsp;?",
     "Non mais sinon, tu veux pas essayer des mots français&nbsp;?",
     "C'est du français&nbsp;?",
     "Aussi vrai que <i>ptdr</i> c'est du français",
@@ -100,6 +100,7 @@ messages_not_top1000 = [
     "Ton esprit fonctionne étrangement...",
     "Et la marmotte elle met le chocolat dans le papier d'alu...",
     "Comme donner le prix Nobel à Raoult...",
+    "Aussi improbable que Bachelot ministre de la Culture ! Heu, attends...",
 ]
 
 message_success = [

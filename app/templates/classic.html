@@ -415,24 +415,30 @@
                 }
             } catch (e) {
             console.log('Error parsing day '+day+': '+e);
+            }
         }
-
-            
+        let nb_mean_guesses_win = 0;
+        let nb_mean_hints_win = 0;
+        let nb_mean_points = 0;
+        
+        if (nb_win > 0) {
+            nb_mean_guesses_win = parseFloat(nb_guesses_win)/nb_win;
+            nb_mean_hints_win = parseFloat(nb_hints_win)/nb_win;
+            nb_mean_points = parseFloat(nb_points_tot)/nb_win;
         }
         stats = {
             "first_game": first_game,
             "win_streak": win_streak,
-            "nb_mean_guesses_win": parseFloat(nb_guesses_win)/nb_win,
-            "nb_mean_hints_win": parseFloat(nb_hints_win)/nb_win,
+            "nb_mean_guesses_win": nb_mean_guesses_win,
+            "nb_mean_hints_win": nb_mean_hints_win,
             "nb_guesses_and_hints_tot": nb_guesses_tot+nb_hints_tot,
             "nb_guesses_tot": nb_guesses_tot,
             "nb_hints_tot": nb_hints_tot,
             "nb_games": nb_games,
             "nb_win": nb_win,
             "nb_no_win": nb_no_win,
-            "nb_mean_points": parseFloat(nb_points_tot)/nb_win,
+            "nb_mean_points": nb_mean_points,
         }
-        // alert(JSON.stringify(stats));
         return stats;
     }
     

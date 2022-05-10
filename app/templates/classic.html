@@ -137,6 +137,8 @@
     var fontSizeEmoji = fontSizeEmojiLargeScreen;
     var circleSize = circleSizeLargeScreen;
 
+    // getStatsFromStorage();
+
     if (isMobileDevice()) {
         fontSizeText = fontSizeTextSmallScreen;
         fontSizeEmoji = fontSizeEmojiSmallScreen;
@@ -198,17 +200,19 @@
     // Fill information for the user stat popup
     var userHistoryLink = document.getElementById("link-user-history");
     userHistoryLink.onclick = function() {
-        const history = getUserHistory();
-        let [nb_guesses_tot, nb_hints_tot, nb_guesses_and_hints_tot, rank, nb_points] = getStatsFromStorage();
-        document.getElementById("hist-nb-games").innerHTML = history.nb_games;
-        document.getElementById("hist-nb-wins").innerHTML = history.nb_wins;
-        document.getElementById("hist-nb-no-win").innerHTML = history.nb_no_win;
-        document.getElementById("hist-average-guesses").innerHTML = (nb_guesses_tot/history.nb_games).toFixed(1);
-        document.getElementById("hist-average-hints").innerHTML = (nb_hints_tot/history.nb_games).toFixed(1);
-        document.getElementById("hist-nb-games").innerHTML = history.nb_games;
+        // const history = getUserHistory();
+        // let [nb_guesses_tot, nb_hints_tot, nb_guesses_and_hints_tot, rank, nb_points] = getStatsFromStorage();
+        data_stats = getStatsFromStorage();
+        document.getElementById("hist-nb-games").innerHTML = data_stats.nb_games;
+        document.getElementById("hist-nb-wins").innerHTML = data_stats.nb_win;
+        document.getElementById("hist-nb-no-win").innerHTML = data_stats.nb_no_win;
+        document.getElementById("hist-average-guesses").innerHTML = (data_stats.nb_mean_guesses_win).toFixed(1);
+        document.getElementById("hist-average-hints").innerHTML = (data_stats.nb_mean_hints_win).toFixed(1);
+        document.getElementById("hist-win-streak").innerHTML = data_stats.win_streak;
+        document.getElementById("hist-average-points").innerHTML = (data_stats.nb_mean_points).toFixed(1);
         $.getJSON(
             '/get_date_from_puzzle_number',
-            $.param({ number: history.first_game}, true),
+            $.param({ number: data_stats.first_game}, true),
             function(result){
                 document.getElementById("hist-since").innerHTML = result.date;
             });
@@ -314,9 +318,14 @@
         let [nb_guesses, nb_hints, nb_guesses_and_hints] = getStatsFromGuesses();
         
         if (rank == 0){
-            let data_day = getStatsFromStorage();
-            rank = data_day[3];
-            nb_points = data_day[4];
+            let data_day = JSON.parse(storage.getItem("day_"+puzzleNumber));
+            if (data_day == null){
+                rank = 0;
+                nb_points = null;
+            } else {
+                rank = data_day.rank;
+                nb_points = data_day.nb_points;
+            }     
         }
         data_day = {
             "puzzleNumber": puzzleNumber,
@@ -327,9 +336,6 @@
             "nb_points":nb_points
         }
         storage.setItem("day_"+puzzleNumber, JSON.stringify(data_day));
-
-        const history = getUserHistory();
-        storage.setItem("history", JSON.stringify(history));
     }
 
 
@@ -348,67 +354,87 @@
         return history
     }
 
-    function getUserHistory() {
-        const stored_history = storage.getItem("history");
-        if (stored_history == null) {
-            return initUserHistory();
-        } else {
-            const history = JSON.parse(stored_history);
-            // if the last history is form another day, we update it
-            if (history['last_game'] != puzzleNumber) {
-                // did the user play yesterday?
-                if (history['last_game'] == puzzleNumber - 1) {
-                    history['play_streak'] += 1;
-                } else {
-                    history['play_streak'] = 1;
-                }
-                history['nb_games'] += 1;
-                history['last_game'] = puzzleNumber;
-                if (history['last_win'] != puzzleNumber - 1) {
-                    history['nb_no_win'] += 1;
-                    history['win_streak'] = 0;
-                }
-            }
-            return history;
-        }   
-    }
-
     function getStatsFromStorage()
     {
         let nb_guesses_tot = 0;
         let nb_hints_tot = 0;
         let nb_guesses_and_hints_tot = 0;
+        let nb_points_tot = 0;
         let rank = 0;
         let nb_points = null;
-        for (let i = 0; i < puzzleNumber+1; i++) { 
-            entry = storage.getItem("day_"+i);
-            if (entry != null) {
+        let first_game = null;
+        
+        let nb_guesses_win = 0;
+        let nb_hints_win = 0;
+        let nb_win = 0;
+        let nb_no_win = 0;
+        let previous_day = null;
+        let win_streak = 0;
+        let nb_games = 0;
+
+        for (let day = 0; day < puzzleNumber+1; day++) { 
+            entry = storage.getItem("day_"+day);
+            try {
                 let data_day = JSON.parse(entry);
-                nb_guesses_tot += parseInt(data_day.nb_guesses);
-                nb_hints_tot += parseInt(data_day.nb_hints);
-                nb_guesses_and_hints_tot += parseInt(data_day.nb_guesses_and_hints);
-                rank = data_day.rank;
-                nb_points = data_day.nb_points;
-            }
+                if (entry != null) {
+                    nb_games += 1;
+                    nb_guesses_tot += parseInt(data_day.nb_guesses);
+                    nb_hints_tot += parseInt(data_day.nb_hints);
+                    nb_guesses_and_hints_tot += parseInt(data_day.nb_guesses_and_hints);
+                    rank = data_day.rank;
+                    nb_points = data_day.nb_points;
+
+                    // find the first day played
+                    if (first_game == null || day < first_game) {
+                        first_game = day;
+                    }
+
+                    let score = data_day.nb_points;
+                    // find number of wins and no wins
+                    if (score != null) {
+                        nb_win += 1;
+                        nb_guesses_win += parseInt(data_day.nb_guesses);
+                        nb_hints_win += parseInt(data_day.nb_hints);
+                        nb_points_tot += nb_points;
+                    } else {
+                        nb_no_win += 1;
+                    }
+
+                    // compute win streak
+                    let win = nb_points != null;
+                    if (win) {
+                        if (previous_day != null && (day - previous_day == 1)) {
+                            win_streak += 1;
+                        } else {
+                            win_streak = 1;
+                        }
+                    } else {
+                        win_streak = 0;
+                    }
+                    previous_day = day;
+                }
+            } catch (e) {
+            console.log('Error parsing day '+day+': '+e);
         }
-        return [nb_guesses_tot, nb_hints_tot, nb_guesses_and_hints_tot, rank, nb_points];
-    }
 
-    function saveWin(winners, nb_points) {
-        saveDataToCache(winners, nb_points) 
-        const history = getUserHistory();
-        const onWinStreak = (history['last_win'] == puzzleNumber - 1);
-
-        history['last_win'] = puzzleNumber;
-        history['nb_wins'] += 1;
-        if (onWinStreak) {
-            history['win_streak'] += 1;
-        } else {
-            history['win_streak'] = 1;
+            
         }
-        storage.setItem("history", JSON.stringify(history));
+        stats = {
+            "first_game": first_game,
+            "win_streak": win_streak,
+            "nb_mean_guesses_win": parseFloat(nb_guesses_win)/nb_win,
+            "nb_mean_hints_win": parseFloat(nb_hints_win)/nb_win,
+            "nb_guesses_and_hints_tot": nb_guesses_tot+nb_hints_tot,
+            "nb_guesses_tot": nb_guesses_tot,
+            "nb_hints_tot": nb_hints_tot,
+            "nb_games": nb_games,
+            "nb_win": nb_win,
+            "nb_no_win": nb_no_win,
+            "nb_mean_points": parseFloat(nb_points_tot)/nb_win,
+        }
+        // alert(JSON.stringify(stats));
+        return stats;
     }
-
     
     function win(word) 
     {
@@ -430,7 +456,7 @@
                 } else {
                     let text_winner = get_text_winner(nb_winners);
                     message += `<h5>Félicitation. Tu es la·le <b>${text_winner}</b> joueur·se à avoir trouvé le mot aujourd'hui !</h5>`;
-                    saveWin(winners, nb_points)
+                    saveDataToCache(winners, nb_points);
                 }
                 message += `<br><h5>Tu as obtenu un score de <b>${nb_points}</b>&nbsp;! (1000 est le max)</h5> `;
                 message += `<br>Tu as trouvé le mot <b>${word}</b> en <b>${nb_guesses} tentatives</b> et <b>${nb_hints} indices.</b>`;
@@ -452,10 +478,6 @@
     
     update_hint_btn();
 
-    // guesses = JSON.parse(storage.getItem("guesses"));
-    // for (let [word, guessNumber, score, percentile]  of guesses)
-    //     cache[word] = { num: puzzleNumber, score: score, percentile: percentile };
-    // guessCount = guesses.length;
     focus();
 
     if (initalized == 0)
@@ -611,20 +633,19 @@
     }
 
     async function share() {
-        let data_day = getStatsFromStorage();
-        let [nb_guesses_tot, nb_hints_tot, nb_guesses_and_hints_tot, rank, nb_points] = data_day;
+        data_day = JSON.parse(storage.getItem("day_"+day));
         function strong(text) {return(`<strong>${text}</strong>`)}
-        let message = `J'ai fait un score de ${nb_points} 🏆 à #semantus (jour ${puzzleNumber}) !<br>`
+        let message = `J'ai fait un score de ${data_day.nb_points} 🏆 à #semantus (jour ${puzzleNumber}) !<br>`
         let text_winner = '';
         let [nb_poop, nb_no_poop] = countPoops();
-        if (rank == 1)
+        if (data_day.rank == 1)
         {
             text_winner = '1er';
         } else {
-            text_winner = `${rank}ème`;
+            text_winner = `${data_day.rank}ème`;
         }
         // message += `Je suis le ${strong(text_winner)} a avoir trouvé le mot caché du en ${strong(nb_guesses)} tentatives`
-        message += `${nb_guesses} tentatives `
+        message += `${data_day.nb_guesses} tentatives `
         message += `(${nb_poop} 💩 et ${nb_no_poop} 👍🏽) ` ;
         message += `et ${nb_hints} indices !<br>`;
         message += `https://www.semantus.fr`;
@@ -698,11 +719,6 @@
             let [[word, type], number, score] = entry;
             add_guess(number, word, score, type);
         });
-        // Update the html
-        
-        // $('guesses').innerHTML = guesses_inner;
-        // document.getElementById("guesses").innerHTML = guesses_inner;
-
         guesses.forEach(function (entry, index, arr) {
             let [tuple, number, score] = entry;
             
@@ -712,24 +728,15 @@
             } else {
                 progressBar(number, score)
             }
-            
         });
         sortTable(2)
-        sortTable(2)
-
-
-        
- 
-              
+        sortTable(2)           
     }
 
     function updateGuessTable(word, score, type) {   
-
         sortTable(2)
         sortTable(2)
-
         let already_guessed = false;
-        
         // check if work already guessed
         for (let entry of guesses) {
             let [[oldword, type], number, score] = entry;
@@ -738,11 +745,9 @@
             {
                 already_guessed = true;
                 oldRow = document.getElementById(`row_${number}`)
-
                 // put it back to first place
                 rows = document.getElementById("guesses_table").rows;
                 rows[1].parentNode.insertBefore(oldRow, rows[1]);
-
                 if (type == 'guess')
                 {
                     // highlight the word in the table
@@ -752,25 +757,18 @@
                 }   
                 let score_message = document.getElementById("score_message");
                 score_message.innerHTML = "";  
-
                 // update message for already guessed word (-2)
                 updateWordMessage(score, 'already_guessed');
                 return;
             }           
         }
-
         // only if it is a real word that was not already guessed
         // increment the counter for hints
-
         guessNumber += 1;
         if (type != 'hint'){
             guesses_since_last_hint+=1;
         }
-        
         addNewGuess(word, score, type);
-
-        
-       
         if (score == 0)
         {
             document.getElementById(`bar_${guessNumber}`).innerHTML = "💩"
@@ -783,11 +781,7 @@
         {
             // update message for hint (-3)
             updateWordMessage(score, type);
-        }
-        
-
-        
-        
+        }      
     }
     
     function add_guess(number, word, score, type) {
@@ -930,7 +924,6 @@
             
             /* Get the two elements you want to compare,
             one from current row and one from the next: */
-
             if (type == 'number')
             {
                 x = +(rows[i].getElementsByTagName("TD")[n].innerHTML);
@@ -943,8 +936,6 @@
                 x = rows[i].getElementsByTagName("TD")[n].innerHTML.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
                 y = rows[i + 1].getElementsByTagName("TD")[n].innerHTML.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
             }
-
-            
             /* Check if the two rows should switch place,
             based on the direction, asc or desc: */
             if (dir == "desc") {

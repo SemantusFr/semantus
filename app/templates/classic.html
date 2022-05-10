@@ -639,7 +639,7 @@
     }
 
     async function share() {
-        data_day = JSON.parse(storage.getItem("day_"+day));
+        data_day = JSON.parse(storage.getItem("day_"+puzzleNumber));
         function strong(text) {return(`<strong>${text}</strong>`)}
         let message = `J'ai fait un score de ${data_day.nb_points} 🏆 à #semantus (jour ${puzzleNumber}) !<br>`
         let text_winner = '';

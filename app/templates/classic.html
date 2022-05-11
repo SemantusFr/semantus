@@ -562,6 +562,11 @@
                
         btn_hint.addEventListener('click', function(){
             add_hint(get_best_score()+1);
+            if (isMobileDevice())
+            {
+                scrollToField();
+            }
+            focus();
         });
     }
 

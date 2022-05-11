@@ -267,9 +267,9 @@
                 },
                 function(result){
                     word = result.hint_word;
+                    guesses_since_last_hint = 0;
                     updateGuessTable(word, score, 'hint');
                     createCircularProgressBar(score);
-                    guesses_since_last_hint = 0;
                     document.getElementById('hint-btn').classList.add('disabled');
                     document.getElementById('hint-btn').value = `Indice dans ${interval_between_hints-guesses_since_last_hint} mots`;
                 });

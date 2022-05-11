@@ -23,6 +23,9 @@ HINT_PENALTY = 10 # 10 point less per hint
 GUESS_PENALTY = 2 # 2 point less per guess
 HIST_PLACEHOLDER_PATH = 'static/images/empty_stats.png'
 
+FLASH_NB_HINTS_START = 2
+FLASH_NB_HINTS_MAX = 5
+
 def hash(s):
     h = sha1()
     h.update(s.encode("ascii"))
@@ -60,6 +63,8 @@ def flash():
     return render_template(
         'flash.html', 
         puzzleNumber = get_puzzle_number(),
+        minWords = FLASH_NB_HINTS_START,
+        maxWords = FLASH_NB_HINTS_MAX,
         yesterday_word = get_yesterday_word(),
         yesterday_list = yesterday_list,
         winners_yesterday = get_winners(puzzleNumber-1),

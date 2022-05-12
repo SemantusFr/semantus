@@ -252,6 +252,9 @@
         if (is_game_started == false) {
             if (already_won == false)
             {
+                // save empty data here to be sure that if the user reload/quits
+                // before the end, it could not play again
+                saveDataToCache();
                 is_game_started = true;
                 total_points = 0;
                 updateGuessTable(today_word, 1000, 'hint');
@@ -554,13 +557,10 @@
                 {
                     // highlight the word in the table
                     oldRow.classList.remove(cls_guess)
-                    oldRow.classList.add(cls_newguess)
-                    
+                    oldRow.classList.add(cls_newguess)  
                 }   
-
                 return;
-            } 
-            
+            }           
         }
         // only if it is a real word that was not already guessed
         // increment the counter for hints

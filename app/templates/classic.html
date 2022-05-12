@@ -1,41 +1,27 @@
 {% extends "base.html" %}
 
+{% block card %}
+    <p class="card-title">
+        Commence avec le 1000<sup>ème</sup> mot le plus proche et fais ton chemin jusqu'au mot caché.<br>
+
+        {% if winners_today == 0 %}
+            <bold>Aucun·e</bold> joueur·euse n'a
+        {% elif winners_today == 1 %}
+            <bold>Un seul</bold> joueur·euse a  
+        {% else %}
+            <bold>{{winners_today}}</bold> joueurs·euses ont déjà 
+        {% endif %}
+        trouvé le mot du jour.
+    </p>
+    <p class="card-text">Le mot d'hier était  
+        <a href="" style="color:rgb(160, 255, 250);" data-bs-toggle="modal" data-bs-target="#popup_history">
+            <b>{{yesterday_word}}</b>
+        </a>
+    </p>
+{% endblock %}
+
 {% block content %}
-    <div class="container">
-        <div class="row">
-            <div class="col-md-2 col-sm-0">
-            </div>
-            <div class="col-md-8 col-sm-12">
-                <div class="text-center card text-white bg-success mb-3 " >
-                    <div class="card-header"><h4>Jour {{puzzleNumber}}</h4></div>
-                    <div class="card-body">
-                        <!-- <h5 class="card-title">Instructions</h5> -->
-                        <p class="card-title">
-                            Commence avec le 1000<sup>ème</sup> mot le plus proche et fais ton chemin jusqu'au mot caché.<br>
 
-                            {% if winners_today == 0 %}
-                                <bold>Aucun·e</bold> joueur·euse n'a
-                            {% elif winners_today == 1 %}
-                                <bold>Un seul</bold> joueur·euse a  
-                            {% else %}
-                                <bold>{{winners_today}}</bold> joueurs·euses ont déjà 
-                            {% endif %}
-                            trouvé le mot du jour.
-                        <!-- <h5 class="card-title">Hier</h5> -->
-
-                        
-                        <p class="card-text">Le mot d'hier était  
-                            <a href="" style="color:rgb(160, 255, 250);" data-bs-toggle="modal" data-bs-target="#popup_history">
-                                <b>{{yesterday_word}}</b>
-                            </a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2 col-sm-0">
-            </div>
-        </div>
-    </div>
 
     <div class="container">
         <div class="row">

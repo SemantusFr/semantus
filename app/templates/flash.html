@@ -228,7 +228,7 @@
         bar.text.style.fontSize = fontSizeText;
 
     let guessNumber = guesses.length;  
-    createGuessTable()
+
 
     // get THE word
     $.getJSON(
@@ -533,27 +533,7 @@
                     `;
     }
 
-    function createGuessTable() {   
-        // build the table from guesses array
-        let guesses_inner = '';
-        // for (let entry of guesses) {
-        guesses.forEach(function (entry, index, arr) {
-            let [[word, type], number, score] = entry;
-            add_guess(number, word, score, type);
-        });
-        guesses.forEach(function (entry, index, arr) {
-            let [tuple, number, score] = entry;
-            
-            if (score == 0)
-            {
-                document.getElementById(`bar_${number}`).innerHTML = "💩"
-            } else {
-                progressBar(number, score)
-            }
-        });
-        sortTable(2)
-        sortTable(2)           
-    }
+
 
     function updateGuessTable(word, score, type) {   
         sortTable(2)
@@ -589,6 +569,11 @@
             total_points += score;
         }
         addNewGuess(word, score, type);  
+        if (score == 0) {
+            document.getElementById(`bar_${guessNumber}`).innerHTML = "💩"
+        } else {
+            progressBar(guessNumber, score)
+        }
     }
     
     function add_guess(number, word, score, type) {

@@ -19,12 +19,13 @@ from app.figures import get_hist_image
 from pathlib import Path
 WORD_DB_PATH = f"{Path(__file__).parent.parent}/word2vec.db"
 STAT_DB_PATH = f"{Path(__file__).parent.parent}/stats.db"
+FLASH_DB_PATH = f"{Path(__file__).parent.parent}/flash.db"
 HINT_PENALTY = 10 # 10 point less per hint
 GUESS_PENALTY = 2 # 2 point less per guess
 HIST_PLACEHOLDER_PATH = 'static/images/empty_stats.png'
 
-FLASH_NB_HINTS_START = 2
-FLASH_NB_HINTS_MAX = 5
+FLASH_NB_HINTS_START = 3
+FLASH_NB_HINTS_MAX = 8
 
 def hash(s):
     h = sha1()
@@ -53,6 +54,13 @@ def get_message():
     data = {'message': get_message_from_score(score, word_type)}
     return jsonify(data)
 
+
+
+
+####################################
+############ FLASH #################
+####################################
+
 @app.route('/flash')
 def flash():
     puzzleNumber = get_puzzle_number()
@@ -71,6 +79,31 @@ def flash():
         winners_today = winners_today,
         game_mode = game_mode,
     )
+
+@app.route('/get_flash_word')
+def get_flash_word():
+    # JUST FOR TESTS
+    data = {'word': get_word_from_position(FLASH_DB_PATH, get_puzzle_number(), 1000)}
+    return jsonify(data)
+
+@app.route('/get_flash_score')
+def get_flash_score():
+    word = request.args.get('word')
+    data = {'score': check_word(FLASH_DB_PATH, get_puzzle_number(), word)}
+    return jsonify(data)
+
+
+
+# @app.route('/get_flash_hints')
+# def get_flash_word_lists():
+#     con, cur = connect_to_db(FLASH_DB_PATH)
+#     query = f"SELECT * FROM day{get_puzzle_number()}"
+#     cur.execute(query)
+#     res = cur.fetchall()
+#     only_hints = list(zip(*list(zip(*res))[1:]))
+#     print(only_hints)
+#     data = {'hints': only_hints}
+#     return jsonify(data)
 
 @app.route('/')
 def index():
@@ -115,7 +148,7 @@ def _get_stat_hist(user_points):
 @app.route('/get_score')
 def get_score():
     word = request.args.get('word')
-    data = {'score': check_word(get_puzzle_number(), word)}
+    data = {'score': check_word(WORD_DB_PATH, get_puzzle_number(), word)}
     return jsonify(data)
 
 def get_hash_client_ip():
@@ -184,7 +217,7 @@ def get_hint():
     best_user_score = int(request.args.get('score'))
     puzzleNumber = get_puzzle_number()
     if best_user_score < 1000:
-        data = {'hint_word': get_word_from_position(puzzleNumber, best_user_score)}
+        data = {'hint_word': get_word_from_position(WORD_DB_PATH, puzzleNumber, best_user_score)}
     else:
         data = {}
     return jsonify(data)  
@@ -210,10 +243,10 @@ def get_winners(day):
 
 def get_today_word():
     puzzleNumber = get_puzzle_number()
-    return get_word_from_position(puzzleNumber, 1000)
+    return get_word_from_position(WORD_DB_PATH, puzzleNumber, 1000)
 
-def get_word_from_position(day, score):
-    con, cur = connect_to_db(WORD_DB_PATH)
+def get_word_from_position(db, day, score):
+    con, cur = connect_to_db(db)
 
     query = f'select * from day{day} where score={score}'
     check = cur.execute(query)
@@ -222,7 +255,7 @@ def get_word_from_position(day, score):
 
 def get_yesterday_word():
     puzzleNumber = get_puzzle_number()
-    return get_word_from_position(puzzleNumber-1, score = 1000)
+    return get_word_from_position(WORD_DB_PATH, puzzleNumber-1, score = 1000)
 
 def get_history(day):
     con, cur = connect_to_db(WORD_DB_PATH)
@@ -247,9 +280,9 @@ def connect_to_db(db_path):
 def clean_word(word):
     return word.replace('œ', 'oe').replace('æ', 'ae')
 
-def check_word(day, word):
+def check_word(db, day, word):
     word = clean_word(word)
-    con, cur = connect_to_db(WORD_DB_PATH)
+    con, cur = connect_to_db(db)
     def does_word_exist(word):
         with con:
             query=f'select exists(select 1 from all_words_fr where word="{word}" collate nocase) limit 1'

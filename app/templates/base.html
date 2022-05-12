@@ -153,6 +153,10 @@
     .italic {
         font-style: italic;
     }
+
+    .bg-flash{
+        background-color: #d25e00;
+    }
   </style>
 </head>
 
@@ -182,13 +186,9 @@
             <div class="col-md-2 col-sm-0">
             </div>
             <div class="col-md-8 col-sm-12">
-                <div class="text-center card text-white bg-success mb-3 " >
-                    <div class="card-header"><h4>Jour {{puzzleNumber}}</h4></div>
-                    <div class="card-body">
-                            {% block card %}
-                            {% endblock %}  
-                    </div>
-                </div>
+                {% block card %}
+                {% endblock %}  
+                
             </div>
             <div class="col-md-2 col-sm-0">
             </div>

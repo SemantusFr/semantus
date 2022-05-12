@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 
 {% block card %}
+
+
+<div class="text-center card text-white bg-success mb-3" id = "presentation-card" >
+    <div class="card-header"><h4>Jour {{puzzleNumber}}</h4></div>
+    <div class="card-body">
     <p class="card-title">
         Commence avec le 1000<sup>ème</sup> mot le plus proche et fais ton chemin jusqu'au mot caché.<br>
 
@@ -18,6 +23,8 @@
             <b>{{yesterday_word}}</b>
         </a>
     </p>
+</div>
+</div>
 {% endblock %}
 
 {% block content %}

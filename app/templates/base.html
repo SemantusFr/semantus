@@ -157,13 +157,20 @@
     .bg-flash{
         background-color: #d25e00;
     }
+
+    .text-flash{
+        color: #d25e00;
+    }
+    .text-classique {
+        color: #5cb85c;
+    }
   </style>
 </head>
 
 
     <!-- <div class="jumbotron text-center"; style="x"> -->
     <div class="jumbotron mt-4 p-4 bg-dark text-white text-center">
-        <h1>Sémantus <i class="italic">{{game_mode}}</i></h1>
+        <h1>Sémantus <i class="italic text-{{game_mode.lower()}}">{{game_mode}}</i></h1>
         <h5>Trouve le mot caché plus rapidement que ton beau-frère.</h5>
     </div>
 

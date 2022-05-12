@@ -80,19 +80,81 @@ def flash():
         game_mode = game_mode,
     )
 
-@app.route('/get_flash_word')
+@app.route('/flash/get_word')
 def get_flash_word():
     # JUST FOR TESTS
     data = {'word': get_word_from_position(FLASH_DB_PATH, get_puzzle_number(), 1000)}
     return jsonify(data)
 
-@app.route('/get_flash_score')
+@app.route('/flash/get_score')
 def get_flash_score():
     word = request.args.get('word')
     data = {'score': check_word(FLASH_DB_PATH, get_puzzle_number(), word)}
     return jsonify(data)
 
+@app.route('/flash/win')
+def flash_win():
+    '''
+    Update the database to add the win.
+    Give the win to check it is not a hack.
+    '''
+    score = request.args.get('score')
+    guesses = int(request.args.get('guesses'))
+    user_id = request.args.get('user_id')
+    puzzleNumber = get_puzzle_number()
+   
+    ip_hash = get_hash_client_ip()
+    user_hash = hash(user_id)
+    unique_hash = ip_hash+user_hash
+    con, cur = connect_to_db(STAT_DB_PATH)
+    con.commit()
+    query = f"create table if not exists flash_day{puzzleNumber}"
+    query += "(unique_hash TEXT PRIMARY KEY, ip_hash TEXT, user_hash TEXT, guesses INT, points INT)"
+    cur.execute(query)
+    con.commit()
 
+    already_won = False
+    # check if the same user alread won
+    with con:
+        query = f'SELECT * FROM flash_day{puzzleNumber} WHERE unique_hash = "{unique_hash}"'
+        cur.execute(query)
+        res = cur.fetchall()
+        if len(res) > 0:
+            already_won = True
+        else:
+            with con:
+                query = f"insert into flash_day{puzzleNumber} (unique_hash, ip_hash, user_hash, guesses, points)"
+                query += f"values (\"{unique_hash}\", \"{ip_hash}\", \"{user_hash}\", {guesses}, {score})"""
+                cur.execute(query)
+                con.commit()
+        query = f"SELECT * FROM day{puzzleNumber}"
+        cur.execute(query)
+        res = cur.fetchall()
+        
+        data = {
+            'already_won':already_won,
+        }
+        return jsonify(data)
+
+@app.route('/flash/get_stat_hist.png')
+def get_flash_stat_hist():
+    return _get_flash_stat_hist(None)
+
+@app.route('/flash/get_stat_hist_<int:user_points>.png')
+def get_flash_stat_hist_user(user_points):
+    return _get_flash_stat_hist(user_points)
+
+def _get_flash_stat_hist(user_points):
+    con, cur = connect_to_db(STAT_DB_PATH)
+    query = f"SELECT * FROM flash_day{get_puzzle_number()}"
+    cur.execute(query)
+    res = cur.fetchall()
+    con.close()
+    if res:
+        data_points = list(zip(*res))[-1]
+        return get_hist_image(data_points)
+    else:
+        return send_file(HIST_PLACEHOLDER_PATH, mimetype='image/png')
 
 # @app.route('/get_flash_hints')
 # def get_flash_word_lists():

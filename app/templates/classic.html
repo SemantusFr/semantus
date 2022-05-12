@@ -444,7 +444,7 @@
             '/win',
             $.param({ word: word, guesses: nb_guesses, hints: nb_hints, user_id: get_user_id()}, true),
             function(result){
-                var winners = document.getElementById("winners-msg");
+                var winners = document.getElementById("popup-win-msg");
                 let nb_winners = result.winners;
                 let already_won = result.already_won;
                 let nb_points = result.nb_points;
@@ -663,7 +663,7 @@
         } catch (err) {
             message += `<br><br>Erreur en copiant dans le presse-papiers<br>${err}`;
         }
-        document.getElementById('popup-header-msg').innerHTML = 'Partage ton expoit !';
+        document.getElementById('popup-header-msg').innerHTML = 'Partage ton exploit !';
         document.getElementById('popup-msg').innerHTML = message;
 
         modal_win.hide();

@@ -11,7 +11,7 @@ params = {"ytick.color" : "w",
           "axes.edgecolor" : "w"}
 plt.rcParams.update(params)
 
-def get_hist_image(data_points, user_points):
+def get_hist_image(data_points, user_points = None):
 
     # plt.figure(figsize = (6,5))
     # sns.histplot(data=data_points, element="step")

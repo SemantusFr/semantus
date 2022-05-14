@@ -167,7 +167,6 @@ def _get_flash_stat_hist(user_points):
     query = f"SELECT * FROM flash_day{get_puzzle_number()}"
     cur.execute(query)
     res = cur.fetchall()
-    print(res)
     con.close()
     if res:
         data_points = list(zip(*res))[-1]

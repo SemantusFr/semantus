@@ -185,29 +185,36 @@
     var modal_message = new bootstrap.Modal(document.getElementById('popup_msg'), {
         keyboard: false
         })
-
-        function sleep(milliseconds) {  
+history
+    function sleep(milliseconds) {  
       return new Promise(resolve => setTimeout(resolve, milliseconds));  
     }  
 
     // Fill information for the user stat popup
     var userHistoryLink = document.getElementById("link-user-history");
     userHistoryLink.onclick = function() {
-        // const history = getUserHistory();
-        // let [nb_guesses_tot, nb_hints_tot, nb_guesses_and_hints_tot, rank, nb_points] = getStatsFromStorage();
+        document.getElementById("user-history-table-content").innerHTML = '' 
+        function add_row(name, value) {
+            document.getElementById("user-history-table-content").innerHTML += 
+            `<tr class="table-dark table-striped">
+                <td class="text-white">${name}</td>
+                <td class="text-white">${value}</td>
+            </tr>`
+        }
         data_stats = getStatsFromStorage();
-        document.getElementById("hist-nb-games").innerHTML = data_stats.nb_games;
-        document.getElementById("hist-nb-wins").innerHTML = data_stats.nb_win;
-        document.getElementById("hist-nb-no-win").innerHTML = data_stats.nb_no_win;
-        document.getElementById("hist-average-guesses").innerHTML = (data_stats.nb_mean_guesses_win).toFixed(1);
-        document.getElementById("hist-average-hints").innerHTML = (data_stats.nb_mean_hints_win).toFixed(1);
-        document.getElementById("hist-win-streak").innerHTML = data_stats.win_streak;
-        document.getElementById("hist-average-points").innerHTML = (data_stats.nb_mean_points).toFixed(1);
         $.getJSON(
             '/get_date_from_puzzle_number',
             $.param({ number: data_stats.first_game}, true),
             function(result){
-                document.getElementById("hist-since").innerHTML = result.date;
+                // document.getElementById("hist-since").innerHTML = result.date;
+                add_row('Première partie :', result.date);
+                add_row('Parties jouées :', data_stats.nb_games);
+                add_row('Parties gagnées :', data_stats.nb_win);
+                add_row('Parties non finies :', data_stats.nb_no_win);
+                add_row('Série de victoires en cours : :', data_stats.win_streak);
+                add_row('Nombre moyen d\'éssais :', (data_stats.nb_mean_guesses_win).toFixed(1));
+                add_row('Nombre moyen d\'indices :', (data_stats.nb_mean_hints_win).toFixed(1));
+                add_row('Score moyen :', (data_stats.nb_mean_points).toFixed(1));
             });
         modal_user_history.show();
     }

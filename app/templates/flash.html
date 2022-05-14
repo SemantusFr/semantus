@@ -188,6 +188,34 @@
       return new Promise(resolve => setTimeout(resolve, milliseconds));  
     }  
 
+    // Fill information for the user stat popup
+    var userHistoryLink = document.getElementById("link-user-history");
+    userHistoryLink.onclick = function() {
+        data_stats = getStatsFromStorage();
+        document.getElementById("user-history-table-content").innerHTML = '' 
+        function add_row(name, value) {
+            document.getElementById("user-history-table-content").innerHTML += 
+            `<tr class="table-dark table-striped">
+                <td class="text-white">${name}</td>
+                <td class="text-white">${value}</td>
+            </tr>`
+        }        
+        $.getJSON(
+            '/get_date_from_puzzle_number',
+            $.param({ number: data_stats.first_game}, true),
+            function(result){
+                add_row('Première partie :', result.date);
+                add_row('Parties jouées :', data_stats.nb_games);
+                add_row('Nombre moyen de mots trouvés :', (data_stats.nb_mean_guesses).toFixed(1));
+                add_row('Nombre de moyen de 👍🏽 :', (data_stats.nb_mean_no_poop).toFixed(1));
+                add_row('Nombre de moyen de 💩 :', (data_stats.nb_mean_poop).toFixed(1));
+            });
+            
+
+            
+        modal_user_history.show();
+    }
+
     var guesses = JSON.parse(storage.getItem("flash_guesses"));
     if (guesses == null){
         guesses = [];
@@ -448,10 +476,61 @@
             "puzzleNumber": puzzleNumber,
             "nb_guesses": nb_guesses,
             "nb_poop": nb_poop,
-            "nb_no_poop ": nb_no_poop,
+            "nb_no_poop": nb_no_poop,
             "score":total_points
         }
         storage.setItem("flash_day_"+puzzleNumber, JSON.stringify(data_day));
+    }
+
+    function getStatsFromStorage()
+    {
+        let nb_guesses_tot = 0;
+        let nb_poop_tot = 0;
+        let nb_no_poop_tot = 0;
+        let nb_points = null;
+        let first_game = null;
+        let nb_games = 0;
+
+        for (let day = 0; day < puzzleNumber+1; day++) { 
+            entry = storage.getItem("flash_day_"+day);
+            try {
+                let data_day = JSON.parse(entry);
+                if (entry != null) {
+                    nb_games += 1;
+                    nb_guesses_tot += parseInt(data_day.nb_guesses);
+                    nb_poop_tot += parseInt(data_day.nb_poop);
+                    nb_no_poop_tot += parseInt(data_day.nb_no_poop);
+                    nb_points += parseInt(data_day.score);
+                    // find the first day played
+                    if (first_game == null || day < first_game) {
+                        first_game = day;
+                    }
+                }
+            } catch (e) {
+            console.log('Error parsing day '+day+': '+e);
+            }
+        }
+        let nb_mean_guesses = 0;
+        let nb_mean_poop = 0;
+        let nb_mean_no_poop = 0;
+        let nb_mean_points = 0;
+        
+        if (nb_games > 0) {
+            nb_mean_guesses = parseFloat(nb_guesses_tot)/nb_games;
+            nb_mean_poop = parseFloat(nb_poop_tot)/nb_games;
+            nb_mean_no_poop = parseFloat(nb_no_poop_tot)/nb_games;
+            nb_mean_points = parseFloat(nb_points)/nb_games;
+        }
+        
+        stats = {
+            "first_game": first_game,
+            "nb_mean_guesses": nb_mean_guesses,
+            "nb_mean_poop": nb_mean_poop,
+            "nb_mean_no_poop": nb_mean_no_poop,
+            "nb_games": nb_games,
+            "nb_mean_points": nb_mean_points,
+        }
+        return stats;
     }
 
 

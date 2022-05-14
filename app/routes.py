@@ -65,7 +65,7 @@ def get_message():
 def flash():
     puzzleNumber = get_puzzle_number()
     yesterday_list = get_history(puzzleNumber-1)
-    winners_today = get_winners_today()
+    winners_today = get_flash_winners_today()
     game_mode = "Flash"
     game_catch_phrase = "Trouve plus de mots que Martine de la compta."
 
@@ -76,7 +76,7 @@ def flash():
         maxWords = FLASH_NB_HINTS_MAX,
         yesterday_word = get_yesterday_word(),
         yesterday_list = yesterday_list,
-        winners_yesterday = get_winners(puzzleNumber-1),
+        winners_yesterday = get_flash_winners(puzzleNumber-1),
         winners_today = winners_today,
         game_mode = game_mode,
         game_sub_title = game_catch_phrase,
@@ -93,6 +93,22 @@ def get_flash_score():
     word = request.args.get('word')
     data = {'score': check_word(FLASH_DB_PATH, get_puzzle_number(), word)}
     return jsonify(data)
+
+def get_flash_winners(day):
+    con, cur = connect_to_db(STAT_DB_PATH)
+    table = f'flash_day{day}'
+    query = f"create table if not exists {table}"
+    query += "(unique_hash TEXT PRIMARY KEY, ip_hash TEXT, user_hash TEXT, guesses INT, points INT)"
+    cur.execute(query)
+    con.commit()
+    total_winners = -1
+    with con:
+        query = f"SELECT COUNT(*) FROM {table}"
+        cur.execute(query)
+        res = cur.fetchall()
+        total_winners = res[0][0] 
+    print(total_winners)
+    return total_winners
 
 @app.route('/flash/win')
 def flash_win():
@@ -135,6 +151,7 @@ def flash_win():
         
         data = {
             'already_won':already_won,
+            'winners':get_flash_winners_today(),
         }
         return jsonify(data)
 
@@ -293,18 +310,26 @@ def get_winners_today():
     puzzleNumber = get_puzzle_number()
     return get_winners(puzzleNumber)
 
-def get_winners(day):
+@app.route('/flash/get_winners')
+def get_flash_winners_today():
+    puzzleNumber = get_puzzle_number()
+    print('coucou '*100)
+    return get_flash_winners(puzzleNumber)
+
+def get_winners(day, mode = 'classique'):
     con, cur = connect_to_db(STAT_DB_PATH)
-    
-    cur.execute(f"create table if not exists day{day} (unique_hash TEXT PRIMARY KEY, ip_hash TEXT, user_hash TEXT, guesses INT, hints INT, points INT)")
+    table = f'day{day}'
+    query = f"create table if not exists {table} "
+    query += "(unique_hash TEXT PRIMARY KEY, ip_hash TEXT, user_hash TEXT, guesses INT, hints INT, points INT)"
+    cur.execute(query)
     con.commit()
     total_winners = -1
     with con:
-        query = f"SELECT COUNT(*) FROM day{day}"
+        query = f"SELECT COUNT(*) FROM {table}"
         cur.execute(query)
         res = cur.fetchall()
         total_winners = res[0][0] 
-
+    print(total_winners)
     return total_winners
 
 def get_today_word():

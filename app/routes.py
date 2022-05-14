@@ -107,7 +107,6 @@ def get_flash_winners(day):
         cur.execute(query)
         res = cur.fetchall()
         total_winners = res[0][0] 
-    print(total_winners)
     return total_winners
 
 @app.route('/flash/win')
@@ -168,23 +167,17 @@ def _get_flash_stat_hist(user_points):
     query = f"SELECT * FROM flash_day{get_puzzle_number()}"
     cur.execute(query)
     res = cur.fetchall()
+    print(res)
     con.close()
     if res:
         data_points = list(zip(*res))[-1]
-        return get_hist_image(data_points)
+        return get_hist_image(data_points, user_points)
     else:
         return send_file(HIST_PLACEHOLDER_PATH, mimetype='image/png')
 
-# @app.route('/get_flash_hints')
-# def get_flash_word_lists():
-#     con, cur = connect_to_db(FLASH_DB_PATH)
-#     query = f"SELECT * FROM day{get_puzzle_number()}"
-#     cur.execute(query)
-#     res = cur.fetchall()
-#     only_hints = list(zip(*list(zip(*res))[1:]))
-#     print(only_hints)
-#     data = {'hints': only_hints}
-#     return jsonify(data)
+############################################
+################ CLASSIQUE #################
+############################################
 
 @app.route('/')
 def index():
@@ -313,7 +306,6 @@ def get_winners_today():
 @app.route('/flash/get_winners')
 def get_flash_winners_today():
     puzzleNumber = get_puzzle_number()
-    print('coucou '*100)
     return get_flash_winners(puzzleNumber)
 
 def get_winners(day, mode = 'classique'):
@@ -329,7 +321,6 @@ def get_winners(day, mode = 'classique'):
         cur.execute(query)
         res = cur.fetchall()
         total_winners = res[0][0] 
-    print(total_winners)
     return total_winners
 
 def get_today_word():
@@ -385,8 +376,6 @@ def check_word(db, day, word):
                 return 0
 
     def get_score(word):
-        print('--'*10)
-        print(f"{day=}")
         with con:
             query = f'select * from day{day} where word="{word}" collate nocase'
             check = cur.execute(query)

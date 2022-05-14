@@ -364,9 +364,13 @@
         }
         modal_win.show();
         document.getElementById("popup-win-msg").innerHTML = message;
-        document.getElementById("hist-winners-user").src = `/flash/get_stat_hist_${total_points}.png`
+        if ({{winners_today}} > 3)
+        {
+            document.getElementById("hist-winners-user").src = `/flash/get_stat_hist_${total_points}.png`
+        } else {
+            document.getElementById("hist-winners-user").src = "{{ url_for('static', filename='images/empty_stats.png')}}"
+        }
         already_won =true;
-
     }
 
     /**

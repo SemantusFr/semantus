@@ -457,8 +457,12 @@
                 }
                 message += `<br><h5>Tu as obtenu un score de <b>${nb_points}</b>&nbsp;! (1000 est le max)</h5> `;
                 message += `<br>Tu as trouvé le mot <b>${word}</b> en <b>${nb_guesses} tentatives</b> et <b>${nb_hints} indices.</b>`;
-                
-                document.getElementById("hist-winners-user").src = `/get_stat_hist_${nb_points}.png`
+                if ({{winners_today}} > 0)
+                {
+                    document.getElementById("hist-winners-user").src = `/get_stat_hist_${nb_points}.png`
+                } else {
+                    document.getElementById("hist-winners-user").src = "{{ url_for('static', filename='images/empty_stats.png')}}"
+                }
                 winners.innerHTML = message;
             }
         );

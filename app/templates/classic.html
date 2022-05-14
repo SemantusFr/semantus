@@ -300,8 +300,6 @@
     }
 
     function saveDataToCache(rank = 0, nb_points = null) {
-        // If we are in a tab still open from yesterday, we're done here.
-        // Don't save anything because we may overwrite today's game!
         let savedPuzzleNumber = storage.getItem("puzzleNumber");
         if (savedPuzzleNumber != puzzleNumber)
             return;
@@ -815,8 +813,6 @@
         }
         // add new guess to guesses array
         guesses.push([[word,type], guessNumber, score]);
-    
-        // save guesses to cache
         saveDataToCache();
     }
     
@@ -902,7 +898,9 @@
     }
 
     function sortTable(n) {
-        
+        function clean(w) {
+            return w.trim().replace('&nbsp;','');
+        }
         var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
         table = document.getElementById("guesses_table");
 
@@ -911,8 +909,7 @@
         {
             type = 'text';
         }
-        switching = true;
-        
+        switching = true;    
         dir = "desc"
         /* Make a loop that will continue until
         no switching has been done: */
@@ -930,8 +927,8 @@
             one from current row and one from the next: */
             if (type == 'number')
             {
-                x = +(rows[i].getElementsByTagName("TD")[n].innerHTML);
-                y = +(rows[i + 1].getElementsByTagName("TD")[n].innerHTML);
+                x = +parseInt(clean(rows[i].getElementsByTagName("TD")[n].innerHTML));
+                y = +parseInt(clean(rows[i + 1].getElementsByTagName("TD")[n].innerHTML));
             } 
             else
             {

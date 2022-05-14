@@ -67,6 +67,7 @@ def flash():
     yesterday_list = get_history(puzzleNumber-1)
     winners_today = get_winners_today()
     game_mode = "Flash"
+    game_catch_phrase = "Trouve plus de mots que Martine de la compta."
 
     return render_template(
         'flash.html', 
@@ -78,6 +79,7 @@ def flash():
         winners_yesterday = get_winners(puzzleNumber-1),
         winners_today = winners_today,
         game_mode = game_mode,
+        game_sub_title = game_catch_phrase,
     )
 
 @app.route('/flash/get_word')
@@ -173,6 +175,7 @@ def index():
     yesterday_list = get_history(puzzleNumber-1)
     winners_today = get_winners_today()
     game_mode = "Classique"
+    game_catch_phrase = "Trouve le mot caché plus rapidement que ton beau-frère."
 
     return render_template(
         'classic.html', 
@@ -182,6 +185,7 @@ def index():
         winners_yesterday = get_winners(puzzleNumber-1),
         winners_today = winners_today,
         game_mode = game_mode,
+        game_sub_title = game_catch_phrase
     )
 
 def compute_points(guesses, hints):

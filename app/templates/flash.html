@@ -71,6 +71,7 @@
                     </div>
                     <div class="col-6 col-md-12 text-center">
                         <h5 id="score_message"></h5>
+                        <input id="full-list" class="btn btn-primary invisible" type="submit" value="Liste complète">
                     </div>
                     <div class="col-1 col-md-0">
                     </div>
@@ -108,6 +109,9 @@
 
     <!-- Pop-up Show Previous Related Words-->
     {% include '_popup_history.html' %}
+
+    <!-- Pop-up Show Related Words After Win-->
+    {% include '_popup_list.html' %}
 
     <!-- Pop-up Show User Stats-->
     {% include '_popup_user_history.html' %}
@@ -175,16 +179,23 @@
     }
 
     function checkDay() {
-        const storagePuzzleNumber = storage.getItem("puzzleNumber");
-        if (storagePuzzleNumber != puzzleNumber) { reload(); }
+        const storagePuzzleNumber = storage.getItem("flash_puzzleNumber");
+        if (storagePuzzleNumber && storagePuzzleNumber != puzzleNumber) { reload(); }
     }
     
-    const storagePuzzleNumber = storage.getItem("puzzleNumber");
+    const storagePuzzleNumber = storage.getItem("flash_puzzleNumber");
     if (storagePuzzleNumber != puzzleNumber) {
         storage.removeItem("flash_guesses");
-        storage.removeItem("guesses");
-        storage.setItem("puzzleNumber", puzzleNumber);
+        storage.setItem("flash_puzzleNumber", puzzleNumber);
+        guesses = [];
+    } else {
+        guesses = JSON.parse(storage.getItem("flash_guesses"));
+        if (guesses == null){
+            guesses = [];
+        }
     }
+
+    
 
     // Get the modals to open popups from JS
     var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
@@ -192,6 +203,10 @@
     })
 
     var modal_user_history = new bootstrap.Modal(document.getElementById('popup_user_history'), {
+        keyboard: false
+    })
+
+    var modal_word_list = new bootstrap.Modal(document.getElementById('popup_list'), {
         keyboard: false
     })
 
@@ -228,16 +243,15 @@
         modal_user_history.show();
     }
 
-    var guesses = JSON.parse(storage.getItem("flash_guesses"));
-    if (guesses == null){
-        guesses = [];
-    }
+    
+
     var guessNumber = guesses.length;  
     total_points = get_stored_score();
     if (total_points == null) {
         already_won = false;
         total_points = 0;
     } else {
+        unlockFullList();
         already_won = true;
         // send data to server, the previous results may not have been stored if the player 
         // reloaded before the end.
@@ -284,10 +298,8 @@
         function(result){
             today_word = result.word;
         });
-    
-    var btn_start = document.getElementById('start'); 
-        
-    btn_start.addEventListener('click', function(){ 
+
+    function start_on_click() {
         if (is_game_started == false) {
             if (already_won == false)
             {
@@ -299,15 +311,15 @@
                 total_points = 0;
                 updateGuessTable(today_word, 1000, 'hint');
                 var input = document.getElementById("ids");
-                    input.addEventListener("keyup", function(event) {
-                        // Number 13 is the "Enter" key on the keyboard
-                        if (event.keyCode === 13) {
-                            // Cancel the default action, if needed
-                            event.preventDefault();
-                            // Trigger the button element with a click
-                            document.getElementById("go").click();
-                        }
-                    }); 
+                input.addEventListener("keyup", function(event) {
+                    // Number 13 is the "Enter" key on the keyboard
+                    if (event.keyCode === 13) {
+                        // Cancel the default action, if needed
+                        event.preventDefault();
+                        // Trigger the button element with a click
+                        document.getElementById("go").click();
+                    }
+                }); 
                 var countDownEnd = new Date().getTime()+gameDuration;
                 var x = setInterval(function() {
                     var now = new Date().getTime();
@@ -325,7 +337,10 @@
                 win();
             }
         }
-    });
+    }
+
+    var btn_start = document.getElementById('start');     
+    btn_start.addEventListener('click', start_on_click);
 
     var btn_submit = document.getElementById('go');
                 btn_submit.addEventListener('click', function(){
@@ -410,7 +425,38 @@
         } else {
             document.getElementById("hist-winners-user").src = "{{ url_for('static', filename='images/empty_stats.png')}}"
         }
-        already_won =true;
+        already_won = true;
+        unlockFullList();
+    }
+
+    function unlockFullList() {
+        document.getElementById('start').value = 'Score';
+        var btn_list = document.getElementById('full-list');
+        btn_list.classList.remove('invisible');         
+        btn_list.addEventListener('click', function(){
+            modal_word_list.show();
+            document.getElementById("modal-list-title").innerHTML = '<h5 class="modal-title">Liste complète</h5>';
+            var table_content = '';
+            $.getJSON(
+                '/flash/get_full_list',
+                $.param({day: puzzleNumber}, true),
+                function(result){
+                result.word_list.forEach(function([word, score]) {
+                    table_content+=
+                    `
+                                    <tr>
+                                        <td class="text-white">${word}</td>
+                                        <td class="text-white">${score}</td>
+                                    </tr>
+                    `
+                    
+                    }
+                )
+                document.getElementById("modal-list-table-content").innerHTML = table_content;
+                }
+            );
+            
+        });
     }
 
     /**
@@ -476,9 +522,10 @@
     }
 
     function saveDataToCache() {
-        let savedPuzzleNumber = storage.getItem("puzzleNumber");
-        if (savedPuzzleNumber != puzzleNumber)
+        let savedPuzzleNumber = storage.getItem("flash_puzzleNumber");
+        if (savedPuzzleNumber != puzzleNumber) {
             return;
+        }
         storage.setItem("flash_guesses", JSON.stringify(guesses));
 
         nb_guesses = guesses.length;

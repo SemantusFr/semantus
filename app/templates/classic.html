@@ -163,7 +163,6 @@
 
     const storagePuzzleNumber = storage.getItem("puzzleNumber");
     if (storagePuzzleNumber != puzzleNumber) {
-        storage.removeItem("flash_guesses");
         storage.removeItem("guesses");
         storage.removeItem("guesses_since_last_hint");
         storage.setItem("puzzleNumber", puzzleNumber);
@@ -188,7 +187,7 @@
 
     var modal_message = new bootstrap.Modal(document.getElementById('popup_msg'), {
         keyboard: false
-        })
+    })
 
     function sleep(milliseconds) {  
       return new Promise(resolve => setTimeout(resolve, milliseconds));  
@@ -507,10 +506,11 @@
     }
 
     function unlockFullList() {
-        document.getElementById('hint-btn').classList.remove('disabled');
-        document.getElementById('hint-btn').value = "Liste complète";
         var btn_hint = document.getElementById('hint-btn')
-        // repurpose the hing button to show full list
+        btn_hint.classList.remove('disabled');
+        btn_hint.value = "Liste complète";
+        
+        // repurpose the hint button to show full list
         btn_hint.removeEventListener('click', add_hint_on_click);    
         btn_hint.addEventListener('click', function(){
             modal_word_list.show();

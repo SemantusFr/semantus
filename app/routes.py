@@ -225,6 +225,16 @@ def get_flash_winners_today():
     puzzleNumber = get_puzzle_number()
     return get_flash_winners(puzzleNumber)
 
+@app.route('/flash/get_full_list')
+def get_flash_full_list():
+    secret_word = request.args.get('secret_word')
+    day = request.args.get('day')
+    puzzleNumber = get_puzzle_number()
+    day = day if day else puzzleNumber
+    res = _get_full_list(FLASH_DB_PATH, day)
+    data = {'word_list':res}
+    return jsonify(data) 
+
 ############################################
 ################ CLASSIQUE #################
 ############################################
@@ -340,9 +350,6 @@ def get_full_list():
     puzzleNumber = get_puzzle_number()
     day = day if day else puzzleNumber
     res = _get_full_list(WORD_DB_PATH, day)
-    print('*'*200)
-    print(res[0][0])
-    print(secret_word)
     # if it is the running day and that the secret word
     # is not provided, we return nothing
     if day == puzzleNumber and not res[0][0] == secret_word:

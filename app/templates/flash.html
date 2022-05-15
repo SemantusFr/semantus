@@ -14,7 +14,7 @@
       <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
       <link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
     
-    {% endblock %}
+{% endblock %}
 
 {% block card %}
 
@@ -182,8 +182,8 @@
     
     const storagePuzzleNumber = storage.getItem("puzzleNumber");
     if (storagePuzzleNumber != puzzleNumber) {
+        storage.removeItem("flash_guesses");
         storage.removeItem("guesses");
-        storage.removeItem("guesses_since_last_hint");
         storage.setItem("puzzleNumber", puzzleNumber);
     }
 
@@ -226,9 +226,6 @@
                 add_row('Nombre de moyen de 👍🏽 :', (data_stats.nb_mean_no_poop).toFixed(1));
                 add_row('Nombre de moyen de 💩 :', (data_stats.nb_mean_poop).toFixed(1));
             });
-            
-
-            
         modal_user_history.show();
     }
 
@@ -252,7 +249,7 @@
             function(result){});
     }
     document.getElementById("score_message").innerHTML = `${total_points} points`
-    createGuessTable()
+    createGuessTable();
 
     bar = new ProgressBar.Circle(progress, {
         strokeWidth: 10,

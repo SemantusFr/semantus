@@ -160,10 +160,10 @@
         const storagePuzzleNumber = storage.getItem("puzzleNumber");
         if (storagePuzzleNumber != puzzleNumber) { reload(); }
     }
-    
 
     const storagePuzzleNumber = storage.getItem("puzzleNumber");
     if (storagePuzzleNumber != puzzleNumber) {
+        storage.removeItem("flash_guesses");
         storage.removeItem("guesses");
         storage.removeItem("guesses_since_last_hint");
         storage.setItem("puzzleNumber", puzzleNumber);
@@ -185,7 +185,7 @@
     var modal_message = new bootstrap.Modal(document.getElementById('popup_msg'), {
         keyboard: false
         })
-history
+
     function sleep(milliseconds) {  
       return new Promise(resolve => setTimeout(resolve, milliseconds));  
     }  
@@ -224,7 +224,7 @@ history
         guesses = [];
     }
     let guessNumber = guesses.length;  
-    createGuessTable()
+    createGuessTable();
 
     if (guessNumber == 0){
         // add first hint
@@ -280,15 +280,10 @@ history
             modal_message.show();
         }
     }
-    
-    
-
-    
 
     /*
      * THINGS ABOUT HISTORY AND STORED DATA 
      */
-
     function getStatsFromGuesses()
     {
         let nb_guesses = 0;
@@ -310,7 +305,6 @@ history
         let savedPuzzleNumber = storage.getItem("puzzleNumber");
         if (savedPuzzleNumber != puzzleNumber)
             return;
-
         storage.setItem("guesses", JSON.stringify(guesses));
         storage.setItem("guesses_since_last_hint", JSON.stringify(guesses_since_last_hint));
         let [nb_guesses, nb_hints, nb_guesses_and_hints] = getStatsFromGuesses();
@@ -381,12 +375,10 @@ history
                     nb_guesses_and_hints_tot += parseInt(data_day.nb_guesses_and_hints);
                     rank = data_day.rank;
                     nb_points = data_day.nb_points;
-
                     // find the first day played
                     if (first_game == null || day < first_game) {
                         first_game = day;
                     }
-
                     let score = data_day.nb_points;
                     // find number of wins and no wins
                     if (score != null) {
@@ -397,7 +389,6 @@ history
                     } else {
                         nb_no_win += 1;
                     }
-
                     // compute win streak
                     let win = nb_points != null;
                     if (win) {

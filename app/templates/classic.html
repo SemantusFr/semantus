@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
 {% block card %}
-
-
 <div class="text-center card text-white bg-success mb-3" id = "presentation-card" >
     <div class="card-header"><h4>Jour {{puzzleNumber}}</h4></div>
     <div class="card-body">
@@ -28,8 +26,6 @@
 {% endblock %}
 
 {% block content %}
-
-
     <div class="container">
         <div class="row">
             <div class="col-md-2 col-sm-0">
@@ -96,6 +92,9 @@
     <!-- Pop-up Show Previous Related Words-->
     {% include '_popup_history.html' %}
 
+    <!-- Pop-up Show Related Words After Win-->
+    {% include '_popup_list.html' %}
+
     <!-- Pop-up Show User Stats-->
     {% include '_popup_user_history.html' %}
 
@@ -111,6 +110,7 @@
     let initalized = 0;
     let guesses_since_last_hint = 0;
     let already_won = false;
+    let secret = null;
     const interval_between_hints = 5;
     const storage = window.localStorage;
     const cold_color = '#ee0000';
@@ -182,6 +182,10 @@
         keyboard: false
     })
 
+    var modal_word_list = new bootstrap.Modal(document.getElementById('popup_list'), {
+        keyboard: false
+    })
+
     var modal_message = new bootstrap.Modal(document.getElementById('popup_msg'), {
         keyboard: false
         })
@@ -230,8 +234,79 @@
         // add first hint
         add_hint(1);
     }
-    
-    
+
+    update_hint_btn();
+    focus();
+
+    if (initalized == 0)
+    {
+        var input = document.getElementById("ids");
+        input.addEventListener("keyup", function(event) {
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.keyCode === 13) {
+                // Cancel the default action, if needed
+                event.preventDefault();
+                // Trigger the button element with a click
+                document.getElementById("go").click();
+                
+            }
+            
+        }); 
+        var btn_share = document.getElementById('button-share')
+        btn_share.addEventListener('click', function(){
+            share();
+        });
+        var btn = document.getElementById('go')
+        var bar = ''
+        btn.addEventListener('click', function(){
+            // first check if we need to reload the page    
+            checkDay();
+            // get the word input
+            var field = document.getElementById("ids");
+            let word = field.value.trim().toLowerCase();
+            if(word !== null && word !== '') {
+                $.getJSON(
+                    '/get_score',
+                    $.param({ word: word}, true),
+                    function(result){
+                        let score = result.score;                
+                        // Destroy the previous bar first (if any)
+                        updateWordMessage(score, "guess");
+                        createCircularProgressBar(score) 
+                        if (score == 1000){
+                            sleep(1600).then(() => {
+                                secret = word;
+                                win(word);
+                            })   
+                        }
+                        removeNewGuessClass();
+                        if (score >=0) {
+                            updateGuessTable(word, score, 'newguess')
+                        }
+                        update_hint_btn();
+                        // empty the input field
+                        field.value = "";
+                        
+                        if (isMobileDevice())
+                        {
+                            scrollToField();
+                        }
+                        focus();
+                    }
+                );
+                }            
+        });
+        initalized = 1;
+        var btn_hint = document.getElementById('hint-btn');     
+        btn_hint.addEventListener('click', add_hint_on_click);
+
+        const data_day = JSON.parse(storage.getItem("day_"+puzzleNumber));
+        if (data_day != null && data_day.secret != null){
+            secret = data_day.secret;
+            unlockFullList();
+        }
+    }
+
 
     /**
      * from https://andywalpole.me/blog/140739/using-javascript-create-guid-from-users-browser-information
@@ -430,12 +505,49 @@
         }
         return stats;
     }
+
+    function unlockFullList() {
+        document.getElementById('hint-btn').classList.remove('disabled');
+        document.getElementById('hint-btn').value = "Liste complète";
+        var btn_hint = document.getElementById('hint-btn')
+        // repurpose the hing button to show full list
+        btn_hint.removeEventListener('click', add_hint_on_click);    
+        btn_hint.addEventListener('click', function(){
+            modal_word_list.show();
+            document.getElementById("modal-list-title").innerHTML = `<h5 class="modal-title">Liste complète</h5>`
+            var table_content = '';
+            $.getJSON(
+                '/get_full_list',
+                $.param({ secret_word: secret, day: puzzleNumber}, true),
+                function(result){
+                result.word_list.forEach(function([word, score]) {
+                    table_content+=
+                    `
+                                    <tr>
+                                        <td class="text-white">${word}</td>
+                                        <td class="text-white">${score}</td>
+                                    </tr>
+                    `
+                    
+                    }
+                )
+                document.getElementById("modal-list-table-content").innerHTML = table_content;
+                }
+            );
+            
+        });
+    }
     
     function win(word) 
     {
-        let [nb_guesses, nb_hints] = get_results();
-        modal_win.show();
+        unlockFullList();
+        data_day = JSON.parse(storage.getItem("day_"+puzzleNumber));
+        data_day['secret'] = word;
+        console.log(data_day);
+        storage.setItem("day_"+puzzleNumber, JSON.stringify(data_day));
 
+        let [nb_guesses, nb_hints] = get_results();
+        modal_win.show(); 
         $.getJSON(
             '/win',
             $.param({ word: word, guesses: nb_guesses, hints: nb_hints, user_id: get_user_id()}, true),
@@ -475,92 +587,16 @@
         }
     }
     
-    update_hint_btn();
+    
 
-    focus();
-
-    if (initalized == 0)
-    {
-        var input = document.getElementById("ids");
-        input.addEventListener("keyup", function(event) {
-            // Number 13 is the "Enter" key on the keyboard
-            if (event.keyCode === 13) {
-                // Cancel the default action, if needed
-                event.preventDefault();
-                // Trigger the button element with a click
-                document.getElementById("go").click();
-                
-            }
-            
-        }); 
-
-        var btn_share = document.getElementById('button-share')
-        btn_share.addEventListener('click', function(){
-            share();
-        });
-
-        var btn = document.getElementById('go')
-        var bar = ''
-
-        btn.addEventListener('click', function(){
-            // first check if we need to reload the page    
-            checkDay();
-            // get the word input
-            var field = document.getElementById("ids");
-            let word = field.value.trim().toLowerCase();
-            
-            if(word !== null && word !== '') {
-                $.getJSON(
-                    '/get_score',
-                    $.param({ word: word}, true),
-                    function(result){
-
-                        let score = result.score;                
-                        // Destroy the previous bar first (if any)
-                        updateWordMessage(score, "guess");
-                        
-                        createCircularProgressBar(score) 
-                        if (score == 1000){
-                            sleep(1600).then(() => {
-                                win(word);
-                            })   
-                        }
-                        
-
-                        removeNewGuessClass();
-                        
-                        if (score >=0)
-                        {
-                            updateGuessTable(word, score, 'newguess')
-                        }
-
-                        update_hint_btn();
-                        // empty the input field
-                        field.value = "";
-                        
-                        if (isMobileDevice())
-                        {
-                            scrollToField();
-                        }
-                        
-                        focus();
-                    }
-                );
-                }            
-        });
-        initalized = 1;
-
-
-        var btn_hint = document.getElementById('hint-btn')
-               
-        btn_hint.addEventListener('click', function(){
-            add_hint(get_best_score()+1);
-            if (isMobileDevice())
-            {
-                scrollToField();
-            }
-            focus();
-        });
+    function add_hint_on_click(event){
+        console.log(event);
+        add_hint(get_best_score()+1);
+        if (isMobileDevice())
+        {
+            scrollToField();
+        }
+        focus();
     }
 
     function isMobileDevice()
@@ -585,6 +621,9 @@
     }
 
     function update_hint_btn() {
+        if (secret) {
+            return
+        }
         if (get_best_score() == 999) {
             document.getElementById('hint-btn').value ="Plus d'indice pour toi !";
             document.getElementById('hint-btn').classList.add("disabled");
@@ -658,7 +697,6 @@
 
         try {
             await navigator.clipboard.writeText(message.replace(/<br>/g,'\n'));
-            console.log(message.replace(/<br>/g,'\n'))
             message += "<br><br>Copié dans le presse-papiers";
         } catch (err) {
             message += `<br><br>Erreur en copiant dans le presse-papiers<br>${err}`;

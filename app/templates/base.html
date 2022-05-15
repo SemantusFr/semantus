@@ -133,14 +133,21 @@
     }
 
     .bg-flash{
-        background-color: #d25e00;
+        background-color: {{colors.flash}};
+    }
+
+    .bg-master{
+        background-color: {{colors.master}};
     }
 
     .text-flash{
-        color: #d25e00;
+        color: {{colors.flash}};
     }
     .text-classique {
-        color: #5cb85c;
+        color: {{colors.classique}};
+    }
+    .text-master {
+        color: {{colors.master}};
     }
   </style>
 </head>
@@ -192,7 +199,6 @@
     </div>
 
 {% block content %}
-
 {% endblock %}
 
 

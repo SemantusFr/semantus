@@ -20,12 +20,18 @@ from pathlib import Path
 WORD_DB_PATH = f"{Path(__file__).parent.parent}/word2vec.db"
 STAT_DB_PATH = f"{Path(__file__).parent.parent}/stats.db"
 FLASH_DB_PATH = f"{Path(__file__).parent.parent}/flash.db"
+MASTER_DB_PATH = f"{Path(__file__).parent.parent}/master.db"
 HINT_PENALTY = 10 # 10 point less per hint
 GUESS_PENALTY = 2 # 2 point less per guess
 HIST_PLACEHOLDER_PATH = 'static/images/empty_stats.png'
 
 FLASH_NB_HINTS_START = 3
 FLASH_NB_HINTS_MAX = 8
+COLORS = {
+    'classique' : '#5cb85c',
+    'flash' : '#d25e00',
+    'master' : '#dc3545',
+}
 
 def hash(s):
     h = sha1()
@@ -54,7 +60,49 @@ def get_message():
     data = {'message': get_message_from_score(score, word_type)}
     return jsonify(data)
 
+def get_hash_client_ip():
+    '''
+    Get the hash of the client IP address to count the number of wins.
+    Hash to preserve privacy.
+    '''
+    ip_addr = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
+    return hash(ip_addr)
 
+######################################
+############# MASTER #################
+######################################
+
+@app.route('/master')
+def master():
+    puzzleNumber = get_puzzle_number()
+    yesterday_list = get_history(puzzleNumber-1)
+    winners_today = get_flash_winners_today()
+    game_mode = "Master"
+    game_catch_phrase = "Fais le plus de points avant de tirer la chasse."
+
+    return render_template(
+        'master.html', 
+        puzzleNumber = get_puzzle_number(),
+        minWords = FLASH_NB_HINTS_START,
+        maxWords = FLASH_NB_HINTS_MAX,
+        yesterday_word = get_yesterday_word(),
+        yesterday_list = yesterday_list,
+        winners_yesterday = get_flash_winners(puzzleNumber-1),
+        winners_today = winners_today,
+        game_mode = game_mode,
+        game_sub_title = game_catch_phrase,
+        colors = COLORS,
+    )
+
+@app.route('/master/get_list')
+def get_master_word_lists():
+    con, cur = connect_to_db(MASTER_DB_PATH)
+    query = f"SELECT * FROM day{get_puzzle_number()}"
+    cur.execute(query)
+    res = cur.fetchall()
+    only_hints = list(zip(*list(zip(*res))[1:]))
+    data = {'hints': only_hints}
+    return jsonify(data)
 
 
 ####################################
@@ -72,14 +120,12 @@ def flash():
     return render_template(
         'flash.html', 
         puzzleNumber = get_puzzle_number(),
-        minWords = FLASH_NB_HINTS_START,
-        maxWords = FLASH_NB_HINTS_MAX,
         yesterday_word = get_yesterday_word(),
-        yesterday_list = yesterday_list,
         winners_yesterday = get_flash_winners(puzzleNumber-1),
         winners_today = winners_today,
         game_mode = game_mode,
         game_sub_title = game_catch_phrase,
+        colors = COLORS,
     )
 
 @app.route('/flash/get_word')
@@ -174,6 +220,11 @@ def _get_flash_stat_hist(user_points):
     else:
         return send_file(HIST_PLACEHOLDER_PATH, mimetype='image/png')
 
+@app.route('/flash/get_winners')
+def get_flash_winners_today():
+    puzzleNumber = get_puzzle_number()
+    return get_flash_winners(puzzleNumber)
+
 ############################################
 ################ CLASSIQUE #################
 ############################################
@@ -194,7 +245,8 @@ def index():
         winners_yesterday = get_winners(puzzleNumber-1),
         winners_today = winners_today,
         game_mode = game_mode,
-        game_sub_title = game_catch_phrase
+        game_sub_title = game_catch_phrase,
+        colors = COLORS,
     )
 
 def compute_points(guesses, hints):
@@ -226,13 +278,7 @@ def get_score():
     data = {'score': check_word(WORD_DB_PATH, get_puzzle_number(), word)}
     return jsonify(data)
 
-def get_hash_client_ip():
-    '''
-    Get the hash of the client IP address to count the number of wins.
-    Hash to preserve privacy.
-    '''
-    ip_addr = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
-    return hash(ip_addr)
+
 
 @app.route('/win')
 def win():
@@ -287,6 +333,32 @@ def win():
     else:
         return jsonify({})
 
+@app.route('/get_full_list')
+def get_full_list():
+    secret_word = request.args.get('secret_word')
+    day = request.args.get('day')
+    puzzleNumber = get_puzzle_number()
+    day = day if day else puzzleNumber
+    res = _get_full_list(WORD_DB_PATH, day)
+    print('*'*200)
+    print(res[0][0])
+    print(secret_word)
+    # if it is the running day and that the secret word
+    # is not provided, we return nothing
+    if day == puzzleNumber and not res[0][0] == secret_word:
+        return jsonify({}) 
+    data = {'word_list':res}
+    return jsonify(data) 
+
+def _get_full_list(db, day):
+    con, cur = connect_to_db(db)
+    query = f'select * from day{day}'
+    check = cur.execute(query)
+    res = [[w,s] for w,_,s in check.fetchall()]
+    return  res
+
+     
+
 @app.route('/get_hint')
 def get_hint():
     best_user_score = int(request.args.get('score'))
@@ -301,11 +373,6 @@ def get_hint():
 def get_winners_today():
     puzzleNumber = get_puzzle_number()
     return get_winners(puzzleNumber)
-
-@app.route('/flash/get_winners')
-def get_flash_winners_today():
-    puzzleNumber = get_puzzle_number()
-    return get_flash_winners(puzzleNumber)
 
 def get_winners(day, mode = 'classique'):
     con, cur = connect_to_db(STAT_DB_PATH)
@@ -328,10 +395,8 @@ def get_today_word():
 
 def get_word_from_position(db, day, score):
     con, cur = connect_to_db(db)
-
     query = f'select * from day{day} where score={score}'
     check = cur.execute(query)
-
     return check.fetchone()[0]
 
 def get_yesterday_word():

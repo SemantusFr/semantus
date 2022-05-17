@@ -17,10 +17,11 @@ from app.messages import get_message_from_score
 from app.figures import get_hist_image
 
 from pathlib import Path
-WORD_DB_PATH = f"{Path(__file__).parent.parent}/word2vec.db"
+WORD_DB_PATH = f"{Path(__file__).parent.parent}/classique.db"
 STAT_DB_PATH = f"{Path(__file__).parent.parent}/stats.db"
 FLASH_DB_PATH = f"{Path(__file__).parent.parent}/flash.db"
 MASTER_DB_PATH = f"{Path(__file__).parent.parent}/master.db"
+DB_LEM = f"{Path(__file__).parent.parent}/word2lem.db"
 HINT_PENALTY = 10 # 10 point less per hint
 GUESS_PENALTY = 2 # 2 point less per guess
 HIST_PLACEHOLDER_PATH = 'static/images/empty_stats.png'
@@ -45,6 +46,20 @@ def get_puzzle_number():
     delta_days = (today-day0).days
     assert(delta_days > 0)
     return delta_days
+
+def get_lemma(word):
+    """
+    Takes a word and returns the corresping lemma
+    If word not found, returns None.
+    """
+    cur, con = connect_to_db(DB_LEM) 
+    if "'" in word:
+        return None
+    query = f"SELECT lemma FROM words WHERE word = '{word}'"
+    res = cur.execute(query).fetchone() 
+    ret = res[0] if res else None
+    con.close()
+    return ret
 
 @app.route('/get_date_from_puzzle_number')   
 def get_date_from_puzzle_number():
@@ -137,7 +152,8 @@ def get_flash_word():
 @app.route('/flash/get_score')
 def get_flash_score():
     word = request.args.get('word')
-    data = {'score': check_word(FLASH_DB_PATH, get_puzzle_number(), word)}
+    word, score = check_word(FLASH_DB_PATH, get_puzzle_number(), word)
+    data = {'score': score, 'word': word}
     return jsonify(data)
 
 def get_flash_winners(day):
@@ -285,7 +301,8 @@ def _get_stat_hist(user_points):
 @app.route('/get_score')
 def get_score():
     word = request.args.get('word')
-    data = {'score': check_word(WORD_DB_PATH, get_puzzle_number(), word)}
+    word, score = check_word(WORD_DB_PATH, get_puzzle_number(), word)
+    data = {'score': score, 'word': word}
     return jsonify(data)
 
 
@@ -435,33 +452,28 @@ def clean_word(word):
 
 def check_word(db, day, word):
     word = clean_word(word)
+    print(word)
+    lemma = get_lemma(word)
+    if not lemma:
+        return '',-1
+    print(lemma)
     con, cur = connect_to_db(db)
-    def does_word_exist(word):
+    def get_score_from_lemma(lemma):
         with con:
-            query=f'select exists(select 1 from all_words_fr where word="{word}" collate nocase) limit 1'
-            check = cur.execute(query) 
-            found = check.fetchone()[0]
-            if found:
-                return 1
-            else:
-                return 0
-
-    def get_score(word):
-        with con:
-            query = f'select * from day{day} where word="{word}" collate nocase'
+            query = f'select * from day{day} where lemma="{lemma}" collate nocase'
             check = cur.execute(query)
             found = check.fetchone()
             if found:
-                return found[2]
+                return found[0], found[3]
             else:
-                return 0
+                return '',0
+    lemma = get_lemma(word)
+    word, score = get_score_from_lemma(lemma)
+    if not word:
+        word = lemma
 
-    word_exists = does_word_exist(word)
-    
-    if not (word_exists):
-        con.close()
-        return -1
-
-    score = get_score(word)
+    print('*'*50)
+    print(word)
+    print(lemma)
     con.close()
-    return score
+    return word, score

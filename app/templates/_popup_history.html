@@ -17,7 +17,7 @@
                             </tr>
                             </thead>
                             <tbody class = "insidetable"; id="history_table_content">
-                                {% for word, value, score in yesterday_list %}
+                                {% for word, lemma, value, score in yesterday_list %}
                                     <tr>
                                         <td class="text-white">{{word}}</td>
                                         <td class="text-white">{{score}}</td>

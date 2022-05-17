@@ -268,7 +268,8 @@
                     '/get_score',
                     $.param({ word: word}, true),
                     function(result){
-                        let score = result.score;                
+                        let score = result.score;   
+                        word = result.word;             
                         // Destroy the previous bar first (if any)
                         updateWordMessage(score, "guess");
                         createCircularProgressBar(score) 

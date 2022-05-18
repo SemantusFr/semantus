@@ -8,6 +8,7 @@ from flask import (
     send_file
 )
 import requests
+import json
 from datetime import date, timedelta
 import sqlite3
 from hashlib import sha1
@@ -20,7 +21,8 @@ from pathlib import Path
 WORD_DB_PATH = f"{Path(__file__).parent.parent}/classique.db"
 STAT_DB_PATH = f"{Path(__file__).parent.parent}/stats.db"
 FLASH_DB_PATH = f"{Path(__file__).parent.parent}/flash.db"
-MASTER_DB_PATH = f"{Path(__file__).parent.parent}/master.db"
+# MASTER_DB_PATH = f"{Path(__file__).parent.parent}/master.db"
+LINK_DB_PATH = f"{Path(__file__).parent.parent}/link.db"
 DB_LEM = f"{Path(__file__).parent.parent}/word2lem.db"
 HINT_PENALTY = 10 # 10 point less per hint
 GUESS_PENALTY = 2 # 2 point less per guess
@@ -83,6 +85,74 @@ def get_hash_client_ip():
     ip_addr = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
     return hash(ip_addr)
 
+######################################
+############## LINK ##################
+######################################
+
+def get_link_scores(day, guess_1, guess_2):
+
+    def check_top_to_guess1(word):
+        word.replace("'","''")
+        query = f"SELECT score FROM day{day}_link1 where word='{word}'"
+        check = cur.execute(query)
+        ret = check.fetchone()
+        return ret[0] if ret else 0
+
+    def check_botom_to_guess2(word):
+        word.replace("'","''")
+        query = f"SELECT score FROM day{day}_linka where word='{word}'"
+        check = cur.execute(query)
+        ret = check.fetchone()
+        return ret[0] if ret else 0
+
+
+    def check_guess1_to_guess2(word1, word2):
+        query = f"SELECT json FROM day{day}_link2 where word='{word1}'"
+        check = cur.execute(query)
+        ret = check.fetchone()
+        if not ret:
+            return -1
+        dic = json.loads(ret[0])
+        ret = dic.get(word2)
+        if not ret:
+            return 0
+        return ret[-1]
+
+    def check_guess2_to_guess1(word1, word2):
+        query = f"SELECT json FROM day{day}_linkb where word='{word1}'"
+        check = cur.execute(query)
+        ret = check.fetchone()
+        if not ret:
+            return -1
+        dic = json.loads(ret[0])
+        ret = dic.get(word2)
+        if not ret:
+            return 0
+        return ret[-1]
+    
+    link_1 = link_2 = link_3 = None
+
+    cur, con = connect_to_db(LINK_DB_PATH)
+
+    if guess_1:
+        link_1 = check_top_to_guess1(guess_1)
+
+    if guess_2:
+        link_3 = check_botom_to_guess2(guess_2)
+
+    if link_1 and link_3:
+        link_2 = check_guess1_to_guess2(guess_1, guess_2)
+        temp = check_guess2_to_guess1(guess_1, guess_2)
+        link_2 = temp if temp > link_2 else link_2
+        
+    con.close()
+    
+    if link_1 and link_2 and link_3:
+        score = link_1+link_2+link_3
+    else:
+        score = None
+    
+    return link_1, link_2, link_3, score 
 ######################################
 ############# MASTER #################
 ######################################

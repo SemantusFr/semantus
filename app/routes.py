@@ -243,7 +243,6 @@ def get_flash_winners_today():
 
 @app.route('/flash/get_full_list')
 def get_flash_full_list():
-    secret_word = request.args.get('secret_word')
     day = request.args.get('day')
     puzzleNumber = get_puzzle_number()
     day = day if day else puzzleNumber
@@ -378,7 +377,7 @@ def _get_full_list(db, day):
     con, cur = connect_to_db(db)
     query = f'select * from day{day}'
     check = cur.execute(query)
-    res = [[w,s] for w,_,s in check.fetchall()]
+    res = [[w,s] for w,_,_,s in check.fetchall()]
     return  res
 
      

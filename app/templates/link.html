@@ -80,25 +80,40 @@
             </div>
             <div class="col-md-3 col-sm-12">
                 <div class="row g-3">
-                    <input id="word_top" class="form-control" type="text" value="Top" disabled="true">
+                    <input id="word-top" class="form-control fixed-word" type="text" value="Top" disabled="true">
                 </div>
                 <div class="row">
-                    <div class="progress center" id="progress_link_1" style="height: 15px; margin-bottom: 10px;" ></div>
+                    <div class="col-10">
+                        <div class="progress center" id="progress-link-1" style="height: 15px; margin-bottom: 10px;" ></div>
+                    </div>
+                    <div class="col-2">
+                        <div id="value-link-1" style="height: 15px; margin-top: 5px;">0</div>
+                    </div>
                 </div>
                 <div class="row g-3">
-                    <input id="guess_1" class="form-control" required type="text" value="GUESS 1">
+                    <input id="guess-1" class="form-control" required type="text" value="">
                 </div>
                 <div class="row">
-                    <div class="progress center" id="progress_link_2" style="height: 15px; margin: 10px;" ></div>
+                    <div class="col-10">
+                        <div class="progress center" id="progress-link-2" style="height: 15px; margin-bottom: 10px;" ></div>
+                    </div>
+                    <div class="col-2">
+                        <div id="value-link-2" style="height: 15px; margin-top: 5px;">0</div>
+                    </div>
                 </div>
                 <div class="row g-3">
-                    <input id="guess_2" class="form-control" required type="text" value="GUESS 2">
+                    <input id="guess-2" class="form-control" required type="text" value="">
                 </div>
                 <div class="row">
-                    <div class="progress center" id="progress_link_3" style="height: 15px; margin: 10px;" ></div>
+                    <div class="col-10">
+                        <div class="progress center" id="progress-link-3" style="height: 15px; margin-bottom: 10px;" ></div>
+                    </div>
+                    <div class="col-2">
+                        <div id="value-link-3" style="height: 15px; margin-top: 5px;">0</div>
+                    </div>
                 </div>
                 <div class="row g-3">
-                    <input id="word_bottom" class="form-control" type="text" value="Bottom" disabled="true">
+                    <input id="word-bottom" class="form-control fixed-word" type="text" value="Bottom" disabled="true">
                 </div>
             </div>
             <div class="col-md-4 col-sm-0">
@@ -127,14 +142,14 @@
        
     <script>
 
-    document.getElementById("presentation-card").classList.remove('bg-sucess');
-    document.getElementById("presentation-card").classList.add('bg-flash');
+    // document.getElementById("presentation-card").classList.remove('bg-sucess');
+    document.getElementById("presentation-card").classList.add('bg-link');
 
     let initalized = 0;
     const storage = window.localStorage;
     const gameDuration = 2*60;
-    const cold_color = '#7ddc1f';
-    const hot_color = '#ee0000';
+    const cold_color = '#ee0000';
+    const hot_color = '#7ddc1f';
     const cls_newguess = "table-danger";
     const cls_guess = "table-info";
     const cls_hint = "hint";
@@ -145,6 +160,8 @@
     const fontSizeEmojiSmallScreen = '3.0rem';
     const circleSizeLargeScreen = '150px';
     const circleSizeSmallScreen = '125px';
+    const maxLink = {{maxLink}};
+    const maxScore = 3*maxLink;
 
     var fontSizeText = fontSizeTextLargeScreen;
     var fontSizeEmoji = fontSizeEmojiLargeScreen;
@@ -154,6 +171,8 @@
     var total_points = 0;
     var is_game_started = false;
     var already_won = false;
+    var word_top = "";
+    var word_bottom = "";
 
     document.getElementById("flash-link").href='#'
 
@@ -168,8 +187,8 @@
     function scrollToField()
     {
         // the next line is required to work around a bug in WebKit (Chrome / Safari)
-        location.href = "#guess_1";
-        location.href = "#guess_1";
+        location.href = "#guess-1";
+        location.href = "#guess-1";
     }
 
     function reload() {
@@ -260,14 +279,14 @@
         // reloaded before the end.
         // The server will not save the results anyway if the same player updated multiple time the score.
         $.getJSON(
-            '/flash/win',
+            '/link/win',
             $.param({ score: total_points, guesses: guesses.length, user_id: get_user_id()}, true),
             function(result){});
     }
-    document.getElementById("score_message").innerHTML = `${total_points} points`
+    // document.getElementById("score_message").innerHTML = `${total_points} points`
 
     function getLinearProgressBar(id) {
-        var bar = new ProgressBar.Line(`#progress_link_${id}`, {
+        var bar = new ProgressBar.Line(`#progress-link-${id}`, {
         strokeWidth: 10,
         easing: 'easeInOut',
         duration: 1400,
@@ -284,13 +303,18 @@
         return bar
     }
     progress_link_1 = getLinearProgressBar(1)
-    progress_link_1.animate(0.)
+    progress_link_2 = getLinearProgressBar(2)
+    progress_link_3 = getLinearProgressBar(3)
+
+    var field_guess_1 = document.getElementById("guess-1");
+    var field_guess_2 = document.getElementById("guess-2");
+    
 
     bar = new ProgressBar.Circle(progress, {
         strokeWidth: 10,
         trailWidth: 2,
         easing: 'easeInOut',
-        duration: 0,
+        duration: 1500,
         text: {
             autoStyleContainer: true
         },
@@ -301,11 +325,11 @@
             circle.path.setAttribute('stroke', state.color);
             circle.path.setAttribute('stroke-width', state.width);
             var value = circle.value();
-            var second = gameDuration-Math.round(value*gameDuration*10)/10;
+            var score = parseInt(value*maxScore);
             if (emoji) {
                 circle.setText(emoji);
             } else {
-                circle.setText(second + 's');
+                circle.setText(score);
             }
             circle.text.style.color = state.color;
         }
@@ -315,75 +339,85 @@
 
     // get THE word
     $.getJSON(
-        'flash/get_word',
+        'link/get_words',
         {},
         function(result){
-            today_word = result.word;
+            word_top = result.words[0];
+            word_bottom = result.words[1];
+            document.getElementById('word-top').value = word_top;
+            document.getElementById('word-bottom').value = word_bottom;
         });
 
-    function start_on_click() {
-        if (is_game_started == false) {
-            if (already_won == false)
-            {
-                checkDay();
-                // save empty data here to be sure that if the user reload/quits
-                // before the end, it could not play again
-                saveDataToCache();
-                is_game_started = true;
-                total_points = 0;
-                updateGuessTable(today_word, 1000, 'hint');
-                var input = document.getElementById("ids");
-                input.addEventListener("keyup", function(event) {
-                    // Number 13 is the "Enter" key on the keyboard
-                    if (event.keyCode === 13) {
-                        // Cancel the default action, if needed
-                        event.preventDefault();
-                        // Trigger the button element with a click
-                        document.getElementById("go").click();
-                    }
-                }); 
-                var countDownEnd = new Date().getTime()+gameDuration;
-                var x = setInterval(function() {
-                    var now = new Date().getTime();
-                    var distance = now-countDownEnd;
-                    var seconds = Math.floor((distance) / 1000);
-                    var percent = seconds/gameDuration;
-                    bar.animate(percent);
-                    if (seconds >= gameDuration) {
-                        is_game_started = false;
-                        clearInterval(x);
-                        win();
-                    }
-                }, 1000);
-            } else {
-                win();
-            }
+    
+        
+    field_guess_1.addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.keyCode === 13) {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        document.getElementById("go").click();  
         }
-    }
+    });
 
+    field_guess_2.addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.keyCode === 13) {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        document.getElementById("go").click();  
+        }
+    });
 
     var btn_submit = document.getElementById('go');
     btn_submit.addEventListener('click', function(){
 
-        var field_guess_1= document.getElementById("guess_1");
-        var field_guess_2= document.getElementById("guess_2");
+        
         let guess_1 = field_guess_1.value.trim().toLowerCase();
         let guess_2 = field_guess_2.value.trim().toLowerCase();
-        console.log(guess_1, guess_2)
-        if(word !== null && word !== '') {
+        if(guess_1 !== null && guess_1 !== '' && guess_2 !== null && guess_2 !== '') {
             $.getJSON(
-                '/flash/get_score',
-                $.param({ word: word}, true),
+                '/link/get_score',
+                $.param({ guess_1: guess_1, guess_2: guess_2}, true),
                 function(result){
                     let score = result.score; 
-                    word = result.word;               
-                    removeNewGuessClass();
-                    if (score >=0) {
-                        updateGuessTable(word, score, 'newguess');
-                        document.getElementById("score_message").innerHTML = `${total_points} points`
+                    let link_1 = result.link_1;
+                    let link_2 = result.link_2;
+                    let link_3 = result.link_3;
+                    if (score >0) {
+                        document.getElementById("score_message").innerHTML = `${score} points`;
+                        bar.animate(parseFloat(score)/maxScore);
                     }
+                    if (link_1) {
+                        progress_link_1.animate(parseFloat(link_1)/maxLink)
+                        document.getElementById("value-link-1").innerHTML = link_1;
+                    } else {
+                        document.getElementById("value-link-1").innerHTML = "💩";
+                        progress_link_1.animate(0.)
+                    }
+                    if (link_2) {
+                        progress_link_2.animate(parseFloat(link_2)/maxLink)
+                        document.getElementById("value-link-2").innerHTML = link_2;
+                    } else {
+                        if (link_1 && link_3) {
+                            document.getElementById("value-link-2").innerHTML = "💩";
+                        } else {
+                            document.getElementById("value-link-2").innerHTML = "❌";
+                        }
+                        progress_link_2.animate(0.)
+                    }
+                    if (link_3) {
+                        progress_link_3.animate(parseFloat(link_3)/maxLink)
+                        document.getElementById("value-link-3").innerHTML = link_3;
+                    } else {
+                        document.getElementById("value-link-3").innerHTML = "💩";
+                        progress_link_3.animate(0.)
+                    }
+
                     // empty the input field
-                    field.value = "";
+                    // field_guess_1.value = "";
+                    // field_guess_2.value = "";
                     if (isMobileDevice()) {
                         scrollToField();
                     }
@@ -392,7 +426,6 @@
             );
              
         } 
-        document.getElementById("ids").value = "";  
     });
 
     var btn_share = document.getElementById('button-share')
@@ -526,7 +559,7 @@
 
     function focus()
     {
-        document.getElementById("guess_1").focus();
+        document.getElementById("guess-1").focus();
     }
 
     function countPoops()
@@ -876,7 +909,7 @@
         document.getElementById('btn-close-msg').focus();
         modal_message.show();
     }
-    beta();
+    // beta();
     </script>
 
     

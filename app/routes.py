@@ -94,12 +94,12 @@ def link():
     puzzleNumber = get_puzzle_number()
     yesterday_list = get_history(puzzleNumber-1)
     winners_today = get_flash_winners_today()
-    game_mode = "Master"
+    game_mode = "Link"
     game_catch_phrase = "Trouve le lien le plus fort entre deux mot qui n'ont rien à voir !"
 
     return render_template(
         'link.html', 
-        puzzleNumber = get_puzzle_number(),
+        puzzleNumber = puzzleNumber,
         minWords = FLASH_NB_HINTS_START,
         maxWords = FLASH_NB_HINTS_MAX,
         yesterday_word = get_yesterday_word(),
@@ -107,9 +107,38 @@ def link():
         winners_yesterday = get_flash_winners(puzzleNumber-1),
         winners_today = winners_today,
         game_mode = game_mode,
+        maxLink = 300,
         game_sub_title = game_catch_phrase,
         colors = COLORS,
     )
+
+@app.route('/link/get_words')
+def get_link_words():
+    puzzleNumber = get_puzzle_number()
+    cur, con = connect_to_db(LINK_DB_PATH)
+    query = f"SELECT * FROM day{puzzleNumber}"
+    check = cur.execute(query)
+    words = check.fetchall()
+    words = list(zip(*words))[0]
+    print(words)
+    data = {'words':words}
+    return jsonify(data)
+
+@app.route('/link/get_score')
+def get_link_score():
+    puzzleNumber = get_puzzle_number()
+    guess_1 = request.args.get('guess_1')
+    guess_2 = request.args.get('guess_2')
+    link_1, link_2, link_3, score = get_link_scores(
+        puzzleNumber, 
+        guess_1, 
+        guess_2
+        )
+    data = {'link_1': link_1,
+            'link_2': link_2,
+            'link_3': link_3,
+            'score': score}
+    return jsonify(data)
 
 def get_link_scores(day, guess_1, guess_2):
 
@@ -543,11 +572,9 @@ def clean_word(word):
 
 def check_word(db, day, word):
     word = clean_word(word)
-    print(word)
-    lemma = get_lemma(word)
-    if not lemma:
-        return '',-1
-    print(lemma)
+    # lemma = get_lemma(word)
+    # if not lemma:
+    #     return '',-1
     con, cur = connect_to_db(db)
     def get_score_from_lemma(lemma):
         with con:
@@ -558,13 +585,33 @@ def check_word(db, day, word):
                 return found[0], found[3]
             else:
                 return '',0
-    lemma = get_lemma(word)
-    word, score = get_score_from_lemma(lemma)
-    if not word:
-        word = lemma
+    def get_score_from_word(word):
+        with con:
+            query = f'select score from day{day} where word="{word}" collate nocase'
+            check = cur.execute(query)
+            found = check.fetchone()
+            if found:
+                return found[0]
+            else:
+                return 0
+    def does_word_exist(word):
+        with con:
+            query=f'select exists(select 1 from all_words_fr where word="{word}" collate nocase) limit 1'
+            check = cur.execute(query) 
+            found = check.fetchone()[0]
+            if found:
+                return 1
+            else:
+                return 0
+    # lemma = get_lemma(word)
 
-    print('*'*50)
-    print(word)
-    print(lemma)
+    word_exists = does_word_exist(word)
+    if not (word_exists):
+        con.close()
+        return -1
+
+    score = get_score_from_word(word)
+    # if not word:
+    #     word = lemma
     con.close()
     return word, score

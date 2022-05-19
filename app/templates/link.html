@@ -1,0 +1,883 @@
+{% extends "base.html" %}
+
+{% block twitter_card %}
+      <meta name="twitter:card" content="summary"/>
+      <meta name="twitter:site" content="@Semantus"/>
+      <meta name="twitter:creator" content="@Semantus" />
+      <meta property="og:title" content="Semantus ⚡Flash⚡" />
+      <meta property="og:image" content="{{ url_for('static', filename='images/preview.png', _external=True) }}" />
+      <meta property="og:description" content="Trouve le plus de mots !" />
+    
+      <link rel="apple-touch-icon" sizes="180x180" sizes="32x32" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+      <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+      <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+      <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
+      <link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
+    
+{% endblock %}
+
+{% block card %}
+    <div class="text-center card text-white mb-3 bg-flash" id = "presentation-card" >
+        <div class="card-header"><h4>Jour {{puzzleNumber}}</h4></div>
+            <div class="card-body">
+        <p class="card-title">
+            On te donne le premier et le dernier mot d'une séquence de 4 mots.
+            Trouve les deux mots manquants de manière à avoir un lien fort entre chaque paire 
+            de mots voisin. 
+            Il y a plusieurs solutions ! Trouve le lien le plus fort !
+    
+             <br><br>
+            
+            {% if winners_today == 0 %}
+                Tu es le·a <bold>premier·ère</bold> à jouer 
+            {% elif winners_today == 1 %}
+                <bold>Un seul</bold> joueur·euse a joué 
+            {% else %}
+                <bold>{{winners_today}}</bold> joueurs·euses ont déjà joué 
+            {% endif %}
+            aujourd'hui.
+        </p>
+    </div>
+{% endblock %}
+
+{% block content %}
+  
+
+
+    
+
+    <div class="container">
+
+
+        <div class="row">
+            <div class="col-md-2 col-sm-0">
+            </div>
+            <div class="col-md-3 col-sm-12">
+                
+                <div class="row g-3 align-items-center">
+                    <div class="col-3"></div>
+                    <div class="col-6">
+                        <input id="go" class="btn btn-primary w-100" type="submit" value="Go!">
+                    </div>   
+                    <div class="col-3"></div>   
+                </div>
+                <div class="row g-3 align-items-center">
+                    <div class="col-5 col-md-12">
+                        <div id='circle-container' style="height: 150px;">
+                            <div class="progress center" id="progress" style="height: 100%;" ></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-12 text-center">
+                        <h5 id="score_message"></h5>
+                        <input id="full-list" class="btn btn-primary invisible" type="submit" value="Liste complète">
+                    </div>
+                    <div class="col-1 col-md-0">
+                    </div>
+                </div>
+
+
+                
+            </div>
+            <div class="col-md-3 col-sm-12">
+                <div class="row g-3">
+                    <input id="word_top" class="form-control" type="text" value="Top" disabled="true">
+                </div>
+                <div class="row">
+                    <div class="progress center" id="progress_link_1" style="height: 15px; margin-bottom: 10px;" ></div>
+                </div>
+                <div class="row g-3">
+                    <input id="guess_1" class="form-control" required type="text" value="GUESS 1">
+                </div>
+                <div class="row">
+                    <div class="progress center" id="progress_link_2" style="height: 15px; margin: 10px;" ></div>
+                </div>
+                <div class="row g-3">
+                    <input id="guess_2" class="form-control" required type="text" value="GUESS 2">
+                </div>
+                <div class="row">
+                    <div class="progress center" id="progress_link_3" style="height: 15px; margin: 10px;" ></div>
+                </div>
+                <div class="row g-3">
+                    <input id="word_bottom" class="form-control" type="text" value="Bottom" disabled="true">
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-0">
+            </div>
+        </div>
+    </div>
+    <br>
+
+    <!-- Pop-up Info-->
+    {% include '_popup_info.html' %}
+
+    <!-- Pop-up Show Previous Related Words-->
+    {% include '_popup_history.html' %}
+
+    <!-- Pop-up Show Related Words After Win-->
+    {% include '_popup_list.html' %}
+
+    <!-- Pop-up Show User Stats-->
+    {% include '_popup_user_history.html' %}
+
+    <!-- Pop-up for messages (warnings, etc.)-->
+    {% include '_popup_message.html' %}
+
+    <!-- Pop-up Win-->
+    {% include '_popup_win.html' %}
+       
+    <script>
+
+    document.getElementById("presentation-card").classList.remove('bg-sucess');
+    document.getElementById("presentation-card").classList.add('bg-flash');
+
+    let initalized = 0;
+    const storage = window.localStorage;
+    const gameDuration = 2*60;
+    const cold_color = '#7ddc1f';
+    const hot_color = '#ee0000';
+    const cls_newguess = "table-danger";
+    const cls_guess = "table-info";
+    const cls_hint = "hint";
+    const puzzleNumber = {{puzzleNumber}};
+    const fontSizeTextLargeScreen = '2.3rem';
+    const fontSizeEmojiLargeScreen = '3.5rem';
+    const fontSizeTextSmallScreen = '2.0rem';
+    const fontSizeEmojiSmallScreen = '3.0rem';
+    const circleSizeLargeScreen = '150px';
+    const circleSizeSmallScreen = '125px';
+
+    var fontSizeText = fontSizeTextLargeScreen;
+    var fontSizeEmoji = fontSizeEmojiLargeScreen;
+    var circleSize = circleSizeLargeScreen;
+    var emoji = null;
+    var today_word = null;
+    var total_points = 0;
+    var is_game_started = false;
+    var already_won = false;
+
+    document.getElementById("flash-link").href='#'
+
+    if (isMobileDevice()) {
+        fontSizeText = fontSizeTextSmallScreen;
+        fontSizeEmoji = fontSizeEmojiSmallScreen;
+        circleSize = circleSizeSmallScreen;
+    }
+
+    document.getElementById("circle-container").style = `height: ${circleSize};`;
+
+    function scrollToField()
+    {
+        // the next line is required to work around a bug in WebKit (Chrome / Safari)
+        location.href = "#guess_1";
+        location.href = "#guess_1";
+    }
+
+    function reload() {
+        document.getElementById('popup-header-msg').innerHTML = "Nouveau jour !"
+        message = "Temps écoulé, aujourd'hui est un nouveau jour !<br>";
+        message += "Rechargement de la page en cours."
+        document.getElementById('popup-msg').innerHTML = message;
+        modal_message.show();
+        setInterval(function() { window.location.reload(); }, 2000);
+    }
+
+    function checkDay() {
+        const storagePuzzleNumber = storage.getItem("flash_puzzleNumber");
+        if (storagePuzzleNumber && storagePuzzleNumber != puzzleNumber) { reload(); }
+    }
+    
+    const storagePuzzleNumber = storage.getItem("flash_puzzleNumber");
+    if (storagePuzzleNumber != puzzleNumber) {
+        storage.removeItem("flash_guesses");
+        storage.setItem("flash_puzzleNumber", puzzleNumber);
+        guesses = [];
+    } else {
+        guesses = JSON.parse(storage.getItem("flash_guesses"));
+        if (guesses == null){
+            guesses = [];
+        }
+    }
+
+    
+
+    // Get the modals to open popups from JS
+    var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
+        keyboard: false
+    })
+
+    var modal_user_history = new bootstrap.Modal(document.getElementById('popup_user_history'), {
+        keyboard: false
+    })
+
+    var modal_word_list = new bootstrap.Modal(document.getElementById('popup_list'), {
+        keyboard: false
+    })
+
+    var modal_message = new bootstrap.Modal(document.getElementById('popup_msg'), {
+        keyboard: false
+        })
+
+    function sleep(milliseconds) {  
+      return new Promise(resolve => setTimeout(resolve, milliseconds));  
+    }  
+
+    // Fill information for the user stat popup
+    var userHistoryLink = document.getElementById("link-user-history");
+    userHistoryLink.onclick = function() {
+        data_stats = getStatsFromStorage();
+        document.getElementById("user-history-table-content").innerHTML = '' 
+        function add_row(name, value) {
+            document.getElementById("user-history-table-content").innerHTML += 
+            `<tr class="table-dark table-striped">
+                <td class="text-white">${name}</td>
+                <td class="text-white">${value}</td>
+            </tr>`
+        }        
+        $.getJSON(
+            '/get_date_from_puzzle_number',
+            $.param({ number: data_stats.first_game}, true),
+            function(result){
+                add_row('Première partie :', result.date);
+                add_row('Parties jouées :', data_stats.nb_games);
+                add_row('Nombre moyen de mots trouvés :', (data_stats.nb_mean_guesses).toFixed(1));
+                add_row('Nombre de moyen de 👍🏽 :', (data_stats.nb_mean_no_poop).toFixed(1));
+                add_row('Nombre de moyen de 💩 :', (data_stats.nb_mean_poop).toFixed(1));
+            });
+        modal_user_history.show();
+    }
+
+    
+
+    var guessNumber = guesses.length;  
+    total_points = get_stored_score();
+    if (total_points == null) {
+        already_won = false;
+        total_points = 0;
+    } else {
+        unlockFullList();
+        already_won = true;
+        // send data to server, the previous results may not have been stored if the player 
+        // reloaded before the end.
+        // The server will not save the results anyway if the same player updated multiple time the score.
+        $.getJSON(
+            '/flash/win',
+            $.param({ score: total_points, guesses: guesses.length, user_id: get_user_id()}, true),
+            function(result){});
+    }
+    document.getElementById("score_message").innerHTML = `${total_points} points`
+
+    function getLinearProgressBar(id) {
+        var bar = new ProgressBar.Line(`#progress_link_${id}`, {
+        strokeWidth: 10,
+        easing: 'easeInOut',
+        duration: 1400,
+        color: '#FFEA82',
+        trailColor: '#999',
+        trailWidth: 10,
+        svgStyle: {width: '100%', height: '100%'},
+        from: {color: cold_color},
+        to: {color: hot_color},
+        step: (state, bar) => {
+            bar.path.setAttribute('stroke', state.color);
+        }
+        });
+        return bar
+    }
+    progress_link_1 = getLinearProgressBar(1)
+    progress_link_1.animate(0.)
+
+    bar = new ProgressBar.Circle(progress, {
+        strokeWidth: 10,
+        trailWidth: 2,
+        easing: 'easeInOut',
+        duration: 0,
+        text: {
+            autoStyleContainer: true
+        },
+        from: { color: cold_color, width: 10 },
+        to: { color: hot_color, width: 10 },
+        // Set default step function for all animate calls
+        step: function(state, circle) {
+            circle.path.setAttribute('stroke', state.color);
+            circle.path.setAttribute('stroke-width', state.width);
+            var value = circle.value();
+            var second = gameDuration-Math.round(value*gameDuration*10)/10;
+            if (emoji) {
+                circle.setText(emoji);
+            } else {
+                circle.setText(second + 's');
+            }
+            circle.text.style.color = state.color;
+        }
+        });
+        bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+        bar.text.style.fontSize = fontSizeText;
+
+    // get THE word
+    $.getJSON(
+        'flash/get_word',
+        {},
+        function(result){
+            today_word = result.word;
+        });
+
+    function start_on_click() {
+        if (is_game_started == false) {
+            if (already_won == false)
+            {
+                checkDay();
+                // save empty data here to be sure that if the user reload/quits
+                // before the end, it could not play again
+                saveDataToCache();
+                is_game_started = true;
+                total_points = 0;
+                updateGuessTable(today_word, 1000, 'hint');
+                var input = document.getElementById("ids");
+                input.addEventListener("keyup", function(event) {
+                    // Number 13 is the "Enter" key on the keyboard
+                    if (event.keyCode === 13) {
+                        // Cancel the default action, if needed
+                        event.preventDefault();
+                        // Trigger the button element with a click
+                        document.getElementById("go").click();
+                    }
+                }); 
+                var countDownEnd = new Date().getTime()+gameDuration;
+                var x = setInterval(function() {
+                    var now = new Date().getTime();
+                    var distance = now-countDownEnd;
+                    var seconds = Math.floor((distance) / 1000);
+                    var percent = seconds/gameDuration;
+                    bar.animate(percent);
+                    if (seconds >= gameDuration) {
+                        is_game_started = false;
+                        clearInterval(x);
+                        win();
+                    }
+                }, 1000);
+            } else {
+                win();
+            }
+        }
+    }
+
+
+    var btn_submit = document.getElementById('go');
+    btn_submit.addEventListener('click', function(){
+
+        var field_guess_1= document.getElementById("guess_1");
+        var field_guess_2= document.getElementById("guess_2");
+        let guess_1 = field_guess_1.value.trim().toLowerCase();
+        let guess_2 = field_guess_2.value.trim().toLowerCase();
+        console.log(guess_1, guess_2)
+        if(word !== null && word !== '') {
+            $.getJSON(
+                '/flash/get_score',
+                $.param({ word: word}, true),
+                function(result){
+                    let score = result.score; 
+                    word = result.word;               
+                    removeNewGuessClass();
+                    if (score >=0) {
+                        updateGuessTable(word, score, 'newguess');
+                        document.getElementById("score_message").innerHTML = `${total_points} points`
+                    }
+                    // empty the input field
+                    field.value = "";
+                    if (isMobileDevice()) {
+                        scrollToField();
+                    }
+                    focus();
+                }
+            );
+             
+        } 
+        document.getElementById("ids").value = "";  
+    });
+
+    var btn_share = document.getElementById('button-share')
+        btn_share.addEventListener('click', function(){
+            share();
+        });
+
+    function get_stored_score() {
+        let data_day = JSON.parse(storage.getItem("flash_day_"+puzzleNumber));
+        if (data_day == null){
+            return null;
+        }
+        return data_day.score;
+    }
+
+    function saveDataToCache() {
+        let data_day = JSON.parse(storage.getItem("day_"+puzzleNumber));
+        if (data_day == null){
+            data_day = {};
+        }
+        [nb_poop, nb_no_poop] = countPoops();
+        nb_guesses = guesses.length;
+        data_day['flash_score'] = total_points;
+        data_day['flash_poop'] = nb_poop;
+        data_day['flash_no_poop'] = nb_no_poop;
+        data_day['flash_guesses'] = nb_guesses;
+        storage.setItem("day_"+puzzleNumber, JSON.stringify(data_day));
+    }
+
+    function win()
+    {
+        let message = "";
+        // // check if you have already won
+        if (already_won == false){
+            // if not store your score
+            saveDataToCache();
+            document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">Fini !</h4>';
+            message += `<h5>Félicitation, tu as fait ${total_points} points !</h5>`;
+            // send data to server
+            $.getJSON(
+                '/flash/win',
+                $.param({ score: total_points, guesses: guesses.length, user_id: get_user_id()}, true),
+                function(result){});
+        } else{
+            document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">Fini pour aujourd\'hui !</h4>';
+            message +="<h5>Tu as déjà joué, reviens demain pour un nouveau mot !</h5>";
+            message += `<h5>Tu as fait <strong>${total_points}</strong> points !</h5>`;
+        }
+        modal_win.show();
+        document.getElementById("popup-win-msg").innerHTML = message;
+        if ({{winners_today}} > 3)
+        {
+            document.getElementById("hist-winners-user").src = `/flash/get_stat_hist_${total_points}.png`
+        } else {
+            document.getElementById("hist-winners-user").src = "{{ url_for('static', filename='images/empty_stats.png')}}"
+        }
+        already_won = true;
+        unlockFullList();
+    }
+
+    function unlockFullList() {
+        document.getElementById('start').value = 'Score';
+        var btn_list = document.getElementById('full-list');
+        btn_list.classList.remove('invisible');         
+        btn_list.addEventListener('click', function(){
+            modal_word_list.show();
+            document.getElementById("modal-list-title").innerHTML = '<h5 class="modal-title">Liste complète</h5>';
+            var table_content = '';
+            $.getJSON(
+                '/flash/get_full_list',
+                $.param({day: puzzleNumber}, true),
+                function(result){
+                result.word_list.forEach(function([word, score]) {
+                    table_content+=
+                    `
+                                    <tr>
+                                        <td class="text-white">${word}</td>
+                                        <td class="text-white">${score}</td>
+                                    </tr>
+                    `
+                    
+                    }
+                )
+                document.getElementById("modal-list-table-content").innerHTML = table_content;
+                }
+            );
+            
+        });
+    }
+
+    /**
+     * from https://andywalpole.me/blog/140739/using-javascript-create-guid-from-users-browser-information
+     * @function _guid
+     * @description Creates GUID for user based on several different browser variables
+     * It will never be RFC4122 compliant but it is robust
+     * @returns {Number}
+     * @private
+     */
+    // I DO NOT STORE THIS, I HASH IT AND STORE THAT
+    function get_user_id() {
+        var nav = window.navigator;
+        var screen = window.screen;
+        var guid = nav.mimeTypes.length;
+        guid += nav.userAgent.replace(/\D+/g, '');
+        guid += nav.plugins.length;
+        guid += screen.height || '';
+        guid += screen.width || '';
+        guid += screen.pixelDepth || '';
+
+        return guid;
+    };
+
+    function get_text_winner(nb_winners) {
+        if (nb_winners == 1)
+        {
+            return `${nb_winners}<sup>er·e</sup>`
+        } else {
+            return `${nb_winners}<sup>ème</sup>`
+        }
+    }
+    focus();
+    
+    function isMobileDevice()
+    {
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            return true;
+        } else {
+            return false;
+        }
+    }   
+
+    function focus()
+    {
+        document.getElementById("guess_1").focus();
+    }
+
+    function countPoops()
+    {
+        let nb_poop = 0;
+        let nb_no_poop = 0;
+        guesses.forEach(function (entry, index, arr) {
+            let [word, number, score] = entry;
+            if (score == 0)
+            {
+                nb_poop+=1;
+            } else {
+                nb_no_poop += 1;
+            }
+        });
+        return [nb_poop, nb_no_poop];
+    }
+
+    function saveDataToCache() {
+        let savedPuzzleNumber = storage.getItem("flash_puzzleNumber");
+        if (savedPuzzleNumber != puzzleNumber) {
+            return;
+        }
+        storage.setItem("flash_guesses", JSON.stringify(guesses));
+
+        nb_guesses = guesses.length;
+        [nb_poop, nb_no_poop] = countPoops();
+        
+        data_day = {
+            "puzzleNumber": puzzleNumber,
+            "nb_guesses": nb_guesses,
+            "nb_poop": nb_poop,
+            "nb_no_poop": nb_no_poop,
+            "score":total_points
+        }
+        storage.setItem("flash_day_"+puzzleNumber, JSON.stringify(data_day));
+    }
+
+    function getStatsFromStorage()
+    {
+        let nb_guesses_tot = 0;
+        let nb_poop_tot = 0;
+        let nb_no_poop_tot = 0;
+        let nb_points = null;
+        let first_game = null;
+        let nb_games = 0;
+
+        for (let day = 0; day < puzzleNumber+1; day++) { 
+            entry = storage.getItem("flash_day_"+day);
+            try {
+                let data_day = JSON.parse(entry);
+                if (entry != null) {
+                    nb_games += 1;
+                    nb_guesses_tot += parseInt(data_day.nb_guesses);
+                    nb_poop_tot += parseInt(data_day.nb_poop);
+                    nb_no_poop_tot += parseInt(data_day.nb_no_poop);
+                    nb_points += parseInt(data_day.score);
+                    // find the first day played
+                    if (first_game == null || day < first_game) {
+                        first_game = day;
+                    }
+                }
+            } catch (e) {
+            console.log('Error parsing day '+day+': '+e);
+            }
+        }
+        let nb_mean_guesses = 0;
+        let nb_mean_poop = 0;
+        let nb_mean_no_poop = 0;
+        let nb_mean_points = 0;
+        
+        if (nb_games > 0) {
+            nb_mean_guesses = parseFloat(nb_guesses_tot)/nb_games;
+            nb_mean_poop = parseFloat(nb_poop_tot)/nb_games;
+            nb_mean_no_poop = parseFloat(nb_no_poop_tot)/nb_games;
+            nb_mean_points = parseFloat(nb_points)/nb_games;
+        }
+        
+        stats = {
+            "first_game": first_game,
+            "nb_mean_guesses": nb_mean_guesses,
+            "nb_mean_poop": nb_mean_poop,
+            "nb_mean_no_poop": nb_mean_no_poop,
+            "nb_games": nb_games,
+            "nb_mean_points": nb_mean_points,
+        }
+        return stats;
+    }
+
+
+
+    async function share() {
+        data_day = JSON.parse(storage.getItem("flash_day_"+puzzleNumber));
+        // let score = 0;
+        // let nb_guesses = 0;
+        // let nb_poop = 0;
+        // let nb_no_poop = 0;
+        // if (guesses.length == 0){
+        //     if (data_day.flash_guesses) {
+        //         nb_guesses = data_day.guesses;
+        //         nb_poop = data_day.poop;
+        //         nb_no_poop = data_day.no_poop;
+        //         score = data_day.score;
+        //     } else {
+                
+        //     }
+        // } else {
+        nb_guesses = guesses.length;
+        [nb_poop, nb_no_poop] = countPoops();
+        // remove the master word
+        nb_no_poop -= 1;
+        nb_guesses -= 1;
+        score = total_points;
+        // }
+        
+        function strong(text) {return(`<strong>${text}</strong>`)}
+        let message = `J'ai fait un score de ${total_points} 🏆 à #semantus ⚡Flash⚡ (jour ${puzzleNumber}) !<br>`
+        // let text_winner = '';
+        // if (data_day.rank == 1)
+        // {
+        //     text_winner = '1er';
+        // } else {
+        //     text_winner = `${data_day.rank}ème`;
+        // }
+        // message += `Je suis le ${strong(text_winner)} a avoir trouvé le mot caché du en ${strong(nb_guesses)} tentatives`
+        message += `${nb_guesses} mots trouvés `
+        message += `(${nb_poop} 💩 et ${nb_no_poop} 👍🏽)<br>` ;
+        message += `https://www.semantus.fr/flash`;
+
+        try {
+            await navigator.clipboard.writeText(message.replace(/<br>/g,'\n'));
+            console.log(message.replace(/<br>/g,'\n'))
+            message += "<br><br>Copié dans le presse-papiers";
+        } catch (err) {
+            message += `<br><br>Erreur en copiant dans le presse-papiers<br>${err}`;
+        }
+        document.getElementById('popup-header-msg').innerHTML = 'Partage ton exploit !';
+        document.getElementById('popup-msg').innerHTML = message;
+
+        modal_win.hide();
+        modal_message.show();
+    }
+
+
+
+    
+
+    function guessRow(number, word, score, rowcls) {
+        let progress = "";
+        let cls = "";
+        
+        return `
+                    <tr class="${rowcls}" id="row_${number}">
+                        <td class="number">&nbsp;${number}</td>
+                        <td class="word ${cls}">${word}</td>
+                        <td class="number ${cls} ${score}">${String(score)}</td>
+                        <td><div id="bar_${number}" class = "progressbar"></div></td>
+                    </tr>
+                    `;
+    }
+
+    function createGuessTable() {   
+        // build the table from guesses array
+        let guesses_inner = '';
+        // for (let entry of guesses) {
+        guesses.forEach(function (entry, index, arr) {
+            let [word, number, score] = entry;
+            add_guess(number, word, score, 'guess');
+        });
+        guesses.forEach(function (entry, index, arr) {
+            let [tuple, number, score] = entry;
+            if (score == 0)
+            {
+                document.getElementById(`bar_${number}`).innerHTML = "💩"
+            } else {
+                progressBar(number, score)
+            }
+        });
+        sortTable(2)
+        sortTable(2)           
+    }
+
+    function updateGuessTable(word, score, type) {   
+        sortTable(2)
+        sortTable(2)
+        var already_guessed = false;
+        // check if work already guessed
+        for (let entry of guesses) {
+            let [oldword, number, score] = entry;
+            if (oldword == word) 
+            // if word already guessed 
+            {
+                already_guessed = true;
+                oldRow = document.getElementById(`row_${number}`)
+                // put it back to first place
+                rows = document.getElementById("guesses_table").rows;
+                rows[1].parentNode.insertBefore(oldRow, rows[1]);
+                if (type == 'guess')
+                {
+                    // highlight the word in the table
+                    oldRow.classList.remove(cls_guess)
+                    oldRow.classList.add(cls_newguess)  
+                }   
+                return;
+            }           
+        }
+        // only if it is a real word that was not already guessed
+        // increment the counter for hints
+        guessNumber += 1;
+        if (score < 1000) {
+            total_points += score;
+        }
+        addNewGuess(word, score, type);  
+        if (score == 0) {
+            document.getElementById(`bar_${guessNumber}`).innerHTML = "💩"
+        } else {
+            progressBar(guessNumber, score)
+        }
+    }
+    
+    function add_guess(number, word, score, type) {
+        let guesses_inner = document.getElementById("guesses").innerHTML; 
+        if (type == 'guess')
+        {
+            cls = cls_guess;
+        } else
+        {
+            cls = cls_newguess;
+        } 
+        guesses_inner = guessRow(number, word, score, cls) + guesses_inner;
+        // Update the html
+        document.getElementById("guesses").innerHTML = guesses_inner; 
+    }
+
+    function addNewGuess(word, score, type) {
+        add_guess(guessNumber, word, score, type)
+      
+        if (type == 'newguess')
+        {
+            type = 'guess'
+        }
+        // add new guess to guesses array
+        guesses.push([word, guessNumber, score]);
+        saveDataToCache();
+    } 
+
+    function removeNewGuessClass()
+    {
+        table = document.getElementById("guesses_table");
+        for (i = 1; i < (table.rows.length); i++) {
+            if (!table.rows[i].classList.contains(cls_hint))
+            {
+                table.rows[i].classList.remove(cls_newguess)
+                table.rows[i].classList.add(cls_guess)
+            }  
+        }
+    }
+
+    function switchRows(ind1, ind2) {
+        rows = document.getElementById("guesses_table").rows;
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+    }
+
+
+
+    function sortTable(n) {
+        function clean(w) {
+            return w.trim().replace('&nbsp;','');
+        }
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("guesses_table");
+
+        let type = 'number';
+        if (n == 1)
+        {
+            type = 'text';
+        }
+        switching = true;    
+        dir = "desc"
+        /* Make a loop that will continue until
+        no switching has been done: */
+        while (switching) {
+            // Start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /* Loop through all table rows (except the
+            first, which contains table headers): */
+            for (i = 1; i < (rows.length - 1); i++) {
+            // Start by saying there should be no switching:
+            shouldSwitch = false;
+            
+            /* Get the two elements you want to compare,
+            one from current row and one from the next: */
+            if (type == 'number')
+            {
+                x = +parseInt(clean(rows[i].getElementsByTagName("TD")[n].innerHTML));
+                y = +parseInt(clean(rows[i + 1].getElementsByTagName("TD")[n].innerHTML));
+            } 
+            else
+            {
+                // remove accent to compare strings
+                // see https://stackoverflow.com/questions/990904/remove-accents-diacritics-in-a-string-in-javascript
+                x = rows[i].getElementsByTagName("TD")[n].innerHTML.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+                y = rows[i + 1].getElementsByTagName("TD")[n].innerHTML.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+            }
+            /* Check if the two rows should switch place,
+            based on the direction, asc or desc: */
+            if (dir == "desc") {
+                if (x > y) {
+                // If so, mark as a switch and break the loop:
+                shouldSwitch = true;
+                break;
+                }
+            } else if (dir == "asc") {
+                if (x < y) {
+                // If so, mark as a switch and break the loop:
+                shouldSwitch = true;
+                break;
+                }
+            }
+            }
+            if (shouldSwitch) {
+            /* If a switch has been marked, make the switch
+            and mark that a switch has been done: */
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+            // Each time a switch is done, increase this count by 1:
+            switchcount ++;
+            } else {
+            /* If no switching has been done AND the direction is "asc",
+            set the direction to "desc" and run the while loop again. */
+            if (switchcount == 0 && dir == "desc") {
+                dir = "asc";
+                switching = true;
+            }
+            }
+        }
+    }
+
+    function beta() {   
+        message = 'Bienvenue à Semantus <i class="italic text-flash">Flash</i> !';
+        message += "<br><br>Ce jeu est en cours de développement, il est donc possible qu'il y reste des bugs.";
+        message += "<br>N'hésitez pas à nous contacter si vous avez des questions ou des suggestions :";
+        message += ' <a  href="https://twitter.com/intent/tweet?screen_name=semantusFr&ref_src=twsrc%5Etfw">@SemantuFr</a>';
+        document.getElementById('popup-header-msg').innerHTML = "Jeu en version bêta !";
+        document.getElementById('popup-msg').innerHTML = message;
+        document.getElementById('btn-close-msg').focus();
+        modal_message.show();
+    }
+    beta();
+    </script>
+
+    
+{% endblock %}

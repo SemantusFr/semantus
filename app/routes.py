@@ -89,6 +89,28 @@ def get_hash_client_ip():
 ############## LINK ##################
 ######################################
 
+@app.route('/link')
+def link():
+    puzzleNumber = get_puzzle_number()
+    yesterday_list = get_history(puzzleNumber-1)
+    winners_today = get_flash_winners_today()
+    game_mode = "Master"
+    game_catch_phrase = "Trouve le lien le plus fort entre deux mot qui n'ont rien à voir !"
+
+    return render_template(
+        'link.html', 
+        puzzleNumber = get_puzzle_number(),
+        minWords = FLASH_NB_HINTS_START,
+        maxWords = FLASH_NB_HINTS_MAX,
+        yesterday_word = get_yesterday_word(),
+        yesterday_list = yesterday_list,
+        winners_yesterday = get_flash_winners(puzzleNumber-1),
+        winners_today = winners_today,
+        game_mode = game_mode,
+        game_sub_title = game_catch_phrase,
+        colors = COLORS,
+    )
+
 def get_link_scores(day, guess_1, guess_2):
 
     def check_top_to_guess1(word):

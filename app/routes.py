@@ -608,7 +608,7 @@ def check_word(db, day, word):
     word_exists = does_word_exist(word)
     if not (word_exists):
         con.close()
-        return -1
+        return '',-1
 
     score = get_score_from_word(word)
     # if not word:

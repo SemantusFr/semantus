@@ -481,7 +481,7 @@
         message += `<h5>Félicitation, tu as fait une chaine de mots de ${score} points !</h5>`;
         if (score == bestLinkScore)
         {
-            message += "Il s'agit du meilleur score, bravo !";
+            message += "Il s'agit du meilleur score🏅, bravo !";
         } else {
             message += "C'est bien, mais tu peux faire encore mieux ! "; 
             message += `Le meilleur score possible est de ${bestLinkScore} points. <br>`;
@@ -661,10 +661,13 @@
                 user_best_score = entry[5];
             }
         });
-        
-        function strong(text) {return(`<strong>${text}</strong>`)}
-        let message = `J'ai trouvé une chaine de mots d'une valeur de ${user_best_score} 🏆`
-        message += `entre les deux du jours à #semantus 🔗Link🔗 (jour ${puzzleNumber}) !<br>`;
+        let message = "";
+        if (user_best_score == bestLinkScore) {
+            message = `J'ai trouvé la 🏅meilleure🏅 chaine de mots d'une valeur de ${user_best_score} 🏆`
+        } else {
+            message = `J'ai trouvé une chaine de mots d'une valeur de ${user_best_score} 🏆`
+        }
+        message += ` entre les deux mots du jours à #semantus 🔗Link🔗 (jour ${puzzleNumber}) !<br>`;
         message += "https://www.semantus.fr/link";
 
         try {

@@ -12,12 +12,12 @@
                         <table class="table  table-hover"; id="history_table">
                             <thead>
                             <tr class="table-dark table-striped">
-                                <th class="word" id="alpha_order">Mot</th>
+                                <th class="word" id="history-table-words-title">Mot</th>
                                 <th class="score" id="score_order">Score</th>
                             </tr>
                             </thead>
                             <tbody class = "insidetable"; id="history_table_content">
-                                {% for word, lemma, value, score in yesterday_list %}
+                                {% for word, score in yesterday_list %}
                                     <tr>
                                         <td class="text-white">{{word}}</td>
                                         <td class="text-white">{{score}}</td>

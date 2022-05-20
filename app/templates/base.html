@@ -238,8 +238,6 @@
     userHistoryLink.onclick = function() {
         // CLASSIC STATS
         //--------------
-        let classic_table = document.getElementById("user-classic-history-table-content");
-        classic_table.innerHTML = ''; 
         function add_row(name, value) {
             classic_table.innerHTML += 
             `<tr class="table-dark table-striped">
@@ -248,32 +246,33 @@
             </tr>`
         }
         data_stats = getClassicStatsFromStorage();
-        if(data_stats) {
-        $.getJSON(
-            '/get_date_from_puzzle_number',
-            $.param({ number: data_stats.first_game}, true),
-            function(result){
-                // document.getElementById("hist-since").innerHTML = result.date;
-                let date = ''
-                if (result.date) {
-                    date = result.date
-                } else {
-                    date = '0-0-0000'
-                }
-                add_row('Première partie :', result.date);
-                add_row('Parties jouées :', data_stats.nb_games);
-                add_row('Parties gagnées :', data_stats.nb_win);
-                add_row('Parties non finies :', data_stats.nb_no_win);
-                add_row('Série de victoires en cours :', data_stats.win_streak);
-                add_row('Nombre moyen d\'éssais :', (data_stats.nb_mean_guesses_win).toFixed(1));
-                add_row('Nombre moyen d\'indices :', (data_stats.nb_mean_hints_win).toFixed(1));
-                add_row('Score moyen :', (data_stats.nb_mean_points).toFixed(1));
-            });
-        }
+        if(data_stats && data_stats.first_game) {
+            let classic_table = document.getElementById("user-classic-history-table-content");
+            classic_table.innerHTML = ''; 
+            $.getJSON(
+                '/get_date_from_puzzle_number',
+                $.param({ number: data_stats.first_game}, true),
+                function(result){
+                    // document.getElementById("hist-since").innerHTML = result.date;
+                    let date = ''
+                    if (result.date) {
+                        date = result.date
+                    } else {
+                        date = '0-0-0000'
+                    }
+                    add_row('Première partie :', result.date);
+                    add_row('Parties jouées :', data_stats.nb_games);
+                    add_row('Parties gagnées :', data_stats.nb_win);
+                    add_row('Parties non finies :', data_stats.nb_no_win);
+                    add_row('Série de victoires en cours :', data_stats.win_streak);
+                    add_row('Nombre moyen d\'éssais :', (data_stats.nb_mean_guesses_win).toFixed(1));
+                    add_row('Nombre moyen d\'indices :', (data_stats.nb_mean_hints_win).toFixed(1));
+                    add_row('Score moyen :', (data_stats.nb_mean_points).toFixed(1));
+                });
+            }
         // FLASH STATS
         //------------
-        let flash_table = document.getElementById("user-flash-history-table-content");
-        flash_table.innerHTML = '';
+        
         function add_flash_row(name, value) {
             flash_table.innerHTML += 
             `<tr class="table-dark table-striped">
@@ -282,7 +281,9 @@
             </tr>`
         }
         data_stats_flash = getFlashStatsFromStorage();
-        if(data_stats) {
+        if(data_stats_flash && data_stats_flash.first_game)  {
+            let flash_table = document.getElementById("user-flash-history-table-content");
+            flash_table.innerHTML = '';
             $.getJSON(
                 '/get_date_from_puzzle_number',
                 $.param({ number: data_stats_flash.first_game}, true),

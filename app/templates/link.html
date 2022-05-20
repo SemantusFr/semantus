@@ -363,7 +363,7 @@
         sleep(800).then(() => {
             let guess_1 = field_guess_1.value.trim().toLowerCase();
             let guess_2 = field_guess_2.value.trim().toLowerCase();
-            if(guess_1 !== null && guess_1 !== '' && guess_2 !== null && guess_2 !== '') {
+            if(guess_1 || guess_2) {
                 $.getJSON(
                     '/link/get_score',
                     $.param({ guess_1: guess_1, guess_2: guess_2}, true),
@@ -379,7 +379,10 @@
                                     win(guess_1, guess_2, score);
                                 }) 
                         }
-                        if (link_1 > 0) {
+                        if (guess_1 == null || guess_1 == '') {
+                            document.getElementById("value-link-1").innerHTML = "❌";
+                            progress_link_1.animate(0.)
+                        } else if (link_1 > 0) {
                             progress_link_1.animate(parseFloat(link_1)/maxLink)
                             document.getElementById("value-link-1").innerHTML = link_1;
                         } else if (link_1 == -1) {
@@ -400,7 +403,10 @@
                             }
                             progress_link_2.animate(0.)
                         }
-                        if (link_3 > 0) {
+                        if (guess_2 == null || guess_2 == '') {
+                            document.getElementById("value-link-3").innerHTML = "❌";
+                            progress_link_3.animate(0.)
+                        } else if(link_3 > 0) {
                             progress_link_3.animate(parseFloat(link_3)/maxLink)
                             document.getElementById("value-link-3").innerHTML = link_3;
                         } else if (link_3 == -1) {

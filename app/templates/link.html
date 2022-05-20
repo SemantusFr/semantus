@@ -400,9 +400,6 @@
                         let link_3 = result.link_3;
                         if (score >0) {
                             // document.getElementById("score_message").innerHTML = `${score} points`;
-                            console.log(parseFloat(score));
-                            console.log(parseFloat(bestLinkScore));
-                            console.log(parseFloat(score)/parseFloat(bestLinkScore));
                             bar.animate(parseFloat(score)/parseFloat(bestLinkScore));
                             sleep(1600).then(() => {
                                     win(score);
@@ -440,7 +437,7 @@
                             progress_link_3.animate(0.)
                         }
                         if (link_1 > -1 && link_2 >-1) {
-                            guesses.push([guess_1, guess_2, link_1, link_2, link_3, score]);
+                            addGuessToList(guess_1, guess_2, link_1, link_2, link_3, score);
                             saveDataToCache();
                         }
                         
@@ -457,6 +454,21 @@
             } 
         })
     });
+
+    function addGuessToList(guess_1, guess_2, link_1, link_2, link_3, score) {
+        isNew = true;
+        guesses.forEach(function(entry) {
+            let old_guess_1 = entry[0];
+            let old_guess_2 = entry[1];
+            if (old_guess_1 == guess_1 && old_guess_2 == guess_2) {
+                isNew = False;  
+            }
+        });
+        console.log(isNew)
+        if (isNew) {
+            guesses.push([guess_1, guess_2, link_1, link_2, link_3, score]);
+        }          
+    }
 
     var btn_share = document.getElementById('button-share')
         btn_share.addEventListener('click', function(){
@@ -533,7 +545,7 @@
                 table_content+=
                 `
                                 <tr>
-                                    <td class="text-white">${guess_1+' '+guess_2}</td>
+                                    <td class="text-white">${guess_1+' + '+guess_2}</td>
                                     <td class="text-white">${score}</td>
                                 </tr>
                 `

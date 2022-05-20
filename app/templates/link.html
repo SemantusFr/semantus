@@ -226,9 +226,7 @@
             unlockHistory();
         }
     }
-
     
-
     // Get the modals to open popups from JS
     var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
         keyboard: false
@@ -276,26 +274,6 @@
         modal_user_history.show();
     }
 
-    
-
-    // var guessNumber = guesses.length;  
-    // total_points = get_stored_score();
-    // if (total_points == null) {
-    //     already_won = false;
-    //     total_points = 0;
-    // } else {
-    //     unlockHistory();
-    //     already_won = true;
-    //     // send data to server, the previous results may not have been stored if the player 
-    //     // reloaded before the end.
-    //     // The server will not save the results anyway if the same player updated multiple time the score.
-    //     $.getJSON(
-    //         '/link/win',
-    //         $.param({ score: total_points, guesses: guesses.length, user_id: get_user_id()}, true),
-    //         function(result){});
-    // }
-    // // document.getElementById("score_message").innerHTML = `${total_points} points`
-
     function getLinearProgressBar(id) {
         var bar = new ProgressBar.Line(`#progress-link-${id}`, {
         strokeWidth: 10,
@@ -316,10 +294,8 @@
     progress_link_1 = getLinearProgressBar(1)
     progress_link_2 = getLinearProgressBar(2)
     progress_link_3 = getLinearProgressBar(3)
-
     var field_guess_1 = document.getElementById("guess-1");
     var field_guess_2 = document.getElementById("guess-2");
-    
 
     bar = new ProgressBar.Circle(progress, {
         strokeWidth: 10,
@@ -358,8 +334,6 @@
             document.getElementById('word-top').value = word_top;
             document.getElementById('word-bottom').value = word_bottom;
         });
-
-    
         
     field_guess_1.addEventListener("keyup", function(event) {
     // Number 13 is the "Enter" key on the keyboard
@@ -387,8 +361,6 @@
         progress_link_2.animate(0.5);
         progress_link_3.animate(0.5);
         sleep(800).then(() => {
-                                
-                             
             let guess_1 = field_guess_1.value.trim().toLowerCase();
             let guess_2 = field_guess_2.value.trim().toLowerCase();
             if(guess_1 !== null && guess_1 !== '' && guess_2 !== null && guess_2 !== '') {
@@ -404,7 +376,7 @@
                             // document.getElementById("score_message").innerHTML = `${score} points`;
                             bar.animate(parseFloat(score)/parseFloat(bestLinkScore));
                             sleep(1600).then(() => {
-                                    win(score);
+                                    win(guess_1, guess_2, score);
                                 }) 
                         }
                         if (link_1 > 0) {
@@ -499,7 +471,7 @@
         storage.setItem("day_"+puzzleNumber, JSON.stringify(data_day));
     }
 
-    function win(score)
+    function win(guess_1, guess_2, score)
     {
         unlockHistory();
         let message = "";
@@ -519,20 +491,10 @@
         document.getElementById("div-block-hist").innerHTML = '';
         modal_win.show();
         // send data to server
-        // $.getJSON(
-        //     '/link/win',
-        //     $.param({ score: total_points, guesses: guesses.length, user_id: get_user_id()}, true),
-        //     function(result){});
-        
-        // document.getElementById("popup-win-msg").innerHTML = message;
-        // if ({{winners_today}} > 3)
-        // {
-        //     document.getElementById("hist-winners-user").src = `/flash/get_stat_hist_${total_points}.png`
-        // } else {
-        //     document.getElementById("hist-winners-user").src = "{{ url_for('static', filename='images/empty_stats.png')}}"
-        // }
-        // already_won = true;
-        // unlockFullList();
+        $.getJSON(
+            '/link/win',
+            $.param({guess_1: guess_1, guess_2: guess_2, score: total_points, user_id: get_user_id()}, true),
+            function(result){});
     }
 
     function unlockHistory() {

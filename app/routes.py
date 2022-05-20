@@ -151,6 +151,50 @@ def get_link_score():
             'score': score}
     return jsonify(data)
 
+@app.route('/link/win')
+def link_win():
+    '''
+    Update the database to add the win.
+    '''
+    guess_1 = request.args.get('guess_1')
+    guess_2 = request.args.get('guess_2')
+    user_id = request.args.get('user_id')
+    puzzleNumber = get_puzzle_number()
+    score = get_link_scores(puzzleNumber, guess_1, guess_2)[-1]
+    if score <= 0:
+        return jsonify({})
+    ip_hash = get_hash_client_ip()
+    user_hash = hash(user_id)
+    unique_hash = ip_hash+user_hash
+    table_name = f"link_day{puzzleNumber}"
+    con, cur = connect_to_db(STAT_DB_PATH)
+    con.commit()
+    query = f"create table if not exists {table_name}"
+    query += "(unique_hash TEXT PRIMARY KEY, ip_hash TEXT, user_hash TEXT, guess_1 INT, guess_2 INT, points INT)"
+    cur.execute(query)
+    con.commit()
+
+
+    # check if the same user has already win with a better score
+    with con:
+        query = f'SELECT points FROM {table_name} WHERE unique_hash = "{unique_hash}"'
+        cur.execute(query)
+        res = cur.fetchall()
+        if res and res[0][0] >= score:
+            # do nothing, only keep the best score
+            ret = jsonify({})
+            return ret
+        else:
+            with con:
+                query = f"REPLACE into {table_name} (unique_hash, ip_hash, user_hash, guess_1, guess_2, points)"
+                query += f"values (\"{unique_hash}\", \"{ip_hash}\", \"{user_hash}\", \"{guess_1}\", \"{guess_2}\", {score})"""
+                cur.execute(query)
+                con.commit()
+    data = {
+        # 'winners':get_flash_winners_today(),
+    }
+    return jsonify(data)
+
 def get_link_scores(day, guess_1, guess_2):
     def does_word_exist(word):
         query=f'select exists(select 1 from all_words_fr where word="{word}" collate nocase) limit 1'
@@ -265,6 +309,8 @@ def get_master_word_lists():
     return jsonify(data)
 
 
+
+
 ####################################
 ############ FLASH #################
 ####################################
@@ -354,7 +400,7 @@ def flash_win():
         query = f"SELECT * FROM day{puzzleNumber}"
         cur.execute(query)
         res = cur.fetchall()
-        
+        con.close()
         data = {
             'already_won':already_won,
             'winners':get_flash_winners_today(),

@@ -121,8 +121,6 @@ def get_link_solutions(day, all = False):
        query += " LIMIT 1" 
     check = cur.execute(query)
     solutions = check.fetchall()
-    print('*'*100)
-    print(solutions)
     return solutions
 
 @app.route('/link/get_words')
@@ -437,7 +435,7 @@ def flash_win():
         query = f"SELECT * FROM day{puzzleNumber}"
         cur.execute(query)
         res = cur.fetchall()
-        con.close()
+        
         data = {
             'already_won':already_won,
             'winners':get_flash_winners_today(),

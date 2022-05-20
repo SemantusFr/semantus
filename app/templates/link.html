@@ -308,7 +308,7 @@
             circle.path.setAttribute('stroke', state.color);
             circle.path.setAttribute('stroke-width', state.width);
             var value = circle.value();
-            var score = Math.ceil(value*bestLinkScore);
+            var score = Math.round(value*bestLinkScore);
             if (emoji) {
                 circle.setText(emoji);
             } else {
@@ -374,6 +374,7 @@
                             sleep(1600).then(() => {
                                     win(guess_1, guess_2, score);
                                 }) 
+                            
                         }
                         if (guess_1 == null || guess_1 == '') {
                             document.getElementById("value-link-1").innerHTML = "❌";

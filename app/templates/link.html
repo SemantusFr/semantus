@@ -180,7 +180,6 @@
             '/link/get_best_score',
             $.param({}, true),
             function(result){
-                console.log(result);
                 bestLinkScore = parseInt(result.best_score);
             });
 
@@ -464,10 +463,9 @@
             let old_guess_1 = entry[0];
             let old_guess_2 = entry[1];
             if (old_guess_1 == guess_1 && old_guess_2 == guess_2) {
-                isNew = False;  
+                isNew = false;  
             }
         });
-        console.log(isNew)
         if (isNew) {
             guesses.push([guess_1, guess_2, link_1, link_2, link_3, score]);
             guesses.sort(function(x,y){return y[5]-x[5]});
@@ -709,7 +707,6 @@
 
         try {
             await navigator.clipboard.writeText(message.replace(/<br>/g,'\n'));
-            console.log(message.replace(/<br>/g,'\n'))
             message += "<br><br>Copié dans le presse-papiers";
         } catch (err) {
             message += `<br><br>Erreur en copiant dans le presse-papiers<br>${err}`;

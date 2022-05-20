@@ -4,9 +4,9 @@
       <meta name="twitter:card" content="summary"/>
       <meta name="twitter:site" content="@Semantus"/>
       <meta name="twitter:creator" content="@Semantus" />
-      <meta property="og:title" content="Semantus ⚡Flash⚡" />
+      <meta property="og:title" content="Semantus 🔗Link🔗" />
       <meta property="og:image" content="{{ url_for('static', filename='images/preview.png', _external=True) }}" />
-      <meta property="og:description" content="Trouve le plus de mots !" />
+      <meta property="og:description" content="Fais la meilleure chaine de mots !" />
     
       <link rel="apple-touch-icon" sizes="180x180" sizes="32x32" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
       <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block card %}
-    <div class="text-center card text-white mb-3 bg-flash" id = "presentation-card" >
+    <div class="text-center card text-white mb-3 bg-link" id = "presentation-card" >
         <div class="card-header"><h4>Jour {{puzzleNumber}}</h4></div>
             <div class="card-body">
         <p class="card-title">
@@ -431,7 +431,11 @@
                     }
                 );
                 
-            } 
+            } else {
+                progress_link_1.animate(0.)
+                progress_link_2.animate(0.)
+                progress_link_3.animate(0.)
+            }
         })
     });
 

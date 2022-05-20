@@ -124,6 +124,17 @@ def get_link_words():
     data = {'words':words}
     return jsonify(data)
 
+@app.route('/link/get_best_score')
+def get_link_best_score():
+    puzzleNumber = get_puzzle_number()
+    cur, con = connect_to_db(LINK_DB_PATH)
+    query = f"SELECT score FROM day{puzzleNumber}_solutions LIMIT 1"
+    check = cur.execute(query)
+    best_score = check.fetchone()[0]
+    data = {'best_score': best_score}
+    return jsonify(data)
+
+
 @app.route('/link/get_score')
 def get_link_score():
     puzzleNumber = get_puzzle_number()
@@ -141,6 +152,14 @@ def get_link_score():
     return jsonify(data)
 
 def get_link_scores(day, guess_1, guess_2):
+    def does_word_exist(word):
+        query=f'select exists(select 1 from all_words_fr where word="{word}" collate nocase) limit 1'
+        check = cur.execute(query) 
+        found = check.fetchone()[0]
+        if found:
+            return True
+        else:
+            return False
 
     def check_top_to_guess1(word):
         word.replace("'","''")
@@ -185,13 +204,18 @@ def get_link_scores(day, guess_1, guess_2):
 
     cur, con = connect_to_db(LINK_DB_PATH)
 
-    if guess_1:
+    if guess_1 and does_word_exist(guess_1):
         link_1 = check_top_to_guess1(guess_1)
+    else:
+        link_1 = -1
 
-    if guess_2:
+    if guess_2 and does_word_exist(guess_2):
         link_3 = check_botom_to_guess2(guess_2)
+    else:
+        link_3 = -1    
+        
 
-    if link_1 and link_3:
+    if link_1 > 0 and link_3 > 0:
         link_2 = check_guess1_to_guess2(guess_1, guess_2)
         temp = check_guess2_to_guess1(guess_1, guess_2)
         link_2 = temp if temp > link_2 else link_2

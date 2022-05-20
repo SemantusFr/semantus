@@ -147,7 +147,6 @@
 
     let initalized = 0;
     const storage = window.localStorage;
-    const gameDuration = 2*60;
     const cold_color = '#ee0000';
     const hot_color = '#7ddc1f';
     const cls_newguess = "table-danger";
@@ -162,6 +161,7 @@
     const circleSizeSmallScreen = '125px';
     const maxLink = {{maxLink}};
     const maxScore = 3*maxLink;
+    
 
     var fontSizeText = fontSizeTextLargeScreen;
     var fontSizeEmoji = fontSizeEmojiLargeScreen;
@@ -173,8 +173,16 @@
     var already_won = false;
     var word_top = "";
     var word_bottom = "";
+    var bestLinkScore = 0;
+    
 
-    document.getElementById("flash-link").href='#'
+    $.getJSON(
+            '/link/get_best_score',
+            $.param({}, true),
+            function(result){
+                console.log(result);
+                bestLinkScore = parseInt(result.best_score);
+            });
 
     if (isMobileDevice()) {
         fontSizeText = fontSizeTextSmallScreen;
@@ -289,7 +297,7 @@
         var bar = new ProgressBar.Line(`#progress-link-${id}`, {
         strokeWidth: 10,
         easing: 'easeInOut',
-        duration: 1400,
+        duration: 800,
         color: '#FFEA82',
         trailColor: '#999',
         trailWidth: 10,
@@ -325,7 +333,7 @@
             circle.path.setAttribute('stroke', state.color);
             circle.path.setAttribute('stroke-width', state.width);
             var value = circle.value();
-            var score = parseInt(value*maxScore);
+            var score = parseInt(value*bestLinkScore);
             if (emoji) {
                 circle.setText(emoji);
             } else {
@@ -372,60 +380,78 @@
 
     var btn_submit = document.getElementById('go');
     btn_submit.addEventListener('click', function(){
-
-        
-        let guess_1 = field_guess_1.value.trim().toLowerCase();
-        let guess_2 = field_guess_2.value.trim().toLowerCase();
-        if(guess_1 !== null && guess_1 !== '' && guess_2 !== null && guess_2 !== '') {
-            $.getJSON(
-                '/link/get_score',
-                $.param({ guess_1: guess_1, guess_2: guess_2}, true),
-                function(result){
-                    let score = result.score; 
-                    let link_1 = result.link_1;
-                    let link_2 = result.link_2;
-                    let link_3 = result.link_3;
-                    if (score >0) {
-                        document.getElementById("score_message").innerHTML = `${score} points`;
-                        bar.animate(parseFloat(score)/maxScore);
-                    }
-                    if (link_1) {
-                        progress_link_1.animate(parseFloat(link_1)/maxLink)
-                        document.getElementById("value-link-1").innerHTML = link_1;
-                    } else {
-                        document.getElementById("value-link-1").innerHTML = "💩";
-                        progress_link_1.animate(0.)
-                    }
-                    if (link_2) {
-                        progress_link_2.animate(parseFloat(link_2)/maxLink)
-                        document.getElementById("value-link-2").innerHTML = link_2;
-                    } else {
-                        if (link_1 && link_3) {
-                            document.getElementById("value-link-2").innerHTML = "💩";
-                        } else {
-                            document.getElementById("value-link-2").innerHTML = "❌";
+        progress_link_1.animate(0.5);
+        progress_link_2.animate(0.5);
+        progress_link_3.animate(0.5);
+        sleep(800).then(() => {
+                                
+                             
+            let guess_1 = field_guess_1.value.trim().toLowerCase();
+            let guess_2 = field_guess_2.value.trim().toLowerCase();
+            if(guess_1 !== null && guess_1 !== '' && guess_2 !== null && guess_2 !== '') {
+                $.getJSON(
+                    '/link/get_score',
+                    $.param({ guess_1: guess_1, guess_2: guess_2}, true),
+                    function(result){
+                        let score = result.score; 
+                        let link_1 = result.link_1;
+                        let link_2 = result.link_2;
+                        let link_3 = result.link_3;
+                        if (score >0) {
+                            document.getElementById("score_message").innerHTML = `${score} points`;
+                            console.log(parseFloat(score));
+                            console.log(parseFloat(bestLinkScore));
+                            console.log(parseFloat(score)/parseFloat(bestLinkScore));
+                            bar.animate(parseFloat(score)/parseFloat(bestLinkScore));
+                            sleep(1600).then(() => {
+                                    win(score);
+                                }) 
                         }
-                        progress_link_2.animate(0.)
-                    }
-                    if (link_3) {
-                        progress_link_3.animate(parseFloat(link_3)/maxLink)
-                        document.getElementById("value-link-3").innerHTML = link_3;
-                    } else {
-                        document.getElementById("value-link-3").innerHTML = "💩";
-                        progress_link_3.animate(0.)
-                    }
+                        // 🤔
+                        if (link_1 > 0) {
+                            progress_link_1.animate(parseFloat(link_1)/maxLink)
+                            document.getElementById("value-link-1").innerHTML = link_1;
+                        } else if (link_1 == -1) {
+                            document.getElementById("value-link-1").innerHTML = "🤔";
+                            progress_link_1.animate(0.)
+                        } else {
+                            document.getElementById("value-link-1").innerHTML = "💩";
+                            progress_link_1.animate(0.)
+                        }
+                        if (link_2 > 0) {
+                            progress_link_2.animate(parseFloat(link_2)/maxLink)
+                            document.getElementById("value-link-2").innerHTML = link_2;
+                        } else {
+                            if (link_1 > 0 && link_3 > 0) {
+                                document.getElementById("value-link-2").innerHTML = "💩";
+                            } else {
+                                document.getElementById("value-link-2").innerHTML = "❌";
+                            }
+                            progress_link_2.animate(0.)
+                        }
+                        if (link_3 > 0) {
+                            progress_link_3.animate(parseFloat(link_3)/maxLink)
+                            document.getElementById("value-link-3").innerHTML = link_3;
+                        } else if (link_3 == -1) {
+                            document.getElementById("value-link-3").innerHTML = "🤔";
+                            progress_link_3.animate(0.)
+                        } else {
+                            document.getElementById("value-link-3").innerHTML = "💩";
+                            progress_link_3.animate(0.)
+                        }
 
-                    // empty the input field
-                    // field_guess_1.value = "";
-                    // field_guess_2.value = "";
-                    if (isMobileDevice()) {
-                        scrollToField();
+                        // empty the input field
+                        // field_guess_1.value = "";
+                        // field_guess_2.value = "";
+                        if (isMobileDevice()) {
+                            scrollToField();
+                        }
+                        focus();
                     }
-                    focus();
-                }
-            );
-             
-        } 
+                );
+                
+            } 
+        })
     });
 
     var btn_share = document.getElementById('button-share')
@@ -455,35 +481,37 @@
         storage.setItem("day_"+puzzleNumber, JSON.stringify(data_day));
     }
 
-    function win()
+    function win(score)
     {
         let message = "";
         // // check if you have already won
-        if (already_won == false){
-            // if not store your score
-            saveDataToCache();
-            document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">Fini !</h4>';
-            message += `<h5>Félicitation, tu as fait ${total_points} points !</h5>`;
-            // send data to server
-            $.getJSON(
-                '/flash/win',
-                $.param({ score: total_points, guesses: guesses.length, user_id: get_user_id()}, true),
-                function(result){});
-        } else{
-            document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">Fini pour aujourd\'hui !</h4>';
-            message +="<h5>Tu as déjà joué, reviens demain pour un nouveau mot !</h5>";
-            message += `<h5>Tu as fait <strong>${total_points}</strong> points !</h5>`;
+        // saveDataToCache();
+        document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">Lien établi !</h4>';
+        message += `<h5>Félicitation, tu as fait une chaine de valeur ${score} points !</h5>`;
+        if (score == bestLinkScore)
+        {
+            message += "Il s'agit du meilleur score, bravo !";
+        } else {
+            message += "C'est bien, mais tu peux faire encore mieux !"; 
+            message += `Le meilleur score possible est de ${bestLinkScore} points.`;
+            message += "Tu peux continuer à essayer d'augmenter ton score !";
         }
         modal_win.show();
-        document.getElementById("popup-win-msg").innerHTML = message;
-        if ({{winners_today}} > 3)
-        {
-            document.getElementById("hist-winners-user").src = `/flash/get_stat_hist_${total_points}.png`
-        } else {
-            document.getElementById("hist-winners-user").src = "{{ url_for('static', filename='images/empty_stats.png')}}"
-        }
-        already_won = true;
-        unlockFullList();
+        // send data to server
+        // $.getJSON(
+        //     '/link/win',
+        //     $.param({ score: total_points, guesses: guesses.length, user_id: get_user_id()}, true),
+        //     function(result){});
+        
+        // document.getElementById("popup-win-msg").innerHTML = message;
+        // if ({{winners_today}} > 3)
+        // {
+        //     document.getElementById("hist-winners-user").src = `/flash/get_stat_hist_${total_points}.png`
+        // } else {
+        //     document.getElementById("hist-winners-user").src = "{{ url_for('static', filename='images/empty_stats.png')}}"
+        // }
+        // already_won = true;
+        // unlockFullList();
     }
 
     function unlockFullList() {

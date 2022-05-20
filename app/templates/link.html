@@ -223,6 +223,7 @@
         if (guesses == null){
             guesses = [];
         } else {
+            guesses.sort(function(x,y){return y[5]-x[5]});
             unlockHistory();
         }
     }
@@ -507,16 +508,17 @@
         // // check if you have already won
         // saveDataToCache();
         document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">Lien établi !</h4>';
-        message += `<h5>Félicitation, tu as fait une chaine de valeur ${score} points !</h5>`;
+        message += `<h5>Félicitation, tu as fait une chaine de mots de ${score} points !</h5>`;
         if (score == bestLinkScore)
         {
             message += "Il s'agit du meilleur score, bravo !";
         } else {
-            message += "C'est bien, mais tu peux faire encore mieux !"; 
-            message += `Le meilleur score possible est de ${bestLinkScore} points.`;
+            message += "C'est bien, mais tu peux faire encore mieux ! "; 
+            message += `Le meilleur score possible est de ${bestLinkScore} points. <br>`;
             message += "Tu peux continuer à essayer d'augmenter ton score !";
         }
         document.getElementById("popup-win-msg").innerHTML = message;
+        document.getElementById("div-block-hist").innerHTML = '';
         modal_win.show();
         // send data to server
         // $.getJSON(
@@ -692,42 +694,18 @@
 
 
     async function share() {
-        data_day = JSON.parse(storage.getItem("flash_day_"+puzzleNumber));
-        // let score = 0;
-        // let nb_guesses = 0;
-        // let nb_poop = 0;
-        // let nb_no_poop = 0;
-        // if (guesses.length == 0){
-        //     if (data_day.flash_guesses) {
-        //         nb_guesses = data_day.guesses;
-        //         nb_poop = data_day.poop;
-        //         nb_no_poop = data_day.no_poop;
-        //         score = data_day.score;
-        //     } else {
-                
-        //     }
-        // } else {
-        nb_guesses = guesses.length;
-        [nb_poop, nb_no_poop] = countPoops();
-        // remove the master word
-        nb_no_poop -= 1;
-        nb_guesses -= 1;
-        score = total_points;
-        // }
+        let user_best_score = 0;
+        guesses.forEach(function(entry) {
+            if (entry[5] > user_best_score)
+            {
+                user_best_score = entry[5];
+            }
+        });
         
         function strong(text) {return(`<strong>${text}</strong>`)}
-        let message = `J'ai fait un score de ${total_points} 🏆 à #semantus ⚡Flash⚡ (jour ${puzzleNumber}) !<br>`
-        // let text_winner = '';
-        // if (data_day.rank == 1)
-        // {
-        //     text_winner = '1er';
-        // } else {
-        //     text_winner = `${data_day.rank}ème`;
-        // }
-        // message += `Je suis le ${strong(text_winner)} a avoir trouvé le mot caché du en ${strong(nb_guesses)} tentatives`
-        message += `${nb_guesses} mots trouvés `
-        message += `(${nb_poop} 💩 et ${nb_no_poop} 👍🏽)<br>` ;
-        message += `https://www.semantus.fr/flash`;
+        let message = `J'ai trouvé une chaine de mots d'une valeur de ${user_best_score} 🏆`
+        message += `entre les deux du jours à #semantus 🔗Link🔗 (jour ${puzzleNumber}) !<br>`;
+        message += "https://www.semantus.fr/link";
 
         try {
             await navigator.clipboard.writeText(message.replace(/<br>/g,'\n'));

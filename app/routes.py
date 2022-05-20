@@ -92,15 +92,19 @@ def get_hash_client_ip():
 @app.route('/link')
 def link():
     puzzleNumber = get_puzzle_number()
-    yesterday_list = get_history(puzzleNumber-1)
+    yesterday_solutions = get_link_solutions(puzzleNumber-1)
+    yesterday_solutions = [[w1+'-'+w2,s] for _,w1,w2,s in yesterday_solutions]
+    yesterday_words = _get_link_words(puzzleNumber-1)
     winners_today = get_link_winners_today()
     game_mode = "Link"
     game_catch_phrase = "Trouve le lien le plus fort entre deux mots qui n'ont rien à voir !"
+    # best_yesterday_combination = get
 
     return render_template(
         'link.html', 
         puzzleNumber = puzzleNumber,
-        # winners_yesterday = get_link_winners(puzzleNumber-1),
+        yesterday_words = yesterday_words,
+        yesterday_list = yesterday_solutions,
         winners_today = winners_today,
         game_mode = game_mode,
         maxLink = 300,
@@ -108,16 +112,33 @@ def link():
         colors = COLORS,
     )
 
+
+    
+def get_link_solutions(day, all = False):
+    cur, con = connect_to_db(LINK_DB_PATH)
+    query = f"SELECT * FROM day{day}_solutions"
+    if all:
+       query += " LIMIT 1" 
+    check = cur.execute(query)
+    solutions = check.fetchall()
+    print('*'*100)
+    print(solutions)
+    return solutions
+
 @app.route('/link/get_words')
 def get_link_words():
     puzzleNumber = get_puzzle_number()
+    words = _get_link_words(puzzleNumber)
+    data = {'words':words}
+    return jsonify(data)
+
+def _get_link_words(day):
     cur, con = connect_to_db(LINK_DB_PATH)
-    query = f"SELECT * FROM day{puzzleNumber}"
+    query = f"SELECT * FROM day{day}"
     check = cur.execute(query)
     words = check.fetchall()
     words = list(zip(*words))[0]
-    data = {'words':words}
-    return jsonify(data)
+    return words
 
 @app.route('/link/get_best_score')
 def get_link_best_score():
@@ -334,6 +355,7 @@ def get_master_word_lists():
 def flash():
     puzzleNumber = get_puzzle_number()
     yesterday_list = get_history(puzzleNumber-1)
+    yesterday_list = [[w,s] for w,_,_,s in yesterday_list]
     winners_today = get_flash_winners_today()
     game_mode = "Flash"
     game_catch_phrase = "Trouve plus de mots que Martine de la compta."
@@ -464,6 +486,7 @@ def get_flash_full_list():
 def index():
     puzzleNumber = get_puzzle_number()
     yesterday_list = get_history(puzzleNumber-1)
+    yesterday_list = [[w,s] for w,_,_,s in yesterday_list]
     winners_today = get_winners_today()
     game_mode = "Classique"
     game_catch_phrase = "Trouve le mot caché plus rapidement que ton beau-frère."

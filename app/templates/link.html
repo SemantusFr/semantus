@@ -36,24 +36,22 @@
                 <bold>{{winners_today}}</bold> joueurs·euses ont déjà joué 
             {% endif %}
             aujourd'hui.
+
+            <p class="card-text">La meilleure combinaison d'hier était : 
+                <a href="" style="color:rgb(160, 255, 250);" data-bs-toggle="modal" data-bs-target="#popup_history">
+                    <b>{{yesterday_words[0]}}-{{yesterday_list[0][0]}}-{{yesterday_words[1]}}</b>
+                </a>
+            </p>
         </p>
     </div>
 {% endblock %}
 
 {% block content %}
-  
-
-
-    
-
     <div class="container">
-
-
         <div class="row">
             <div class="col-md-2 col-sm-0">
             </div>
             <div class="col-md-3 col-sm-12">
-                
                 <div class="row g-3 align-items-center">
                     <div class="col-3"></div>
                     <div class="col-6">
@@ -62,21 +60,18 @@
                     <div class="col-3"></div>   
                 </div>
                 <div class="row g-3 align-items-center">
-                    <div class="col-5 col-md-12">
+                    <div class="col-12">
                         <div id='circle-container' style="height: 150px;">
                             <div class="progress center" id="progress" style="height: 100%;" ></div>
                         </div>
                     </div>
-                    <div class="col-6 col-md-12 text-center">
+                    <div class="col-12 text-center">
                         <h5 id="score-message"></h5>
                         <input id="full-list" class="btn btn-primary invisible" type="submit" value="Historique">
                     </div>
                     <div class="col-1 col-md-0">
                     </div>
-                </div>
-
-
-                
+                </div>              
             </div>
             <div class="col-md-3 col-sm-12">
                 <div class="row g-3">
@@ -144,6 +139,7 @@
 
     // document.getElementById("presentation-card").classList.remove('bg-sucess');
     document.getElementById("presentation-card").classList.add('bg-link');
+    document.getElementById("history-table-words-title").innerHTML = "Combinaisons"
 
     let initalized = 0;
     const storage = window.localStorage;

@@ -371,8 +371,6 @@
             return null;
             }
         }
-        console.log("-----")
-        console.log(win_streak)
         let nb_mean_guesses_win = 0;
         let nb_mean_hints_win = 0;
         let nb_mean_points = 0;
@@ -409,7 +407,6 @@
 
         for (let day = 0; day < {{puzzleNumber}}+1; day++) { 
             entry = storage.getItem("flash_day_"+day);
-            console.log(entry);
             try {
                 let data_day = JSON.parse(entry);
                 if (entry != null && data_day.puzzleNumber != null) {
@@ -438,9 +435,6 @@
             nb_mean_no_poop = parseFloat(nb_no_poop_tot)/nb_games;
             nb_mean_points = parseFloat(nb_points_tot)/nb_games;
         }
-        
-        console.log('--')
-        console.log(nb_mean_guesses)
         stats = {
             "first_game": first_game,
             "nb_mean_guesses": nb_mean_guesses,

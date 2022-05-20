@@ -68,8 +68,8 @@
                         </div>
                     </div>
                     <div class="col-6 col-md-12 text-center">
-                        <h5 id="score_message"></h5>
-                        <input id="full-list" class="btn btn-primary invisible" type="submit" value="Liste complète">
+                        <h5 id="score-message"></h5>
+                        <input id="full-list" class="btn btn-primary invisible" type="submit" value="Historique">
                     </div>
                     <div class="col-1 col-md-0">
                     </div>
@@ -209,17 +209,17 @@
     }
 
     function checkDay() {
-        const storagePuzzleNumber = storage.getItem("flash_puzzleNumber");
+        const storagePuzzleNumber = storage.getItem("link_puzzleNumber");
         if (storagePuzzleNumber && storagePuzzleNumber != puzzleNumber) { reload(); }
     }
-    
-    const storagePuzzleNumber = storage.getItem("flash_puzzleNumber");
+
+    const storagePuzzleNumber = storage.getItem("link_puzzleNumber");
     if (storagePuzzleNumber != puzzleNumber) {
-        storage.removeItem("flash_guesses");
-        storage.setItem("flash_puzzleNumber", puzzleNumber);
+        storage.removeItem("link_guesses");
+        storage.setItem("link_puzzleNumber", puzzleNumber);
         guesses = [];
     } else {
-        guesses = JSON.parse(storage.getItem("flash_guesses"));
+        guesses = JSON.parse(storage.getItem("link_guesses"));
         if (guesses == null){
             guesses = [];
         }
@@ -239,6 +239,7 @@
     var modal_word_list = new bootstrap.Modal(document.getElementById('popup_list'), {
         keyboard: false
     })
+    document.getElementById("list-words-column-name").innerHTML = "Combinaison(s)";
 
     var modal_message = new bootstrap.Modal(document.getElementById('popup_msg'), {
         keyboard: false
@@ -275,23 +276,23 @@
 
     
 
-    var guessNumber = guesses.length;  
-    total_points = get_stored_score();
-    if (total_points == null) {
-        already_won = false;
-        total_points = 0;
-    } else {
-        unlockFullList();
-        already_won = true;
-        // send data to server, the previous results may not have been stored if the player 
-        // reloaded before the end.
-        // The server will not save the results anyway if the same player updated multiple time the score.
-        $.getJSON(
-            '/link/win',
-            $.param({ score: total_points, guesses: guesses.length, user_id: get_user_id()}, true),
-            function(result){});
-    }
-    // document.getElementById("score_message").innerHTML = `${total_points} points`
+    // var guessNumber = guesses.length;  
+    // total_points = get_stored_score();
+    // if (total_points == null) {
+    //     already_won = false;
+    //     total_points = 0;
+    // } else {
+    //     unlockHistory();
+    //     already_won = true;
+    //     // send data to server, the previous results may not have been stored if the player 
+    //     // reloaded before the end.
+    //     // The server will not save the results anyway if the same player updated multiple time the score.
+    //     $.getJSON(
+    //         '/link/win',
+    //         $.param({ score: total_points, guesses: guesses.length, user_id: get_user_id()}, true),
+    //         function(result){});
+    // }
+    // // document.getElementById("score_message").innerHTML = `${total_points} points`
 
     function getLinearProgressBar(id) {
         var bar = new ProgressBar.Line(`#progress-link-${id}`, {
@@ -333,7 +334,7 @@
             circle.path.setAttribute('stroke', state.color);
             circle.path.setAttribute('stroke-width', state.width);
             var value = circle.value();
-            var score = parseInt(value*bestLinkScore);
+            var score = Math.ceil(value*bestLinkScore);
             if (emoji) {
                 circle.setText(emoji);
             } else {
@@ -398,7 +399,7 @@
                         let link_2 = result.link_2;
                         let link_3 = result.link_3;
                         if (score >0) {
-                            document.getElementById("score_message").innerHTML = `${score} points`;
+                            // document.getElementById("score_message").innerHTML = `${score} points`;
                             console.log(parseFloat(score));
                             console.log(parseFloat(bestLinkScore));
                             console.log(parseFloat(score)/parseFloat(bestLinkScore));
@@ -407,7 +408,6 @@
                                     win(score);
                                 }) 
                         }
-                        // 🤔
                         if (link_1 > 0) {
                             progress_link_1.animate(parseFloat(link_1)/maxLink)
                             document.getElementById("value-link-1").innerHTML = link_1;
@@ -439,7 +439,11 @@
                             document.getElementById("value-link-3").innerHTML = "💩";
                             progress_link_3.animate(0.)
                         }
-
+                        if (link_1 > -1 && link_2 >-1) {
+                            guesses.push([guess_1, guess_2, link_1, link_2, link_3, score]);
+                            saveDataToCache();
+                        }
+                        
                         // empty the input field
                         // field_guess_1.value = "";
                         // field_guess_2.value = "";
@@ -483,6 +487,7 @@
 
     function win(score)
     {
+        unlockHistory();
         let message = "";
         // // check if you have already won
         // saveDataToCache();
@@ -496,6 +501,7 @@
             message += `Le meilleur score possible est de ${bestLinkScore} points.`;
             message += "Tu peux continuer à essayer d'augmenter ton score !";
         }
+        document.getElementById("popup-win-msg").innerHTML = message;
         modal_win.show();
         // send data to server
         // $.getJSON(
@@ -514,16 +520,30 @@
         // unlockFullList();
     }
 
-    function unlockFullList() {
-        document.getElementById('start').value = 'Score';
+    function unlockHistory() {
         var btn_list = document.getElementById('full-list');
+        
         btn_list.classList.remove('invisible');         
         btn_list.addEventListener('click', function(){
             modal_word_list.show();
-            document.getElementById("modal-list-title").innerHTML = '<h5 class="modal-title">Liste complète</h5>';
+            document.getElementById("modal-list-title").innerHTML = '<h5 class="modal-title">Combinaisons gagnantes trouvées</h5>';
             var table_content = '';
+            
+            guesses.forEach(function([guess_1, guess_2, link_1, link_2, link_3, score]) {
+                table_content+=
+                `
+                                <tr>
+                                    <td class="text-white">${guess_1+' '+guess_2}</td>
+                                    <td class="text-white">${score}</td>
+                                </tr>
+                `
+                
+                }
+            )
+            document.getElementById("modal-list-table-content").innerHTML = table_content;
+
             $.getJSON(
-                '/flash/get_full_list',
+                '/link/get_full_list',
                 $.param({day: puzzleNumber}, true),
                 function(result){
                 result.word_list.forEach(function([word, score]) {
@@ -607,20 +627,17 @@
     }
 
     function saveDataToCache() {
-        let savedPuzzleNumber = storage.getItem("flash_puzzleNumber");
+        let savedPuzzleNumber = storage.getItem("link_puzzleNumber");
         if (savedPuzzleNumber != puzzleNumber) {
             return;
         }
-        storage.setItem("flash_guesses", JSON.stringify(guesses));
+        storage.setItem("link_guesses", JSON.stringify(guesses));
 
         nb_guesses = guesses.length;
-        [nb_poop, nb_no_poop] = countPoops();
         
         data_day = {
             "puzzleNumber": puzzleNumber,
             "nb_guesses": nb_guesses,
-            "nb_poop": nb_poop,
-            "nb_no_poop": nb_no_poop,
             "score":total_points
         }
         storage.setItem("flash_day_"+puzzleNumber, JSON.stringify(data_day));
@@ -735,197 +752,7 @@
 
     
 
-    function guessRow(number, word, score, rowcls) {
-        let progress = "";
-        let cls = "";
-        
-        return `
-                    <tr class="${rowcls}" id="row_${number}">
-                        <td class="number">&nbsp;${number}</td>
-                        <td class="word ${cls}">${word}</td>
-                        <td class="number ${cls} ${score}">${String(score)}</td>
-                        <td><div id="bar_${number}" class = "progressbar"></div></td>
-                    </tr>
-                    `;
-    }
-
-    function createGuessTable() {   
-        // build the table from guesses array
-        let guesses_inner = '';
-        // for (let entry of guesses) {
-        guesses.forEach(function (entry, index, arr) {
-            let [word, number, score] = entry;
-            add_guess(number, word, score, 'guess');
-        });
-        guesses.forEach(function (entry, index, arr) {
-            let [tuple, number, score] = entry;
-            if (score == 0)
-            {
-                document.getElementById(`bar_${number}`).innerHTML = "💩"
-            } else {
-                progressBar(number, score)
-            }
-        });
-        sortTable(2)
-        sortTable(2)           
-    }
-
-    function updateGuessTable(word, score, type) {   
-        sortTable(2)
-        sortTable(2)
-        var already_guessed = false;
-        // check if work already guessed
-        for (let entry of guesses) {
-            let [oldword, number, score] = entry;
-            if (oldword == word) 
-            // if word already guessed 
-            {
-                already_guessed = true;
-                oldRow = document.getElementById(`row_${number}`)
-                // put it back to first place
-                rows = document.getElementById("guesses_table").rows;
-                rows[1].parentNode.insertBefore(oldRow, rows[1]);
-                if (type == 'guess')
-                {
-                    // highlight the word in the table
-                    oldRow.classList.remove(cls_guess)
-                    oldRow.classList.add(cls_newguess)  
-                }   
-                return;
-            }           
-        }
-        // only if it is a real word that was not already guessed
-        // increment the counter for hints
-        guessNumber += 1;
-        if (score < 1000) {
-            total_points += score;
-        }
-        addNewGuess(word, score, type);  
-        if (score == 0) {
-            document.getElementById(`bar_${guessNumber}`).innerHTML = "💩"
-        } else {
-            progressBar(guessNumber, score)
-        }
-    }
     
-    function add_guess(number, word, score, type) {
-        let guesses_inner = document.getElementById("guesses").innerHTML; 
-        if (type == 'guess')
-        {
-            cls = cls_guess;
-        } else
-        {
-            cls = cls_newguess;
-        } 
-        guesses_inner = guessRow(number, word, score, cls) + guesses_inner;
-        // Update the html
-        document.getElementById("guesses").innerHTML = guesses_inner; 
-    }
-
-    function addNewGuess(word, score, type) {
-        add_guess(guessNumber, word, score, type)
-      
-        if (type == 'newguess')
-        {
-            type = 'guess'
-        }
-        // add new guess to guesses array
-        guesses.push([word, guessNumber, score]);
-        saveDataToCache();
-    } 
-
-    function removeNewGuessClass()
-    {
-        table = document.getElementById("guesses_table");
-        for (i = 1; i < (table.rows.length); i++) {
-            if (!table.rows[i].classList.contains(cls_hint))
-            {
-                table.rows[i].classList.remove(cls_newguess)
-                table.rows[i].classList.add(cls_guess)
-            }  
-        }
-    }
-
-    function switchRows(ind1, ind2) {
-        rows = document.getElementById("guesses_table").rows;
-        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-    }
-
-
-
-    function sortTable(n) {
-        function clean(w) {
-            return w.trim().replace('&nbsp;','');
-        }
-        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-        table = document.getElementById("guesses_table");
-
-        let type = 'number';
-        if (n == 1)
-        {
-            type = 'text';
-        }
-        switching = true;    
-        dir = "desc"
-        /* Make a loop that will continue until
-        no switching has been done: */
-        while (switching) {
-            // Start by saying: no switching is done:
-            switching = false;
-            rows = table.rows;
-            /* Loop through all table rows (except the
-            first, which contains table headers): */
-            for (i = 1; i < (rows.length - 1); i++) {
-            // Start by saying there should be no switching:
-            shouldSwitch = false;
-            
-            /* Get the two elements you want to compare,
-            one from current row and one from the next: */
-            if (type == 'number')
-            {
-                x = +parseInt(clean(rows[i].getElementsByTagName("TD")[n].innerHTML));
-                y = +parseInt(clean(rows[i + 1].getElementsByTagName("TD")[n].innerHTML));
-            } 
-            else
-            {
-                // remove accent to compare strings
-                // see https://stackoverflow.com/questions/990904/remove-accents-diacritics-in-a-string-in-javascript
-                x = rows[i].getElementsByTagName("TD")[n].innerHTML.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
-                y = rows[i + 1].getElementsByTagName("TD")[n].innerHTML.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
-            }
-            /* Check if the two rows should switch place,
-            based on the direction, asc or desc: */
-            if (dir == "desc") {
-                if (x > y) {
-                // If so, mark as a switch and break the loop:
-                shouldSwitch = true;
-                break;
-                }
-            } else if (dir == "asc") {
-                if (x < y) {
-                // If so, mark as a switch and break the loop:
-                shouldSwitch = true;
-                break;
-                }
-            }
-            }
-            if (shouldSwitch) {
-            /* If a switch has been marked, make the switch
-            and mark that a switch has been done: */
-            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-            switching = true;
-            // Each time a switch is done, increase this count by 1:
-            switchcount ++;
-            } else {
-            /* If no switching has been done AND the direction is "asc",
-            set the direction to "desc" and run the while loop again. */
-            if (switchcount == 0 && dir == "desc") {
-                dir = "asc";
-                switching = true;
-            }
-            }
-        }
-    }
 
     function beta() {   
         message = 'Bienvenue à Semantus <i class="italic text-flash">Flash</i> !';

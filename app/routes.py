@@ -200,7 +200,7 @@ def get_link_scores(day, guess_1, guess_2):
             return 0
         return ret[-1]
     
-    link_1 = link_2 = link_3 = None
+    link_1 = link_2 = link_3 = 0
 
     cur, con = connect_to_db(LINK_DB_PATH)
 

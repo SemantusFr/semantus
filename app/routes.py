@@ -93,18 +93,14 @@ def get_hash_client_ip():
 def link():
     puzzleNumber = get_puzzle_number()
     yesterday_list = get_history(puzzleNumber-1)
-    winners_today = get_flash_winners_today()
+    winners_today = get_link_winners_today()
     game_mode = "Link"
-    game_catch_phrase = "Trouve le lien le plus fort entre deux mot qui n'ont rien à voir !"
+    game_catch_phrase = "Trouve le lien le plus fort entre deux mots qui n'ont rien à voir !"
 
     return render_template(
         'link.html', 
         puzzleNumber = puzzleNumber,
-        minWords = FLASH_NB_HINTS_START,
-        maxWords = FLASH_NB_HINTS_MAX,
-        yesterday_word = get_yesterday_word(),
-        yesterday_list = yesterday_list,
-        winners_yesterday = get_flash_winners(puzzleNumber-1),
+        # winners_yesterday = get_link_winners(puzzleNumber-1),
         winners_today = winners_today,
         game_mode = game_mode,
         maxLink = 300,
@@ -120,7 +116,6 @@ def get_link_words():
     check = cur.execute(query)
     words = check.fetchall()
     words = list(zip(*words))[0]
-    print(words)
     data = {'words':words}
     return jsonify(data)
 
@@ -194,6 +189,26 @@ def link_win():
         # 'winners':get_flash_winners_today(),
     }
     return jsonify(data)
+
+def get_link_winners(day):
+    con, cur = connect_to_db(STAT_DB_PATH)
+    table = f"link_day{day}"
+    query = f"create table if not exists {table}"
+    query += "(unique_hash TEXT PRIMARY KEY, ip_hash TEXT, user_hash TEXT, guess_1 INT, guess_2 INT, points INT)"
+    cur.execute(query)
+    con.commit()
+    total_winners = -1
+    with con:
+        query = f"SELECT COUNT(*) FROM {table}"
+        cur.execute(query)
+        res = cur.fetchall()
+        total_winners = res[0][0] 
+    return total_winners
+
+# @app.route('/link/get_winners')
+def get_link_winners_today():
+    puzzleNumber = get_puzzle_number()
+    return get_link_winners(puzzleNumber)
 
 def get_link_scores(day, guess_1, guess_2):
     def does_word_exist(word):
@@ -477,8 +492,13 @@ def get_stat_hist_user(user_points):
     return _get_stat_hist(user_points)
 
 def _get_stat_hist(user_points):
+    puzzleNumber = get_puzzle_number()
     con, cur = connect_to_db(STAT_DB_PATH)
-    query = f"SELECT * FROM day{get_puzzle_number()}"
+    query = f"create table if not exists day{puzzleNumber}"
+    query += "(unique_hash TEXT PRIMARY KEY, ip_hash TEXT, user_hash TEXT, guesses INT, hints INT, points INT)"
+    cur.execute(query)
+    con.commit()
+    query = f"SELECT * FROM day{puzzleNumber}"
     cur.execute(query)
     res = cur.fetchall()
     con.close()

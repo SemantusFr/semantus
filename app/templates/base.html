@@ -238,17 +238,17 @@
     userHistoryLink.onclick = function() {
         // CLASSIC STATS
         //--------------
-        function add_row(name, value) {
-            classic_table.innerHTML += 
-            `<tr class="table-dark table-striped">
-                <td class="text-white">${name}</td>
-                <td class="text-white">${value}</td>
-            </tr>`
-        }
         data_stats = getClassicStatsFromStorage();
         if(data_stats && data_stats.first_game) {
             let classic_table = document.getElementById("user-classic-history-table-content");
             classic_table.innerHTML = ''; 
+            function add_row(name, value) {
+                classic_table.innerHTML += 
+                `<tr class="table-dark table-striped">
+                    <td class="text-white">${name}</td>
+                    <td class="text-white">${value}</td>
+                </tr>`
+            }
             $.getJSON(
                 '/get_date_from_puzzle_number',
                 $.param({ number: data_stats.first_game}, true),
@@ -272,18 +272,17 @@
             }
         // FLASH STATS
         //------------
-        
-        function add_flash_row(name, value) {
-            flash_table.innerHTML += 
-            `<tr class="table-dark table-striped">
-                <td class="text-white">${name}</td>
-                <td class="text-white">${value}</td>
-            </tr>`
-        }
         data_stats_flash = getFlashStatsFromStorage();
         if(data_stats_flash && data_stats_flash.first_game)  {
             let flash_table = document.getElementById("user-flash-history-table-content");
             flash_table.innerHTML = '';
+            function add_flash_row(name, value) {
+                flash_table.innerHTML += 
+                `<tr class="table-dark table-striped">
+                    <td class="text-white">${name}</td>
+                    <td class="text-white">${value}</td>
+                </tr>`
+            }
             $.getJSON(
                 '/get_date_from_puzzle_number',
                 $.param({ number: data_stats_flash.first_game}, true),

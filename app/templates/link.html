@@ -222,6 +222,8 @@
         guesses = JSON.parse(storage.getItem("link_guesses"));
         if (guesses == null){
             guesses = [];
+        } else {
+            unlockHistory();
         }
     }
 
@@ -467,6 +469,7 @@
         console.log(isNew)
         if (isNew) {
             guesses.push([guess_1, guess_2, link_1, link_2, link_3, score]);
+            guesses.sort(function(x,y){return y[5]-x[5]});
         }          
     }
 
@@ -552,27 +555,7 @@
                 
                 }
             )
-            document.getElementById("modal-list-table-content").innerHTML = table_content;
-
-            $.getJSON(
-                '/link/get_full_list',
-                $.param({day: puzzleNumber}, true),
-                function(result){
-                result.word_list.forEach(function([word, score]) {
-                    table_content+=
-                    `
-                                    <tr>
-                                        <td class="text-white">${word}</td>
-                                        <td class="text-white">${score}</td>
-                                    </tr>
-                    `
-                    
-                    }
-                )
-                document.getElementById("modal-list-table-content").innerHTML = table_content;
-                }
-            );
-            
+            document.getElementById("modal-list-table-content").innerHTML = table_content;            
         });
     }
 

@@ -446,8 +446,11 @@
             }
         });
         if (isNew) {
-            guesses.push([guess_1, guess_2, link_1, link_2, link_3, score]);
-            guesses.sort(function(x,y){return y[5]-x[5]});
+            console.log(score)
+            if (score) {
+                guesses.push([guess_1, guess_2, link_1, link_2, link_3, score]);
+                guesses.sort(function(x,y){return y[5]-x[5]});
+            }
         }          
     }
 

@@ -105,7 +105,8 @@ def get_stats_figure():
             prefix ='link_'
         con, cur = connect_to_db(STAT_DB_PATH)
         winners = []
-        for day in range(get_puzzle_number()):
+        for day in range(get_puzzle_number()+1):
+            print(day)
             table = f"{prefix}day{day}"
             try:
                 query = f"SELECT COUNT(*) FROM {table}"

@@ -301,10 +301,37 @@
                     add_flash_row('Nombre moyen de mots trouvés :', (data_stats_flash.nb_mean_guesses).toFixed(1));
                     add_flash_row('Nombre moyen de 💩 :', (data_stats_flash.nb_mean_poop).toFixed(1));
                     add_flash_row('Nombre moyen de 👍🏽 :', (data_stats_flash.nb_mean_no_poop).toFixed(1));
-                    // add_row('Parties non finies :', data_stats.nb_no_win);
-                    // add_row('Série de victoires en cours : :', data_stats.win_streak);
-                    // add_row('Nombre moyen d\'éssais :', (data_stats.nb_mean_guesses_win).toFixed(1));
-                    // add_row('Nombre moyen d\'indices :', (data_stats.nb_mean_hints_win).toFixed(1));
+                    add_flash_row('Score moyen :', (data_stats.nb_mean_points).toFixed(1));
+                });
+            }
+        // LINK STATS
+        //-----------
+        data_stats_link = getLinkStatsFromStorage();
+        if(data_stats_link && data_stats_link.first_game)  {
+            let link_table = document.getElementById("user-link-history-table-content");
+            link_table.innerHTML = '';
+            function add_link_row(name, value) {
+                link_table.innerHTML += 
+                `<tr class="table-dark table-striped">
+                    <td class="text-white">${name}</td>
+                    <td class="text-white">${value}</td>
+                </tr>`
+            }
+            console.log(data_stats_link)
+            $.getJSON(
+                '/get_date_from_puzzle_number',
+                $.param({ number: data_stats_link.first_game}, true),
+                function(result){
+                    let date = ''
+                    if (result.date) {
+                        date = result.date
+                    } else {
+                        date = '0-0-0000'
+                    }
+                    add_link_row('Première partie :', result.date);
+                    add_link_row('Parties jouées :', data_stats_link.nb_games);
+                    add_link_row('Nombre total de combinaisons trouvées :', data_stats_flash.nb_guesses_tot);
+                    add_link_row('Nombre moyen de combinaisons trouvées :', (data_stats_flash.nb_mean_guesses).toFixed(1));
                     add_flash_row('Score moyen :', (data_stats.nb_mean_points).toFixed(1));
                 });
             }
@@ -333,7 +360,7 @@
             entry = storage.getItem("day_"+day);
             try {
                 let data_day = JSON.parse(entry);
-                if (entry != null && data_day.puzzleNumber != null) {
+                if (entry != null) {
                     nb_games += 1;
                     nb_guesses_tot += parseInt(data_day.nb_guesses);
                     nb_hints_tot += parseInt(data_day.nb_hints);
@@ -410,12 +437,12 @@
             entry = storage.getItem("flash_day_"+day);
             try {
                 let data_day = JSON.parse(entry);
-                if (entry != null && data_day.puzzleNumber != null) {
+                if (entry != null) {
                     nb_games += 1;
-                    nb_guesses_tot += parseInt(data_day.nb_guesses);
-                    nb_points_tot += data_day.score;
-                    nb_no_poop_tot += data_day.nb_no_poop;
-                    nb_poop_tot += data_day.nb_poop;
+                    if (data_day.nb_guesses) {nb_guesses_tot += parseInt(data_day.nb_guesses);}
+                    if (data_day.score) {nb_points_tot += data_day.score;}
+                    if (data_day.nb_no_poop) {nb_no_poop_tot += data_day.nb_no_poop;}
+                    if (data_day.nb_poop) {nb_poop_tot += data_day.nb_poop;}
                     // find the first day played
                     if (first_game == null || day < first_game) {
                         first_game = day;
@@ -445,6 +472,51 @@
             "nb_games": nb_games,
             "nb_mean_points": nb_mean_points,
         }
+        return stats;
+    }
+
+    function getLinkStatsFromStorage()
+    {
+        let nb_guesses_tot = 0;
+        let nb_points_tot = 0;
+        let first_game = null;
+        let nb_games = 0;
+
+        for (let day = 0; day < {{puzzleNumber}}+1; day++) { 
+            entry = storage.getItem("link_day_"+day);
+            try {
+                console.log("link_day_"+day)
+                let data_day = JSON.parse(entry);
+                console.log(data_day)
+                if (entry != null) {
+                    nb_games += 1;
+                    if (data_day.nb_guesses) {nb_guesses_tot += parseInt(data_day.nb_guesses);}
+                    if (data_day.score) {nb_points_tot += data_day.score;}
+                    // find the first day played
+                    if (first_game == null || day < first_game) {
+                        first_game = day;
+                    }
+                }
+                console.log(first_game)
+            } catch (e) {
+                console.log('Error parsing day '+day+': '+e);
+            }
+        }
+        let nb_mean_guesses = 0;
+        let nb_mean_points = 0;
+        
+        if (nb_games) {
+            nb_mean_guesses = parseFloat(nb_guesses_tot)/nb_games;
+            nb_mean_points = parseFloat(nb_points_tot)/nb_games;
+        }
+        stats = {
+            "first_game": first_game,
+            "nb_mean_guesses": nb_mean_guesses,
+            "nb_guesses_tot": nb_guesses_tot,
+            "nb_games": nb_games,
+            "nb_mean_points": nb_mean_points,
+        }
+        
         return stats;
     }
 </script>

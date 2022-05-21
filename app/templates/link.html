@@ -415,7 +415,6 @@
                         }
                         if (link_1 > -1 && link_2 >-1) {
                             addGuessToList(guess_1, guess_2, link_1, link_2, link_3, score);
-                            saveDataToCache();
                         }
                         
                         // empty the input field
@@ -459,26 +458,24 @@
             share();
         });
 
-    function get_stored_score() {
-        let data_day = JSON.parse(storage.getItem("flash_day_"+puzzleNumber));
-        if (data_day == null){
-            return null;
+    function saveDataToCache(score) {
+        let savedPuzzleNumber = storage.getItem("link_puzzleNumber");
+        if (savedPuzzleNumber != puzzleNumber) {
+            return;
         }
-        return data_day.score;
-    }
+        storage.setItem("link_guesses", JSON.stringify(guesses));
 
-    function saveDataToCache() {
-        let data_day = JSON.parse(storage.getItem("day_"+puzzleNumber));
+        let data_day = JSON.parse(storage.getItem("link_day_"+puzzleNumber));
         if (data_day == null){
             data_day = {};
         }
-        [nb_poop, nb_no_poop] = countPoops();
         nb_guesses = guesses.length;
-        data_day['flash_score'] = total_points;
-        data_day['flash_poop'] = nb_poop;
-        data_day['flash_no_poop'] = nb_no_poop;
-        data_day['flash_guesses'] = nb_guesses;
-        storage.setItem("day_"+puzzleNumber, JSON.stringify(data_day));
+        if (data_day['score'] && data_day['score'] < score)
+        {
+            data_day['score'] = score;
+        }
+        data_day['nb_guesses'] = nb_guesses;
+        storage.setItem("link_day_"+puzzleNumber, JSON.stringify(data_day));
     }
 
     function win(guess_1, guess_2, score)
@@ -486,7 +483,7 @@
         unlockHistory();
         let message = "";
         // // check if you have already won
-        // saveDataToCache();
+        saveDataToCache(score);
         document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">Lien établi !</h4>';
         message += `<h5>Félicitation, tu as fait une chaine de mots de ${score} points !</h5>`;
         if (score == bestLinkScore)
@@ -593,76 +590,7 @@
         return [nb_poop, nb_no_poop];
     }
 
-    function saveDataToCache() {
-        let savedPuzzleNumber = storage.getItem("link_puzzleNumber");
-        if (savedPuzzleNumber != puzzleNumber) {
-            return;
-        }
-        storage.setItem("link_guesses", JSON.stringify(guesses));
-
-        nb_guesses = guesses.length;
-        
-        data_day = {
-            "puzzleNumber": puzzleNumber,
-            "nb_guesses": nb_guesses,
-            "score":total_points
-        }
-        storage.setItem("flash_day_"+puzzleNumber, JSON.stringify(data_day));
-    }
-
-    function getStatsFromStorage()
-    {
-        let nb_guesses_tot = 0;
-        let nb_poop_tot = 0;
-        let nb_no_poop_tot = 0;
-        let nb_points = null;
-        let first_game = null;
-        let nb_games = 0;
-
-        for (let day = 0; day < puzzleNumber+1; day++) { 
-            entry = storage.getItem("flash_day_"+day);
-            try {
-                let data_day = JSON.parse(entry);
-                if (entry != null) {
-                    nb_games += 1;
-                    nb_guesses_tot += parseInt(data_day.nb_guesses);
-                    nb_poop_tot += parseInt(data_day.nb_poop);
-                    nb_no_poop_tot += parseInt(data_day.nb_no_poop);
-                    nb_points += parseInt(data_day.score);
-                    // find the first day played
-                    if (first_game == null || day < first_game) {
-                        first_game = day;
-                    }
-                }
-            } catch (e) {
-            console.log('Error parsing day '+day+': '+e);
-            }
-        }
-        let nb_mean_guesses = 0;
-        let nb_mean_poop = 0;
-        let nb_mean_no_poop = 0;
-        let nb_mean_points = 0;
-        
-        if (nb_games > 0) {
-            nb_mean_guesses = parseFloat(nb_guesses_tot)/nb_games;
-            nb_mean_poop = parseFloat(nb_poop_tot)/nb_games;
-            nb_mean_no_poop = parseFloat(nb_no_poop_tot)/nb_games;
-            nb_mean_points = parseFloat(nb_points)/nb_games;
-        }
-        
-        stats = {
-            "first_game": first_game,
-            "nb_mean_guesses": nb_mean_guesses,
-            "nb_mean_poop": nb_mean_poop,
-            "nb_mean_no_poop": nb_mean_no_poop,
-            "nb_games": nb_games,
-            "nb_mean_points": nb_mean_points,
-        }
-        return stats;
-    }
-
-
-
+    
     async function share() {
         let user_best_score = 0;
         guesses.forEach(function(entry) {

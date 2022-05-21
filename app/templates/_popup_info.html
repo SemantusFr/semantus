@@ -7,12 +7,12 @@
             <div class="modal-body">
                 <div class="accordion" id="accordion-info">
                     <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingTwo">
-                        <button class="accordion-button bg-secondary text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                            C'est quoi l'idée ?
+                        <h2 class="accordion-header" id="headingZero">
+                        <button class="accordion-button bg-secondary text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseZero" aria-expanded="false" aria-controls="collapseZero">
+                            <strong>C'est quoi l'idée ?</strong>
                         </button>
                         </h2>
-                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordion-info">
+                        <div id="collapseZero" class="accordion-collapse collapse" aria-labelledby="headingZero" data-bs-parent="#accordion-info">
                             <div class="accordion-body bg-dark text-white">
                                 <strong>Distance entre les mots</strong> <br>
                                 Dans la discipline du <i>NLP</i> (natural language programming en anglais, 
@@ -27,15 +27,7 @@
                                 Des mots qui apparaissent souvent proches l'un de l'autre dans un texte vont être 
                                 représentés par des vecteurs ayant une distance proche. 
                                 Cela ne veux pas dire pour autant que les mots ont un sense proche ni même 
-                                qu'ils font parti du même champ lexical !<br><br>
-                                <strong>Liste de mots</strong><br>
-                                Chaque jour, un mot est choisi, et on trouve la liste des 1000 mots les plus proches 
-                                dans le modèle. 
-                                On vous donne pour commencer le mot le plus éloigné de cette liste 
-                                et vous devez proposer des mots en espérant vous approcher du mot caché. 
-                                Le cheminement n'est pas forcént linéaire et peut même sembler illogique, 
-                                mais c'est la base de donnée d'entrainement utilisée qui présente des rapprochement 
-                                entre les différents mots qui guide la classement.
+                                qu'ils font parti du même champ lexical !
                             </div>
                         </div>
                     </div>
@@ -43,14 +35,23 @@
 
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingOne">
-                        <button class="accordion-button bg-secondary text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            Comment ça marche ?
+                        <button class="accordion-button bg-secondary text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                            <strong>Mode <span class="italic text-classique">Classique</span></strong>     
                         </button>
                         </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordion-info">
+                        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordion-info">
                             <div class="accordion-body bg-dark text-white">
-                                <strong>Tape ton mot et clique sur le bouton.</strong> 
-                                Il y a alors quatre possibilités :
+                                <strong>Liste de mots</strong><br>
+                                Chaque jour, un mot est choisi, et on trouve la liste des 1000 mots les plus proches 
+                                dans le modèle. 
+                                On vous donne pour commencer le mot le plus éloigné de cette liste 
+                                et vous devez proposer des mots en espérant vous approcher du mot caché. 
+                                Le cheminement n'est pas forcént linéaire et peut même sembler illogique, 
+                                mais c'est la base de donnée d'entrainement utilisée qui présente des rapprochement 
+                                entre les différents mots qui guide la classement.<br><br>
+
+                                <strong>Comment ça marche ?</strong><br> 
+                                Tape ton mot et clique sur le bouton. Il y a alors quatre possibilités :
                                 <ul >
                                     <li>
                                         <strong>Le mot est le mot caché. Félicitation&nbsp;!</strong>
@@ -91,15 +92,71 @@
                             </div>
                         </div>
                     </div>    
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header"  id="headingTwo">
+                        <button class="accordion-button bg-secondary text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            <strong>Mode <span class="italic text-flash">Flash</span></strong>     
+                        </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordion-info">
+                            <div class="accordion-body bg-dark text-white">
+                                <strong>Le mot du jour</strong><br>
+                                Chaque jour, un mot est choisi, et on trouve encore une fois la liste des 1000 mots 
+                                les plus proches dans le modèle. 
+                                Mais cette fois il n'est pas caché, au contraire, on te le donne !
+                                Clique sur <span class="italic">C'est partie !</span> et tu as 2 minutes pour trouver 
+                                le plus possibles de mot dans la liste des 1000. 
+                                Quant tu en trouves un, il est révélé, et son score (entre 1 et 999) 
+                                est ajouté à ton total de points. 
+                                Fais le plus grand score, mais attention, tu n'as qu'un seul essai par jour !
+                                <br><br>
+                            </div>
+                        </div>
+                    </div>  
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header"  id="headingLink">
+                        <button class="accordion-button bg-secondary text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLink" aria-expanded="false" aria-controls="collapseLink">
+                            <strong>Mode <span class="italic text-link">Link</span></strong>     
+                        </button>
+                        </h2>
+                        <div id="collapseLink" class="accordion-collapse collapse" aria-labelledby="headingLink" data-bs-parent="#accordion-info">
+                            <div class="accordion-body bg-dark text-white">
+                                <strong>Principe</strong><br>
+                                Chaque jour, une paire de mot est choisie au hasard. 
+                                Ils constuent le premier et le dernier maillons d'une chaine de quatre mots. 
+                                Les deux maillons du centre manquent, à toi de trouver les mots qui donnent 
+                                la chaine qui vaut le plus de points !<br><br>
+
+                                <strong>Score</strong><br>
+                                Entre chaque paire de mots se trouve une barre de progression 
+                                qui va de 0 à 300. 
+                                Si le second mot est proche du premier, cette barre va se remplir et 
+                                le score corrspondant va s'afficher à côté. 
+                                Si le mot n'est pas reconnu, l'emoji 🤔 va apparaitre à la place 
+                                du score du lien. 
+                                Si le mot n'est pas dans le top 300 du premier mot, 💩 va s'afficher.
+                                Il en va de même entre le troisième mot et le quatrième mot. 
+                                Si ces deux liens donnent des scores non nuls, alors le dernier lien 
+                                entre les deuxième et troisième mots est estimé. 
+                                Sinon, le symbole ❌ apparaît. 
+                                Si les trois lien sont bons, bravo, tu as trouvé une chaine complète. 
+                                Cependant, il existe souvent un grand nombre de combinaisons possibles, 
+                                si tu n'as pas trouvé la meilleure, tu peux continuer à jouer !
+                                <br><br>
+                            </div>
+                        </div>
+                    </div>  
                 
                     <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingThree">
-                        <button class="accordion-button bg-secondary text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                            Crédits
+                        <h2 class="accordion-header" id="headingCredits">
+                        <button class="accordion-button bg-secondary text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCredits" aria-expanded="false" aria-controls="collapseCredits">
+                            <strong>Crédits</strong>
                         </button>
                         </h2>
                         <div class="accordion-body bg-dark text-white">
-                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordion-info">
+                            <div id="collapseCredits" class="accordion-collapse collapse" aria-labelledby="headingCredits" data-bs-parent="#accordion-info">
                                 Ce jeu est très largement inspiré de <a href="https://cemantix.herokuapp.com/" target="_blank">Cémantix</a> 
                                 par <a href="https://twitter.com/enigmathix" target="_blank">enigmatix</a>, 
                                 qui lui même est inspiré de

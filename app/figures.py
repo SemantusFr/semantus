@@ -61,3 +61,26 @@ def get_hist_image(data_points, user_points = None):
     # my_base64_pngData = base64.b64encode(my_stringIObytes.read())
     # plain_data = base64.b64decode(data)
     return Response(my_stringIObytes, mimetype=f'image/png')
+
+def get_stats_image(data_points, labels):
+
+    if not isinstance(data_points[0],list):
+        data_points = [data_points]
+        labels = [labels]
+
+    plt.figure(figsize = (8,6))
+    for d,l in zip(data_points,labels):
+        sns.lineplot(
+            # binwidth = binwidth,
+            data=d,
+            label = l,
+        )
+    
+    plt.tick_params(axis='both', which='major', labelsize=14)
+    plt.xlabel(r'Jours', fontsize = 18)
+    plt.ylabel(r'Gagnants', fontsize = 18)
+    
+    my_stringIObytes = io.BytesIO()
+    plt.savefig(my_stringIObytes, format='png', dpi = 100, transparent=True)
+    my_stringIObytes.seek(0)
+    return Response(my_stringIObytes, mimetype=f'image/png')

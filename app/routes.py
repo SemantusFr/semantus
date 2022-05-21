@@ -15,7 +15,7 @@ from hashlib import sha1
 
 from app import app
 from app.messages import get_message_from_score
-from app.figures import get_hist_image
+from app.figures import get_hist_image, get_stats_image
 
 from pathlib import Path
 WORD_DB_PATH = f"{Path(__file__).parent.parent}/classique.db"
@@ -84,6 +84,45 @@ def get_hash_client_ip():
     '''
     ip_addr = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
     return hash(ip_addr)
+
+@app.route('/stats')
+def show_stats():
+    return render_template(
+        'stats.html', 
+        colors = COLORS,
+        game_mode = '',
+        maxLink = 300,
+        game_sub_title = '',)
+
+
+@app.route('/stats_figure.png')
+def get_stats_figure():
+    def count_winners(mode):
+        prefix =''
+        if mode == 'flash':
+            prefix ='flash_'
+        elif mode == 'link':
+            prefix ='link_'
+        con, cur = connect_to_db(STAT_DB_PATH)
+        winners = []
+        for day in range(get_puzzle_number()):
+            table = f"{prefix}day{day}"
+            try:
+                query = f"SELECT COUNT(*) FROM {table}"
+                cur.execute(query)
+                res = cur.fetchall()
+                winners.append(res[0][0] if res else 0)
+            except:
+                winners.append(0)
+        con.close()
+        return winners
+    classic_winners = count_winners('classic')
+    flash_winners = count_winners('flash')
+    link_winners = count_winners('link')
+    legends = ['Classique', 'Flash', 'Link']
+    data_points = [classic_winners, flash_winners, link_winners]
+    return get_stats_image(data_points, legends)
+
 
 ######################################
 ############## LINK ##################

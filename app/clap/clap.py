@@ -42,15 +42,16 @@ def clap():
     set all publications to visible.
     '''
     puzzleNumber = get_puzzle_number()
-    title, overview, overview_redacted = get_movie_info(puzzleNumber)
+    title, overview, overview_redacted, max_score = get_movie_info(puzzleNumber)
     return render_template(
         'clap.html', 
         puzzleNumber = puzzleNumber,
         movie_title = title,
-        movie_overview = get_redacted_html(overview_redacted),
+        movie_overview = overview_redacted,
         # yesterday_word = get_yesterday_word(),
         # winners_yesterday = get_flash_winners(puzzleNumber-1),
         # winners_today = winners_today,
+        max_score = max_score,
         game_mode = 'Clap',
         # game_sub_title = game_catch_phrase,
         colors = COLORS,
@@ -63,17 +64,18 @@ def check_word():
     cur, con = connect_to_db(CLAP_DB_PATH)
     query = f"SELECT json FROM day{puzzleNumber}_words WHERE word=\"{word}\" LIMIT 1"
     check = cur.execute(query)
-    ret = check.fetchall()[0][0]
-    print('*'*100)
-    print(ret)
-    return jsonify(json.loads(ret))
+    ret = check.fetchall()
+    if ret:
+        return jsonify(json.loads(ret[0][0]))
+    else:
+        return jsonify({})
 
 def get_movie_info(day):
     cur, con = connect_to_db(CLAP_DB_PATH)
     query = f"SELECT * FROM day{day} LIMIT 1"
     check = cur.execute(query)
-    [title, overview, overview_redacted] = check.fetchall()[0]
-    return title, overview, overview_redacted
+    [title, overview, overview_redacted, max_score] = check.fetchall()[0]
+    return title, overview, overview_redacted, max_score
 
 def get_redacted_html(text):
     pattern = re.compile(r"[\w]+|[.,!?; '\"]")

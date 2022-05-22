@@ -98,33 +98,45 @@
     {% include '_popup_win.html' %}
      
     <!-- <script type="text/javascript" src="{{ url_for('clap.static', filename='js/clap.js') }}"></script> -->
+    <script src="{{ url_for('static', filename='js/rainbowvis.js') }}"></script>
     <script>
 
 // Get the modals to open popups from JS
 var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
-            keyboard: false
-    })
-
-    var modal_user_history = new bootstrap.Modal(document.getElementById('popup_user_history'), {
         keyboard: false
-    })
+})
 
-    var modal_word_list = new bootstrap.Modal(document.getElementById('popup_list'), {
-        keyboard: false
-    })
-    document.getElementById("list-words-column-name").innerHTML = "Combinaison(s)";
+var modal_user_history = new bootstrap.Modal(document.getElementById('popup_user_history'), {
+    keyboard: false
+})
 
-    var modal_message = new bootstrap.Modal(document.getElementById('popup_msg'), {
-        keyboard: false
-    })
+var modal_word_list = new bootstrap.Modal(document.getElementById('popup_list'), {
+    keyboard: false
+})
+document.getElementById("list-words-column-name").innerHTML = "Combinaison(s)";
+
+var modal_message = new bootstrap.Modal(document.getElementById('popup_msg'), {
+    keyboard: false
+})
+
+const storage = window.localStorage;
+const cold_color = '#9e0000';
+const hot_color = '#549415';
+const maxScore = {{max_score}};
+
 
 function clap(puzzleNumber) {
     document.getElementById("presentation-card").classList.add('bg-link');
     document.getElementById("history-table-words-title").innerHTML = "Combinaisons"
+    
 
     let initalized = 0;
-    const storage = window.localStorage;
+    
     var already_won = false;
+
+    var rainbow = new Rainbow(); 
+    rainbow.setNumberRange(1, maxScore);
+    rainbow.setSpectrum(cold_color, hot_color);
 
     const storagePuzzleNumber = storage.getItem("clap_puzzleNumber");
     if (storagePuzzleNumber != puzzleNumber) {
@@ -141,6 +153,18 @@ function clap(puzzleNumber) {
     
 
     var btn_submit = document.getElementById('go');
+
+    var field_word = document.getElementById("word-field");
+    field_word.addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.keyCode === 13) {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        btn_submit.click();  
+        }
+    });
+
     btn_submit.addEventListener('click', function(){
         let word = field_word.value.trim().toLowerCase();
         if (word) {
@@ -149,21 +173,40 @@ function clap(puzzleNumber) {
             $.param({ word: word}, true),
             function(result){
                 console.log(result)
+                if (isEmpty(result)){
+                    return
+                }
                 result.forEach(function(entry) {
                     let [id, value, score] = entry;
                     if (!(id in guesses) || guesses[`${id}`][1] > score) {
                         guesses[`${id}`] = [word, score];
-                        document.getElementById(`${id}`).innerHTML = word;
+                        word_span = document.getElementById(`${id}`);
+                        word_span.innerHTML = word;
+                        if (score == maxScore)
+                        {
+                            word_span.style.backgroundColor = '';
+                            word_span.style.color = hot_color;
+                            word_span.style.fontWeight = "bold"
+                        } else {
+                            word_span.style.backgroundColor = `#${rainbow.colourAt(score)}`;
+                        }
+                        console.log(rainbow.colourAt(score));
                     }
                 });
             });
+            field_word.value = "";
         }
     });
-
+    
     focus();
     beta();
 }
-    
+    function isEmpty(object) {
+    for (const property in object) {
+        return false;
+    }
+    return true;
+    }
 
     function scrollToField()
     {
@@ -190,18 +233,7 @@ function clap(puzzleNumber) {
       return new Promise(resolve => setTimeout(resolve, milliseconds));  
     }  
 
-
-        
-    var field_word = document.getElementById("word-field");
-    field_word.addEventListener("keyup", function(event) {
-    // Number 13 is the "Enter" key on the keyboard
-    if (event.keyCode === 13) {
-        // Cancel the default action, if needed
-        event.preventDefault();
-        // Trigger the button element with a click
-        document.getElementById("go").click();  
-        }
-    });
+    
 
  
 

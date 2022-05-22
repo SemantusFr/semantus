@@ -52,26 +52,24 @@
             <div class="col-md-2 col-sm-0">
             </div>
             <div class="col-md-3 col-sm-12">
-                <div class="row g-3 align-items-center">
-                    <div class="col-3"></div>
-                    <div class="col-6">
-                        <input id="go" class="btn btn-primary w-100" type="submit" value="Go!">
-                    </div>   
-                    <div class="col-3"></div>   
-                </div>
-                <div class="row g-3 align-items-center">
-                    <div class="col-12">
+                <div class="row  align-items-center">
+                    <div class="col-12 text-center">
+                        <input id="full-list" class="btn btn-primary invisible" type="submit" value="Historique">
+                    </div>
+                    <div class="col-12" style="margin-bottom:10px ">
                         <div id='circle-container' style="height: 150px;">
                             <div class="progress center" id="progress" style="height: 100%;" ></div>
                         </div>
                     </div>
-                    <div class="col-12 text-center">
-                        <h5 id="score-message"></h5>
-                        <input id="full-list" class="btn btn-primary invisible" type="submit" value="Historique">
-                    </div>
-                    <div class="col-1 col-md-0">
-                    </div>
-                </div>              
+                    
+                </div>   
+                <div class="row g-3 align-items-center" >
+                    <div class="col-3"></div>
+                    <div class="col-6">
+                        <input id="go" class="btn btn-primary w-100" type="submit" value="Go!" style="margin-bottom:15px">
+                    </div>   
+                    <div class="col-3"></div>   
+                </div>           
             </div>
             <div class="col-md-3 col-sm-12">
                 <div class="row g-3">
@@ -157,7 +155,6 @@
     const circleSizeSmallScreen = '125px';
     const maxLink = {{maxLink}};
     const maxScore = 3*maxLink;
-    
 
     var fontSizeText = fontSizeTextLargeScreen;
     var fontSizeEmoji = fontSizeEmojiLargeScreen;
@@ -173,7 +170,7 @@
     
 
     $.getJSON(
-            '/link/get_best_score',
+            'get_best_score',
             $.param({}, true),
             function(result){
                 bestLinkScore = parseInt(result.best_score);
@@ -258,7 +255,7 @@
             </tr>`
         }        
         $.getJSON(
-            '/get_date_from_puzzle_number',
+            'get_date_from_puzzle_number',
             $.param({ number: data_stats.first_game}, true),
             function(result){
                 add_row('Première partie :', result.date);
@@ -322,7 +319,7 @@
 
     // get THE word
     $.getJSON(
-        'link/get_words',
+        'get_words',
         {},
         function(result){
             word_top = result.words[0];
@@ -361,7 +358,7 @@
             let guess_2 = field_guess_2.value.trim().toLowerCase();
             if(guess_1 || guess_2) {
                 $.getJSON(
-                    '/link/get_score',
+                    'get_score',
                     $.param({ guess_1: guess_1, guess_2: guess_2}, true),
                     function(result){
                         let score = result.score; 
@@ -499,7 +496,7 @@
         modal_win.show();
         // send data to server
         $.getJSON(
-            '/link/win',
+            'win',
             $.param({guess_1: guess_1, guess_2: guess_2, score: total_points, user_id: get_user_id()}, true),
             function(result){});
     }
@@ -569,9 +566,9 @@
         }
     }   
 
-    function focus()
+    function focus(id=1)
     {
-        document.getElementById("guess-1").focus();
+        document.getElementById(`guess-${id}`).focus();
     }
 
     function countPoops()

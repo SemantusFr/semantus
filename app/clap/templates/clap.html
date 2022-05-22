@@ -1,0 +1,603 @@
+{% extends "base.html" %}
+
+{% block twitter_card %}
+      <meta name="twitter:card" content="summary"/>
+      <meta name="twitter:site" content="@Semantus"/>
+      <meta name="twitter:creator" content="@Semantus" />
+      <meta property="og:title" content="Semantus 🎬Clap🎬" />
+      <meta property="og:image" content="{{ url_for('static', filename='images/preview.png', _external=True) }}" />
+      <meta property="og:description" content="Trouve le film du jour !" />
+    
+      <link rel="apple-touch-icon" sizes="180x180" sizes="32x32" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+      <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+      <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+      <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
+      <link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">  
+{% endblock %}
+
+{% block card %}
+    <div class="text-center card text-white mb-3 bg-clap" id = "presentation-card" >
+        <div class="card-header"><h4>Jour {{puzzleNumber}}</h4></div>
+            <div class="card-body">
+        <p class="card-title">
+            On te donne le premier et le dernier mot d'une séquence de 4 mots.
+            Trouve les deux mots manquants de manière à avoir un lien fort entre chaque paire 
+            de mots voisins. 
+            Il y a plusieurs solutions ! Trouve le lien le plus fort !
+    
+             <br><br>
+            
+            {% if winners_today == 0 %}
+                Tu es le·a <bold>premier·ère</bold> à jouer 
+            {% elif winners_today == 1 %}
+                <bold>Un seul</bold> joueur·euse a joué 
+            {% else %}
+                <bold>{{winners_today}}</bold> joueurs·euses ont déjà joué 
+            {% endif %}
+            aujourd'hui.
+
+            <p class="card-text">La meilleure combinaison d'hier était : 
+                <a href="" style="color:rgb(160, 255, 250);" data-bs-toggle="modal" data-bs-target="#popup_history">
+                    CCC
+                </a>
+            </p>
+        </p>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2 col-sm-0">
+            </div>
+            <div class="col-md-3 col-sm-12">
+                <div class="row g-3 align-items-center">
+                    <div class="col-9">
+                        <input id="ids" class="form-control" name="ids" required type="text" value="" placeholder="Mot à tester">
+                    </div>
+                    <div class="col-3">
+                        <input id="go" class="btn btn-primary w-100" type="submit" value="Go!">
+                    </div>      
+                </div>
+                <div class="row g-3 align-items-center">
+                    <div class="col-5 col-md-12">
+                        <div id='circle-container' style="height: 150px;">
+                            <div class="progress center" id="progress" style="height: 100%;" ></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-12 text-center">
+                        <h5 id="score_message"></h5>
+                        <input id="full-list" class="btn btn-primary invisible" type="submit" value="Liste complète">
+                    </div>
+                    <div class="col-1 col-md-0">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5 col-sm-12">
+                <div class="row g-5" style="margin-bottom:20px;">
+                    <div class="col-9">
+                        <input id="title-field" class="form-control" name="title-field" required type="text" value="" placeholder="Titre exact">
+                    </div>
+                    <div class="col-3">
+                        <input id="go-title" class="btn btn-primary w-100" type="submit" value="Vérifier">
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <p id="movie-overview">{{movie_overview | safe}}</p>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-0">
+            </div>
+        </div>
+    </div>
+    <br>
+
+    <!-- Pop-up Info-->
+    {% include '_popup_info.html' %}
+
+    <!-- Pop-up Show Previous Related Words-->
+    {% include '_popup_history.html' %}
+
+    <!-- Pop-up Show Related Words After Win-->
+    {% include '_popup_list.html' %}
+
+    <!-- Pop-up Show User Stats-->
+    {% include '_popup_user_history.html' %}
+
+    <!-- Pop-up for messages (warnings, etc.)-->
+    {% include '_popup_message.html' %}
+
+    <!-- Pop-up Win-->
+    {% include '_popup_win.html' %}
+     
+    <!-- <script type="text/javascript" src="{{ url_for('clap.static', filename='js/clap.js') }}"></script> -->
+    <script>
+function clap(puzzleNumber) {
+    document.getElementById("presentation-card").classList.add('bg-link');
+    document.getElementById("history-table-words-title").innerHTML = "Combinaisons"
+
+    let initalized = 0;
+    const storage = window.localStorage;
+    const cold_color = '#ee0000';
+    const hot_color = '#7ddc1f';
+    const cls_newguess = "table-danger";
+    const cls_guess = "table-info";
+    const cls_hint = "hint";
+    const fontSizeTextLargeScreen = '2.3rem';
+    const fontSizeEmojiLargeScreen = '3.5rem';
+    const fontSizeTextSmallScreen = '2.0rem';
+    const fontSizeEmojiSmallScreen = '3.0rem';
+    const circleSizeLargeScreen = '150px';
+    const circleSizeSmallScreen = '125px';
+
+    
+
+    var fontSizeText = fontSizeTextLargeScreen;
+    var fontSizeEmoji = fontSizeEmojiLargeScreen;
+    var circleSize = circleSizeLargeScreen;
+    var emoji = null;
+    var today_word = null;
+    var total_points = 0;
+    var is_game_started = false;
+    var already_won = false;
+    var word_top = "";
+    var word_bottom = "";
+    var bestLinkScore = 0;
+    
+
+    $.getJSON(
+            'get_best_score',
+            $.param({}, true),
+            function(result){
+                bestLinkScore = parseInt(result.best_score);
+            });
+
+    if (isMobileDevice()) {
+        fontSizeText = fontSizeTextSmallScreen;
+        fontSizeEmoji = fontSizeEmojiSmallScreen;
+        circleSize = circleSizeSmallScreen;
+    }
+
+    document.getElementById("circle-container").style = `height: ${circleSize};`;
+
+    const storagePuzzleNumber = storage.getItem("link_puzzleNumber");
+    if (storagePuzzleNumber != puzzleNumber) {
+        storage.removeItem("link_guesses");
+        storage.setItem("link_puzzleNumber", puzzleNumber);
+        guesses = [];
+    } else {
+        guesses = JSON.parse(storage.getItem("link_guesses"));
+        if (guesses == null){
+            guesses = [];
+        } else {
+            guesses.sort(function(x,y){return y[5]-x[5]});
+            unlockHistory();
+        }
+    }
+
+    // Get the modals to open popups from JS
+    var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
+            keyboard: false
+    })
+
+    var modal_user_history = new bootstrap.Modal(document.getElementById('popup_user_history'), {
+        keyboard: false
+    })
+
+    var modal_word_list = new bootstrap.Modal(document.getElementById('popup_list'), {
+        keyboard: false
+    })
+    document.getElementById("list-words-column-name").innerHTML = "Combinaison(s)";
+
+    var modal_message = new bootstrap.Modal(document.getElementById('popup_msg'), {
+        keyboard: false
+    })
+
+    focus();
+}
+    
+
+    function scrollToField()
+    {
+        // the next line is required to work around a bug in WebKit (Chrome / Safari)
+        location.href = "#guess-1";
+        location.href = "#guess-1";
+    }
+
+    function reload() {
+        document.getElementById('popup-header-msg').innerHTML = "Nouveau jour !"
+        message = "Temps écoulé, aujourd'hui est un nouveau jour !<br>";
+        message += "Rechargement de la page en cours."
+        document.getElementById('popup-msg').innerHTML = message;
+        modal_message.show();
+        setInterval(function() { window.location.reload(); }, 2000);
+    }
+
+    function checkDay() {
+        const storagePuzzleNumber = storage.getItem("link_puzzleNumber");
+        if (storagePuzzleNumber && storagePuzzleNumber != puzzleNumber) { reload(); }
+    }
+
+    
+    
+    
+
+    function sleep(milliseconds) {  
+      return new Promise(resolve => setTimeout(resolve, milliseconds));  
+    }  
+
+
+
+    function getLinearProgressBar(id) {
+        var bar = new ProgressBar.Line(`#progress-link-${id}`, {
+        strokeWidth: 10,
+        easing: 'easeInOut',
+        duration: 800,
+        color: '#FFEA82',
+        trailColor: '#999',
+        trailWidth: 10,
+        svgStyle: {width: '100%', height: '100%'},
+        from: {color: cold_color},
+        to: {color: hot_color},
+        step: (state, bar) => {
+            bar.path.setAttribute('stroke', state.color);
+        }
+        });
+        return bar
+    }
+    progress_link_1 = getLinearProgressBar(1)
+    progress_link_2 = getLinearProgressBar(2)
+    progress_link_3 = getLinearProgressBar(3)
+    var field_guess_1 = document.getElementById("guess-1");
+    var field_guess_2 = document.getElementById("guess-2");
+
+    bar = new ProgressBar.Circle(progress, {
+        strokeWidth: 10,
+        trailWidth: 2,
+        easing: 'easeInOut',
+        duration: 1500,
+        text: {
+            autoStyleContainer: true
+        },
+        from: { color: cold_color, width: 10 },
+        to: { color: hot_color, width: 10 },
+        // Set default step function for all animate calls
+        step: function(state, circle) {
+            circle.path.setAttribute('stroke', state.color);
+            circle.path.setAttribute('stroke-width', state.width);
+            var value = circle.value();
+            var score = Math.round(value*bestLinkScore);
+            if (emoji) {
+                circle.setText(emoji);
+            } else {
+                circle.setText(score);
+            }
+            circle.text.style.color = state.color;
+        }
+        });
+        bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+        bar.text.style.fontSize = fontSizeText;
+
+    // get THE word
+    $.getJSON(
+        'link/get_words',
+        {},
+        function(result){
+            word_top = result.words[0];
+            word_bottom = result.words[1];
+            document.getElementById('word-top').value = word_top;
+            document.getElementById('word-bottom').value = word_bottom;
+        });
+        
+    field_guess_1.addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.keyCode === 13) {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        document.getElementById("go").click();  
+        }
+    });
+
+    field_guess_2.addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.keyCode === 13) {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        document.getElementById("go").click();  
+        }
+    });
+
+    var btn_submit = document.getElementById('go');
+    btn_submit.addEventListener('click', function(){
+        progress_link_1.animate(0.5);
+        progress_link_2.animate(0.5);
+        progress_link_3.animate(0.5);
+        sleep(800).then(() => {
+            let guess_1 = field_guess_1.value.trim().toLowerCase();
+            let guess_2 = field_guess_2.value.trim().toLowerCase();
+            if(guess_1 || guess_2) {
+                $.getJSON(
+                    '/link/get_score',
+                    $.param({ guess_1: guess_1, guess_2: guess_2}, true),
+                    function(result){
+                        let score = result.score; 
+                        let link_1 = result.link_1;
+                        let link_2 = result.link_2;
+                        let link_3 = result.link_3;
+                        if (score >0) {
+                            // document.getElementById("score_message").innerHTML = `${score} points`;
+                            bar.animate(parseFloat(score)/parseFloat(bestLinkScore));
+                            sleep(1600).then(() => {
+                                    win(guess_1, guess_2, score);
+                                }) 
+                            
+                        }
+                        if (guess_1 == null || guess_1 == '') {
+                            document.getElementById("value-link-1").innerHTML = "❌";
+                            progress_link_1.animate(0.)
+                        } else if (link_1 > 0) {
+                            progress_link_1.animate(parseFloat(link_1)/maxLink)
+                            document.getElementById("value-link-1").innerHTML = link_1;
+                        } else if (link_1 == -1) {
+                            document.getElementById("value-link-1").innerHTML = "🤔";
+                            progress_link_1.animate(0.)
+                        } else {
+                            document.getElementById("value-link-1").innerHTML = "💩";
+                            progress_link_1.animate(0.)
+                        }
+                        if (link_2 > 0) {
+                            progress_link_2.animate(parseFloat(link_2)/maxLink)
+                            document.getElementById("value-link-2").innerHTML = link_2;
+                        } else {
+                            if (link_1 > 0 && link_3 > 0) {
+                                document.getElementById("value-link-2").innerHTML = "💩";
+                            } else {
+                                document.getElementById("value-link-2").innerHTML = "❌";
+                            }
+                            progress_link_2.animate(0.)
+                        }
+                        if (guess_2 == null || guess_2 == '') {
+                            document.getElementById("value-link-3").innerHTML = "❌";
+                            progress_link_3.animate(0.)
+                        } else if(link_3 > 0) {
+                            progress_link_3.animate(parseFloat(link_3)/maxLink)
+                            document.getElementById("value-link-3").innerHTML = link_3;
+                        } else if (link_3 == -1) {
+                            document.getElementById("value-link-3").innerHTML = "🤔";
+                            progress_link_3.animate(0.)
+                        } else {
+                            document.getElementById("value-link-3").innerHTML = "💩";
+                            progress_link_3.animate(0.)
+                        }
+                        if (link_1 > -1 && link_2 >-1) {
+                            addGuessToList(guess_1, guess_2, link_1, link_2, link_3, score);
+                        }
+                        
+                        // empty the input field
+                        // field_guess_1.value = "";
+                        // field_guess_2.value = "";
+                        if (isMobileDevice()) {
+                            scrollToField();
+                        }
+                        focus();
+                    }
+                );
+                
+            } else {
+                progress_link_1.animate(0.)
+                progress_link_2.animate(0.)
+                progress_link_3.animate(0.)
+            }
+        })
+    });
+
+    function addGuessToList(guess_1, guess_2, link_1, link_2, link_3, score) {
+        isNew = true;
+        guesses.forEach(function(entry) {
+            let old_guess_1 = entry[0];
+            let old_guess_2 = entry[1];
+            if (old_guess_1 == guess_1 && old_guess_2 == guess_2) {
+                isNew = false;  
+            }
+        });
+        if (isNew) {
+            console.log(score)
+            if (score) {
+                guesses.push([guess_1, guess_2, link_1, link_2, link_3, score]);
+                guesses.sort(function(x,y){return y[5]-x[5]});
+            }
+        }          
+    }
+
+    var btn_share = document.getElementById('button-share')
+        btn_share.addEventListener('click', function(){
+            share();
+        });
+
+    function saveDataToCache(score) {
+        let savedPuzzleNumber = storage.getItem("link_puzzleNumber");
+        if (savedPuzzleNumber != puzzleNumber) {
+            return;
+        }
+        storage.setItem("link_guesses", JSON.stringify(guesses));
+
+        let data_day = JSON.parse(storage.getItem("link_day_"+puzzleNumber));
+        if (data_day == null){
+            data_day = {};
+        }
+        nb_guesses = guesses.length;
+        if (data_day['score'] && data_day['score'] < score)
+        {
+            data_day['score'] = score;
+        }
+        data_day['nb_guesses'] = nb_guesses;
+        storage.setItem("link_day_"+puzzleNumber, JSON.stringify(data_day));
+    }
+
+    function win(guess_1, guess_2, score)
+    {
+        unlockHistory();
+        let message = "";
+        // // check if you have already won
+        saveDataToCache(score);
+        document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">Lien établi !</h4>';
+        message += `<h5>Félicitation, tu as fait une chaine de mots de ${score} points !</h5>`;
+        if (score == bestLinkScore)
+        {
+            message += "Il s'agit du meilleur score🏅, bravo !";
+        } else {
+            message += "C'est bien, mais tu peux faire encore mieux ! "; 
+            message += `Le meilleur score possible est de ${bestLinkScore} points. <br>`;
+            message += "Tu peux continuer à essayer d'augmenter ton score !";
+        }
+        document.getElementById("popup-win-msg").innerHTML = message;
+        document.getElementById("div-block-hist").innerHTML = '';
+        modal_win.show();
+        // send data to server
+        $.getJSON(
+            '/link/win',
+            $.param({guess_1: guess_1, guess_2: guess_2, score: total_points, user_id: get_user_id()}, true),
+            function(result){});
+    }
+
+    function unlockHistory() {
+        var btn_list = document.getElementById('full-list');
+        
+        btn_list.classList.remove('invisible');         
+        btn_list.addEventListener('click', function(){
+            modal_word_list.show();
+            document.getElementById("modal-list-title").innerHTML = '<h5 class="modal-title">Combinaisons gagnantes trouvées</h5>';
+            var table_content = '';
+            
+            guesses.forEach(function([guess_1, guess_2, link_1, link_2, link_3, score]) {
+                table_content+=
+                `
+                                <tr>
+                                    <td class="text-white">${guess_1+' + '+guess_2}</td>
+                                    <td class="text-white">${score}</td>
+                                </tr>
+                `
+                
+                }
+            )
+            document.getElementById("modal-list-table-content").innerHTML = table_content;            
+        });
+    }
+
+    /**
+     * from https://andywalpole.me/blog/140739/using-javascript-create-guid-from-users-browser-information
+     * @function _guid
+     * @description Creates GUID for user based on several different browser variables
+     * It will never be RFC4122 compliant but it is robust
+     * @returns {Number}
+     * @private
+     */
+    // I DO NOT STORE THIS, I HASH IT AND STORE THAT
+    function get_user_id() {
+        var nav = window.navigator;
+        var screen = window.screen;
+        var guid = nav.mimeTypes.length;
+        guid += nav.userAgent.replace(/\D+/g, '');
+        guid += nav.plugins.length;
+        guid += screen.height || '';
+        guid += screen.width || '';
+        guid += screen.pixelDepth || '';
+
+        return guid;
+    };
+
+    function get_text_winner(nb_winners) {
+        if (nb_winners == 1)
+        {
+            return `${nb_winners}<sup>er·e</sup>`
+        } else {
+            return `${nb_winners}<sup>ème</sup>`
+        }
+    }
+    
+    
+    function isMobileDevice()
+    {
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            return true;
+        } else {
+            return false;
+        }
+    }   
+
+    function focus()
+    {
+        document.getElementById("guess-1").focus();
+    }
+
+    function countPoops()
+    {
+        let nb_poop = 0;
+        let nb_no_poop = 0;
+        guesses.forEach(function (entry, index, arr) {
+            let [word, number, score] = entry;
+            if (score == 0)
+            {
+                nb_poop+=1;
+            } else {
+                nb_no_poop += 1;
+            }
+        });
+        return [nb_poop, nb_no_poop];
+    }
+
+    
+    async function share() {
+        let user_best_score = 0;
+        guesses.forEach(function(entry) {
+            if (entry[5] > user_best_score)
+            {
+                user_best_score = entry[5];
+            }
+        });
+        let message = "";
+        if (user_best_score == bestLinkScore) {
+            message = `J'ai trouvé la 🏅meilleure🏅 chaine de mots d'une valeur de ${user_best_score} 🏆`
+        } else {
+            message = `J'ai trouvé une chaine de mots d'une valeur de ${user_best_score} 🏆`
+        }
+        message += ` entre les deux mots du jours à #semantus 🔗Link🔗 (jour ${puzzleNumber}) !<br>`;
+        message += "https://www.semantus.fr/link";
+
+        try {
+            await navigator.clipboard.writeText(message.replace(/<br>/g,'\n'));
+            message += "<br><br>Copié dans le presse-papiers";
+        } catch (err) {
+            message += `<br><br>Erreur en copiant dans le presse-papiers<br>${err}`;
+        }
+        document.getElementById('popup-header-msg').innerHTML = 'Partage ton exploit !';
+        document.getElementById('popup-msg').innerHTML = message;
+
+        modal_win.hide();
+        modal_message.show();
+    }
+
+
+    function beta() {   
+        message = 'Bienvenue à Semantus <i class="italic text-clap">Clap</i> !';
+        message += "<br><br>Ce jeu est en cours de développement, il est donc possible qu'il y reste des bugs.";
+        message += "<br>N'hésitez pas à nous contacter si vous avez des questions ou des suggestions :";
+        message += ' <a  href="https://twitter.com/intent/tweet?screen_name=semantusFr&ref_src=twsrc%5Etfw">@SemantuFr</a>';
+        document.getElementById('popup-header-msg').innerHTML = "Jeu en version bêta !";
+        document.getElementById('popup-msg').innerHTML = message;
+        document.getElementById('btn-close-msg').focus();
+        modal_message.show();
+    }
+    beta();
+
+
+    </script>
+    <script type="text/javascript">
+        clap({{puzzleNumber}});
+    </script>
+
+
+    
+{% endblock %}

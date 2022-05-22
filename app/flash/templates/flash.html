@@ -75,10 +75,7 @@
                     </div>
                     <div class="col-1 col-md-0">
                     </div>
-                </div>
-
-
-                
+                </div>    
             </div>
             <div class="col-md-5 col-sm-12">
                 <div class="tbl-container bdr">
@@ -257,7 +254,7 @@
         // reloaded before the end.
         // The server will not save the results anyway if the same player updated multiple time the score.
         $.getJSON(
-            '/flash/win',
+            'win',
             $.param({ score: total_points, guesses: guesses.length, user_id: get_user_id()}, true),
             function(result){});
     }
@@ -293,7 +290,7 @@
 
     // get THE word
     $.getJSON(
-        'flash/get_word',
+        'get_word',
         {},
         function(result){
             today_word = result.word;
@@ -349,7 +346,7 @@
                         let word = field.value.trim().toLowerCase();
                         if(word !== null && word !== '') {
                             $.getJSON(
-                                '/flash/get_score',
+                                'get_score',
                                 $.param({ word: word}, true),
                                 function(result){
                                     let score = result.score; 
@@ -410,7 +407,7 @@
             message += `<h5>Félicitation, tu as fait ${total_points} points !</h5>`;
             // send data to server
             $.getJSON(
-                '/flash/win',
+                'win',
                 $.param({ score: total_points, guesses: guesses.length, user_id: get_user_id()}, true),
                 function(result){});
         } else{
@@ -439,7 +436,7 @@
             document.getElementById("modal-list-title").innerHTML = '<h5 class="modal-title">Liste complète</h5>';
             var table_content = '';
             $.getJSON(
-                '/flash/get_full_list',
+                'get_full_list',
                 $.param({day: puzzleNumber}, true),
                 function(result){
                 result.word_list.forEach(function([word, score]) {

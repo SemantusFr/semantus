@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block card %}
+    <div class="text-center card text-white mb-3 bg-master" id = "presentation-card" >
+        <div class="card-header"><h4>Jour {{puzzleNumber}}</h4></div>
+            <div class="card-body">
+        <p class="card-title">
+            10 mots à trouver et 10 tentatives par mot. 
+            Chaque erreur te fais perdre des points mais révèle un nouvel indice. <br><br>
+            
+            {% if winners_today == 0 %}
+                Tu es le·a <bold>premier·ère</bold> à jouer 
+            {% elif winners_today == 1 %}
+                <bold>Un seul</bold> joueur·euse a joué 
+            {% else %}
+                <bold>{{winners_today}}</bold> joueurs·euses ont déjà joué 
+            {% endif %}
+            aujourd'hui.
+        </p>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row mb-3 align-items-center">
+            <div class="col-md-5 col-sm-0"></div>
+            <div class="col-md-2 col-sm-12">
+                <input id="start" class="btn btn-primary w-100" type="submit" value="C'est parti !">
+            </div>
+            <div class="col-md-5 col-sm-0"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-2 col-sm-0">
+            </div>
+            <div class="col-md-3 col-sm-12">
+                
+                <div class="row g-3 align-items-center">
+                    <div class="col-9">
+                        <input id="ids" class="form-control" name="ids" required type="text" value="">
+                    </div>
+                    <div class="col-3">
+                        <input id="go" class="btn btn-primary w-100" type="submit" value="OK">
+                    </div>      
+                </div>
+                <div class="row g-3 align-items-center">
+                    <div class="col-5 col-md-12">
+                        <div style="height: 150px;">
+                            <div class="progress center" id="progress" ></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-12 text-center">
+                        <h5 id="score_message"></h5>
+                    </div>
+                    <div class="col-1 col-md-0">
+                    </div>
+                </div>                
+            </div>
+            <div class="col-md-1 col-sm-0"></div>
+            <div class="col-md-3 col-sm-12">
+                <div class="tbl-container bdr">
+                    <ul class="list-group">
+                        <!-- <li class="list-group-item active text-center" id="word-1">Mot 1</li> -->
+                        {% for i in range(1,maxWords+1) %}
+                        <li class="list-group-item text-center" id="word-{{i}}">Mot {{i}}</li>
+                        {% endfor %}
+                        <li class="list-group-item text-center list-group-item-success" id="word-3">Score : 0</li>
+                      </ul>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-0"></div>
+            <!-- <div class="col-md-2 col-sm-0"></div> -->
+        </div>
+    </div>
+    <br>
+
+    <!-- Pop-up Info-->
+    {% include '_popup_info.html' %}
+
+    <!-- Pop-up Show Previous Related Words-->
+    {% include '_popup_history.html' %}
+
+    <!-- Pop-up Show User Stats-->
+    {% include '_popup_user_history.html' %}
+
+    <!-- Pop-up for messages (warnings, etc.)-->
+    {% include '_popup_message.html' %}
+
+    <!-- Pop-up Win-->
+    {% include '_popup_win.html' %}
+    
+    
+    <script>
+        const gameDuration = 2*60;
+        const cold_color = '#7ddc1f';
+        const hot_color = '#ee0000';
+        const maxWords = {{maxWords}};
+        const minWords = {{minWords}};
+
+        var emoji = null;
+        var active_hint = minWords;
+        var list_hints = null;
+        
+        $.getJSON(
+            '/master/get_list',
+            $.param({}, true),
+            function(result){
+                list_hints = result.hints;
+            });
+
+        bar = new ProgressBar.Circle(progress, {
+        strokeWidth: 10,
+        trailWidth: 2,
+        easing: 'easeInOut',
+        duration: 0,
+        text: {
+            autoStyleContainer: true
+        },
+        from: { color: cold_color, width: 10 },
+        to: { color: hot_color, width: 10 },
+        // Set default step function for all animate calls
+        step: function(state, circle) {
+            circle.path.setAttribute('stroke', state.color);
+            circle.path.setAttribute('stroke-width', state.width);
+
+            var value = circle.value();
+            var second = gameDuration-Math.round(value*gameDuration*10)/10;
+            if (emoji) {
+                circle.setText(emoji);
+            } else {
+                circle.setText(second + 's');
+            }
+            // circle.setText(second + 's');
+            circle.text.style.color = state.color;
+
+        }
+        });
+        bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+        bar.text.style.fontSize = '2.5rem';
+
+
+
+        var input = document.getElementById("ids");
+        input.addEventListener("keyup", function(event) {
+            // Number 13 is the "Enter" key on the keyboard
+            if (event.keyCode === 13) {
+                // Cancel the default action, if needed
+                event.preventDefault();
+                // Trigger the button element with a click
+                document.getElementById("go").click();
+                
+            }
+            
+        }); 
+        var btn_start = document.getElementById('start'); 
+        btn_start.addEventListener('click', function(){ 
+            var current_word = 0;
+            for(let ind = 1; ind < minWords+1; ind++) {
+                document.getElementById(`word-${ind}`).innerHTML = list_hints[current_word][ind];
+            }
+            
+            var btn_submit = document.getElementById('go');
+
+            btn_submit.addEventListener('click', function(){
+                emoji = "💩";
+                active_hint += 1;
+                let previous_word = active_hint-1;
+                if (active_hint > maxWords) {
+                    active_hint = 1;
+                    current_word += 1;
+                    for(let ind = 2; ind < maxWords+1; ind++) {
+                        document.getElementById(`word-${ind}`).innerHTML = `Mot ${ind}`;
+                    }
+                }   
+                document.getElementById(`word-${active_hint}`).innerHTML = list_hints[current_word][active_hint-1];
+                document.getElementById(`word-${active_hint}`).classList.add("active");
+                document.getElementById(`word-${previous_word}`).classList.remove("active");
+            });
+
+            
+            var countDownEnd = new Date().getTime()+gameDuration;
+            var x = setInterval(function() {
+                var now = new Date().getTime();
+                var distance = now-countDownEnd;
+                var seconds = Math.floor((distance) / 1000);
+                var percent = seconds/gameDuration;
+                bar.animate(percent);
+                if (seconds == gameDuration) {
+                    clearInterval(x);
+                    // document.getElementById("demo").innerHTML = "EXPIRED";
+                }
+
+            }, 1000);
+        });
+    
+    </script>
+
+    
+{% endblock %}

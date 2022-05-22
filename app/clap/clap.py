@@ -11,6 +11,7 @@ from flask import (
     jsonify
 )
 import re
+import json
 from pathlib import Path
 
 from app.common import (
@@ -41,12 +42,12 @@ def clap():
     set all publications to visible.
     '''
     puzzleNumber = get_puzzle_number()
-    title, overview = get_movie_info(puzzleNumber)
+    title, overview, overview_redacted = get_movie_info(puzzleNumber)
     return render_template(
         'clap.html', 
         puzzleNumber = puzzleNumber,
         movie_title = title,
-        movie_overview = get_redacted_html(overview),
+        movie_overview = get_redacted_html(overview_redacted),
         # yesterday_word = get_yesterday_word(),
         # winners_yesterday = get_flash_winners(puzzleNumber-1),
         # winners_today = winners_today,
@@ -55,20 +56,24 @@ def clap():
         colors = COLORS,
     )
 
-@clap_bp.route('/get_hints')   
-def get_hints():
-    word = int(request.args.get('word'))
-    jsonify({'date': day.strftime('%d-%m-%Y')})
+@clap_bp.route('/check_word')   
+def check_word():
+    puzzleNumber = get_puzzle_number()
+    word = request.args.get('word')
+    cur, con = connect_to_db(CLAP_DB_PATH)
+    query = f"SELECT json FROM day{puzzleNumber}_words WHERE word=\"{word}\" LIMIT 1"
+    check = cur.execute(query)
+    ret = check.fetchall()[0][0]
+    print('*'*100)
+    print(ret)
+    return jsonify(json.loads(ret))
 
 def get_movie_info(day):
-    print('*'*100)
-    print(CLAP_DB_PATH)
-
     cur, con = connect_to_db(CLAP_DB_PATH)
     query = f"SELECT * FROM day{day} LIMIT 1"
     check = cur.execute(query)
-    [title, overview] = check.fetchall()[0]
-    return title, overview
+    [title, overview, overview_redacted] = check.fetchall()[0]
+    return title, overview, overview_redacted
 
 def get_redacted_html(text):
     pattern = re.compile(r"[\w]+|[.,!?; '\"]")

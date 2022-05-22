@@ -53,7 +53,7 @@
             <div class="col-md-3 col-sm-12">
                 <div class="row g-3 align-items-left" style="margin-bottom:15px;">
                     <div class="col-8">
-                        <input id="ids" style="display: inline-block;" class="form-control" name="ids" required type="text" value="" placeholder="Mot à tester">
+                        <input id="word-field" style="display: inline-block;" class="form-control" name="ids" required type="text" value="" placeholder="Mot à tester">
                     </div>
                     <div class="col-4">
                         <input id="go" class="btn btn-primary" type="submit" value="Go!">
@@ -99,40 +99,9 @@
      
     <!-- <script type="text/javascript" src="{{ url_for('clap.static', filename='js/clap.js') }}"></script> -->
     <script>
-function clap(puzzleNumber) {
-    document.getElementById("presentation-card").classList.add('bg-link');
-    document.getElementById("history-table-words-title").innerHTML = "Combinaisons"
 
-    let initalized = 0;
-    const storage = window.localStorage;
-    var already_won = false;
-
-    
-
-    // $.getJSON(
-    //         'get_best_score',
-    //         $.param({}, true),
-    //         function(result){
-    //             bestLinkScore = parseInt(result.best_score);
-    //         });
-
-    // const storagePuzzleNumber = storage.getItem("link_puzzleNumber");
-    // if (storagePuzzleNumber != puzzleNumber) {
-    //     storage.removeItem("link_guesses");
-    //     storage.setItem("link_puzzleNumber", puzzleNumber);
-    //     guesses = [];
-    // } else {
-    //     guesses = JSON.parse(storage.getItem("link_guesses"));
-    //     if (guesses == null){
-    //         guesses = [];
-    //     } else {
-    //         guesses.sort(function(x,y){return y[5]-x[5]});
-    //         unlockHistory();
-    //     }
-    // }
-
-    // Get the modals to open popups from JS
-    var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
+// Get the modals to open popups from JS
+var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
             keyboard: false
     })
 
@@ -149,7 +118,50 @@ function clap(puzzleNumber) {
         keyboard: false
     })
 
+function clap(puzzleNumber) {
+    document.getElementById("presentation-card").classList.add('bg-link');
+    document.getElementById("history-table-words-title").innerHTML = "Combinaisons"
+
+    let initalized = 0;
+    const storage = window.localStorage;
+    var already_won = false;
+
+    const storagePuzzleNumber = storage.getItem("clap_puzzleNumber");
+    if (storagePuzzleNumber != puzzleNumber) {
+        storage.removeItem("clap_guesses");
+        storage.setItem("clap_puzzleNumber", puzzleNumber);
+        guesses = {};
+    } else {
+        guesses = JSON.parse(storage.getItem("clap_guesses"));
+        if (guesses == null){
+            guesses = {};
+        }
+    }
+
+    
+
+    var btn_submit = document.getElementById('go');
+    btn_submit.addEventListener('click', function(){
+        let word = field_word.value.trim().toLowerCase();
+        if (word) {
+            $.getJSON(
+            'check_word',
+            $.param({ word: word}, true),
+            function(result){
+                console.log(result)
+                result.forEach(function(entry) {
+                    let [id, value, score] = entry;
+                    if (!(id in guesses) || guesses[`${id}`][1] > score) {
+                        guesses[`${id}`] = [word, score];
+                        document.getElementById(`${id}`).innerHTML = word;
+                    }
+                });
+            });
+        }
+    });
+
     focus();
+    beta();
 }
     
 
@@ -174,132 +186,26 @@ function clap(puzzleNumber) {
         if (storagePuzzleNumber && storagePuzzleNumber != puzzleNumber) { reload(); }
     }
 
-    
-    
-    
-
     function sleep(milliseconds) {  
       return new Promise(resolve => setTimeout(resolve, milliseconds));  
     }  
 
 
+        
+    var field_word = document.getElementById("word-field");
+    field_word.addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.keyCode === 13) {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        document.getElementById("go").click();  
+        }
+    });
+
+ 
 
     
-
-    // get THE word
-    $.getJSON(
-        'link/get_words',
-        {},
-        function(result){
-            word_top = result.words[0];
-            word_bottom = result.words[1];
-            document.getElementById('word-top').value = word_top;
-            document.getElementById('word-bottom').value = word_bottom;
-        });
-        
-    field_guess_1.addEventListener("keyup", function(event) {
-    // Number 13 is the "Enter" key on the keyboard
-    if (event.keyCode === 13) {
-        // Cancel the default action, if needed
-        event.preventDefault();
-        // Trigger the button element with a click
-        document.getElementById("go").click();  
-        }
-    });
-
-    field_guess_2.addEventListener("keyup", function(event) {
-    // Number 13 is the "Enter" key on the keyboard
-    if (event.keyCode === 13) {
-        // Cancel the default action, if needed
-        event.preventDefault();
-        // Trigger the button element with a click
-        document.getElementById("go").click();  
-        }
-    });
-
-    var btn_submit = document.getElementById('go');
-    btn_submit.addEventListener('click', function(){
-        progress_link_1.animate(0.5);
-        progress_link_2.animate(0.5);
-        progress_link_3.animate(0.5);
-        sleep(800).then(() => {
-            let guess_1 = field_guess_1.value.trim().toLowerCase();
-            let guess_2 = field_guess_2.value.trim().toLowerCase();
-            if(guess_1 || guess_2) {
-                $.getJSON(
-                    '/link/get_score',
-                    $.param({ guess_1: guess_1, guess_2: guess_2}, true),
-                    function(result){
-                        let score = result.score; 
-                        let link_1 = result.link_1;
-                        let link_2 = result.link_2;
-                        let link_3 = result.link_3;
-                        if (score >0) {
-                            // document.getElementById("score_message").innerHTML = `${score} points`;
-                            bar.animate(parseFloat(score)/parseFloat(bestLinkScore));
-                            sleep(1600).then(() => {
-                                    win(guess_1, guess_2, score);
-                                }) 
-                            
-                        }
-                        if (guess_1 == null || guess_1 == '') {
-                            document.getElementById("value-link-1").innerHTML = "❌";
-                            progress_link_1.animate(0.)
-                        } else if (link_1 > 0) {
-                            progress_link_1.animate(parseFloat(link_1)/maxLink)
-                            document.getElementById("value-link-1").innerHTML = link_1;
-                        } else if (link_1 == -1) {
-                            document.getElementById("value-link-1").innerHTML = "🤔";
-                            progress_link_1.animate(0.)
-                        } else {
-                            document.getElementById("value-link-1").innerHTML = "💩";
-                            progress_link_1.animate(0.)
-                        }
-                        if (link_2 > 0) {
-                            progress_link_2.animate(parseFloat(link_2)/maxLink)
-                            document.getElementById("value-link-2").innerHTML = link_2;
-                        } else {
-                            if (link_1 > 0 && link_3 > 0) {
-                                document.getElementById("value-link-2").innerHTML = "💩";
-                            } else {
-                                document.getElementById("value-link-2").innerHTML = "❌";
-                            }
-                            progress_link_2.animate(0.)
-                        }
-                        if (guess_2 == null || guess_2 == '') {
-                            document.getElementById("value-link-3").innerHTML = "❌";
-                            progress_link_3.animate(0.)
-                        } else if(link_3 > 0) {
-                            progress_link_3.animate(parseFloat(link_3)/maxLink)
-                            document.getElementById("value-link-3").innerHTML = link_3;
-                        } else if (link_3 == -1) {
-                            document.getElementById("value-link-3").innerHTML = "🤔";
-                            progress_link_3.animate(0.)
-                        } else {
-                            document.getElementById("value-link-3").innerHTML = "💩";
-                            progress_link_3.animate(0.)
-                        }
-                        if (link_1 > -1 && link_2 >-1) {
-                            addGuessToList(guess_1, guess_2, link_1, link_2, link_3, score);
-                        }
-                        
-                        // empty the input field
-                        // field_guess_1.value = "";
-                        // field_guess_2.value = "";
-                        if (isMobileDevice()) {
-                            scrollToField();
-                        }
-                        focus();
-                    }
-                );
-                
-            } else {
-                progress_link_1.animate(0.)
-                progress_link_2.animate(0.)
-                progress_link_3.animate(0.)
-            }
-        })
-    });
 
     function addGuessToList(guess_1, guess_2, link_1, link_2, link_3, score) {
         isNew = true;
@@ -437,7 +343,7 @@ function clap(puzzleNumber) {
 
     function focus()
     {
-        document.getElementById("guess-1").focus();
+        document.getElementById("word-field").focus();
     }
 
     function countPoops()
@@ -498,7 +404,7 @@ function clap(puzzleNumber) {
         document.getElementById('btn-close-msg').focus();
         modal_message.show();
     }
-    beta();
+    
 
 
     </script>

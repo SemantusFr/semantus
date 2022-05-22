@@ -8,7 +8,7 @@ import sqlite3
 from datetime import date, timedelta
 from hashlib import sha1
 
-STAT_DB_PATH = f"{Path(__file__).parent.parent.parent}/stats.db"
+STAT_DB_PATH = f"{Path(__file__).parent.parent}/stats.db"
 
 COLORS = {
     'classique' : '#5cb85c',

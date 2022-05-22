@@ -148,6 +148,11 @@ function clap(puzzleNumber) {
         if (guesses == null){
             guesses = {};
         }
+        overview = storage.getItem("clap_overview");
+        if (overview) 
+        {
+            document.getElementById("movie-overview").innerHTML = overview;
+        }
     }
 
     
@@ -178,7 +183,7 @@ function clap(puzzleNumber) {
                 }
                 result.forEach(function(entry) {
                     let [id, value, score] = entry;
-                    if (!(id in guesses) || guesses[`${id}`][1] > score) {
+                    if (!(id in guesses) || guesses[`${id}`][1] < score) {
                         guesses[`${id}`] = [word, score];
                         word_span = document.getElementById(`${id}`);
                         word_span.innerHTML = word;
@@ -193,13 +198,32 @@ function clap(puzzleNumber) {
                         console.log(rainbow.colourAt(score));
                     }
                 });
+                saveDataToCache();
             });
             field_word.value = "";
         }
     });
     
     focus();
-    beta();
+    // beta();
+
+    function saveDataToCache() {
+        let savedPuzzleNumber = storage.getItem("clap_puzzleNumber");
+        if (savedPuzzleNumber != puzzleNumber) {
+            return;
+        }
+        storage.setItem("clap_guesses", JSON.stringify(guesses));
+        overview = document.getElementById("movie-overview").innerHTML;
+        storage.setItem("clap_overview", overview);
+
+        let data_day = JSON.parse(storage.getItem("clap_day_"+puzzleNumber));
+        if (data_day == null){
+            data_day = {};
+        }
+        nb_guesses = guesses.length;
+        data_day['nb_guesses'] = nb_guesses;
+        storage.setItem("clap_day_"+puzzleNumber, JSON.stringify(data_day));
+    }
 }
     function isEmpty(object) {
     for (const property in object) {

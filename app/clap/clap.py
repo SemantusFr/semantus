@@ -57,6 +57,20 @@ def clap():
         colors = COLORS,
     )
 
+@clap_bp.route('/check_title')   
+def check_title():
+    guess = request.args.get('title')
+    puzzleNumber = get_puzzle_number()
+    title, overview, overview_redacted, max_score = get_movie_info(puzzleNumber)
+    print('*'*300)
+    print(title.lower().strip())
+    print(guess.lower().strip())
+    if (guess.lower().strip() == title.lower().strip()):
+        data = {'win': True}
+    else:
+        data = {'win': False}
+    return jsonify(data)
+
 @clap_bp.route('/check_word')   
 def check_word():
     puzzleNumber = get_puzzle_number()

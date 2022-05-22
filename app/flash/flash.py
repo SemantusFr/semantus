@@ -1,19 +1,14 @@
 from flask import (
     Blueprint,
-    # Response,
     render_template, 
-    # flash, 
-    # redirect,
-    # session, 
     request,
-    # url_for,
-    # render_template_string,
     jsonify
 )
 import re
 import json
 from pathlib import Path
 
+from app.figures import get_hist_image
 from app.common import (
     get_puzzle_number,
     get_day_from_puzzle_number,
@@ -23,6 +18,7 @@ from app.common import (
     get_word_from_position,
     check_word,
     _get_full_list,
+    hash,
     COLORS,
     STAT_DB_PATH
 )

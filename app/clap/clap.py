@@ -18,6 +18,7 @@ from app.common import (
     get_day_from_puzzle_number,
     connect_to_db,
     clean_word,
+    hash,
     COLORS
 )
 

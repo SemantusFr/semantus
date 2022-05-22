@@ -20,6 +20,7 @@ from app.common import (
     connect_to_db,
     clean_word,
     get_hash_client_ip,
+    hash,
     COLORS,
     STAT_DB_PATH
 )

@@ -11,7 +11,6 @@ import requests
 import json
 # from datetime import date, timedelta
 import sqlite3
-from hashlib import sha1
 
 from app import app
 from app.messages import get_message_from_score
@@ -27,6 +26,8 @@ from app.common import (
     get_word_from_position,
     check_word,
     _get_full_list,
+    get_hash_client_ip,
+    hash,
     COLORS
 )
 
@@ -57,12 +58,6 @@ def get_history(day):
     check = cur.execute(query)
     res = check.fetchall()
     return res
-    
-def hash(s):
-    h = sha1()
-    h.update(s.encode("ascii"))
-    hash = h.hexdigest()
-    return hash
 
 def get_lemma(word):
     """
@@ -240,6 +235,7 @@ def win():
     # check if really a win 
     if (word == get_today_word()):     
         ip_hash = get_hash_client_ip()
+        
         user_hash = hash(user_id)
         unique_hash = ip_hash+user_hash
         con, cur = connect_to_db(STAT_DB_PATH)

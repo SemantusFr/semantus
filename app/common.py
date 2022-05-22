@@ -6,6 +6,7 @@ from flask import (
 from pathlib import Path
 import sqlite3
 from datetime import date, timedelta
+from hashlib import sha1
 
 STAT_DB_PATH = f"{Path(__file__).parent.parent.parent}/stats.db"
 
@@ -15,6 +16,12 @@ COLORS = {
     'master' : '#dc3545',
     'clap': '#0275d8'
 }
+
+def hash(s):
+    h = sha1()
+    h.update(s.encode("ascii"))
+    hash = h.hexdigest()
+    return hash
 
 def get_word_from_position(db, day, score):
     con, cur = connect_to_db(db)

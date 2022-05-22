@@ -167,6 +167,7 @@
     var word_top = "";
     var word_bottom = "";
     var bestLinkScore = 0;
+    var last_field_used = 1;
     
 
     $.getJSON(
@@ -333,6 +334,7 @@
     if (event.keyCode === 13) {
         // Cancel the default action, if needed
         event.preventDefault();
+        last_field_used = 1;
         // Trigger the button element with a click
         document.getElementById("go").click();  
         }
@@ -343,6 +345,7 @@
     if (event.keyCode === 13) {
         // Cancel the default action, if needed
         event.preventDefault();
+        last_field_used = 2;
         // Trigger the button element with a click
         document.getElementById("go").click();  
         }
@@ -565,9 +568,9 @@
         }
     }   
 
-    function focus(id=1)
+    function focus()
     {
-        document.getElementById(`guess-${id}`).focus();
+        document.getElementById(`guess-${last_field_used}`).focus();
     }
 
     function countPoops()
@@ -585,7 +588,6 @@
         });
         return [nb_poop, nb_no_poop];
     }
-
     
     async function share() {
         let user_best_score = 0;
@@ -616,12 +618,6 @@
         modal_win.hide();
         modal_message.show();
     }
-
-
-
-    
-
-    
 
     function beta() {   
         message = 'Bienvenue à Semantus <i class="italic text-link">Link</i> !';

@@ -51,35 +51,22 @@
             <div class="col-md-2 col-sm-0">
             </div>
             <div class="col-md-3 col-sm-12">
-                <div class="row g-3 align-items-center">
-                    <div class="col-9">
-                        <input id="ids" class="form-control" name="ids" required type="text" value="" placeholder="Mot à tester">
+                <div class="row g-3 align-items-left" style="margin-bottom:15px;">
+                    <div class="col-8">
+                        <input id="ids" style="display: inline-block;" class="form-control" name="ids" required type="text" value="" placeholder="Mot à tester">
                     </div>
-                    <div class="col-3">
-                        <input id="go" class="btn btn-primary w-100" type="submit" value="Go!">
+                    <div class="col-4">
+                        <input id="go" class="btn btn-primary" type="submit" value="Go!">
                     </div>      
-                </div>
-                <div class="row g-3 align-items-center">
-                    <div class="col-5 col-md-12">
-                        <div id='circle-container' style="height: 150px;">
-                            <div class="progress center" id="progress" style="height: 100%;" ></div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-12 text-center">
-                        <h5 id="score_message"></h5>
-                        <input id="full-list" class="btn btn-primary invisible" type="submit" value="Liste complète">
-                    </div>
-                    <div class="col-1 col-md-0">
-                    </div>
                 </div>
             </div>
             <div class="col-md-5 col-sm-12">
-                <div class="row g-5" style="margin-bottom:20px;">
-                    <div class="col-9">
-                        <input id="title-field" class="form-control" name="title-field" required type="text" value="" placeholder="Titre exact">
+                <div class="row g-3" style="margin-bottom:15px;">
+                    <div class="col-8">
+                        <input id="title-field" style="display: inline-block;" class="form-control" name="title-field" required type="text" value="" placeholder="Titre exact">
                     </div>
-                    <div class="col-3">
-                        <input id="go-title" class="btn btn-primary w-100" type="submit" value="Vérifier">
+                    <div class="col-4">
+                        <input id="go-title" class="btn btn-primary" type="submit" value="Vérifier">
                     </div>
                 </div>
                 <div class="row g-3">
@@ -118,62 +105,31 @@ function clap(puzzleNumber) {
 
     let initalized = 0;
     const storage = window.localStorage;
-    const cold_color = '#ee0000';
-    const hot_color = '#7ddc1f';
-    const cls_newguess = "table-danger";
-    const cls_guess = "table-info";
-    const cls_hint = "hint";
-    const fontSizeTextLargeScreen = '2.3rem';
-    const fontSizeEmojiLargeScreen = '3.5rem';
-    const fontSizeTextSmallScreen = '2.0rem';
-    const fontSizeEmojiSmallScreen = '3.0rem';
-    const circleSizeLargeScreen = '150px';
-    const circleSizeSmallScreen = '125px';
-
-    
-
-    var fontSizeText = fontSizeTextLargeScreen;
-    var fontSizeEmoji = fontSizeEmojiLargeScreen;
-    var circleSize = circleSizeLargeScreen;
-    var emoji = null;
-    var today_word = null;
-    var total_points = 0;
-    var is_game_started = false;
     var already_won = false;
-    var word_top = "";
-    var word_bottom = "";
-    var bestLinkScore = 0;
+
     
 
-    $.getJSON(
-            'get_best_score',
-            $.param({}, true),
-            function(result){
-                bestLinkScore = parseInt(result.best_score);
-            });
+    // $.getJSON(
+    //         'get_best_score',
+    //         $.param({}, true),
+    //         function(result){
+    //             bestLinkScore = parseInt(result.best_score);
+    //         });
 
-    if (isMobileDevice()) {
-        fontSizeText = fontSizeTextSmallScreen;
-        fontSizeEmoji = fontSizeEmojiSmallScreen;
-        circleSize = circleSizeSmallScreen;
-    }
-
-    document.getElementById("circle-container").style = `height: ${circleSize};`;
-
-    const storagePuzzleNumber = storage.getItem("link_puzzleNumber");
-    if (storagePuzzleNumber != puzzleNumber) {
-        storage.removeItem("link_guesses");
-        storage.setItem("link_puzzleNumber", puzzleNumber);
-        guesses = [];
-    } else {
-        guesses = JSON.parse(storage.getItem("link_guesses"));
-        if (guesses == null){
-            guesses = [];
-        } else {
-            guesses.sort(function(x,y){return y[5]-x[5]});
-            unlockHistory();
-        }
-    }
+    // const storagePuzzleNumber = storage.getItem("link_puzzleNumber");
+    // if (storagePuzzleNumber != puzzleNumber) {
+    //     storage.removeItem("link_guesses");
+    //     storage.setItem("link_puzzleNumber", puzzleNumber);
+    //     guesses = [];
+    // } else {
+    //     guesses = JSON.parse(storage.getItem("link_guesses"));
+    //     if (guesses == null){
+    //         guesses = [];
+    //     } else {
+    //         guesses.sort(function(x,y){return y[5]-x[5]});
+    //         unlockHistory();
+    //     }
+    // }
 
     // Get the modals to open popups from JS
     var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
@@ -228,55 +184,7 @@ function clap(puzzleNumber) {
 
 
 
-    function getLinearProgressBar(id) {
-        var bar = new ProgressBar.Line(`#progress-link-${id}`, {
-        strokeWidth: 10,
-        easing: 'easeInOut',
-        duration: 800,
-        color: '#FFEA82',
-        trailColor: '#999',
-        trailWidth: 10,
-        svgStyle: {width: '100%', height: '100%'},
-        from: {color: cold_color},
-        to: {color: hot_color},
-        step: (state, bar) => {
-            bar.path.setAttribute('stroke', state.color);
-        }
-        });
-        return bar
-    }
-    progress_link_1 = getLinearProgressBar(1)
-    progress_link_2 = getLinearProgressBar(2)
-    progress_link_3 = getLinearProgressBar(3)
-    var field_guess_1 = document.getElementById("guess-1");
-    var field_guess_2 = document.getElementById("guess-2");
-
-    bar = new ProgressBar.Circle(progress, {
-        strokeWidth: 10,
-        trailWidth: 2,
-        easing: 'easeInOut',
-        duration: 1500,
-        text: {
-            autoStyleContainer: true
-        },
-        from: { color: cold_color, width: 10 },
-        to: { color: hot_color, width: 10 },
-        // Set default step function for all animate calls
-        step: function(state, circle) {
-            circle.path.setAttribute('stroke', state.color);
-            circle.path.setAttribute('stroke-width', state.width);
-            var value = circle.value();
-            var score = Math.round(value*bestLinkScore);
-            if (emoji) {
-                circle.setText(emoji);
-            } else {
-                circle.setText(score);
-            }
-            circle.text.style.color = state.color;
-        }
-        });
-        bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
-        bar.text.style.fontSize = fontSizeText;
+    
 
     // get THE word
     $.getJSON(

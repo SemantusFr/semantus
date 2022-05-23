@@ -125,6 +125,9 @@ const hot_color = '#549415';
 const maxScore = {{max_score}};
 const btn_submit = document.getElementById('go');
 const btn_title = document.getElementById('go-title');
+var secret_title = ''
+var secret_overview = ''
+var secret_image_url = ''
 
 
 function clap(puzzleNumber) {
@@ -184,6 +187,9 @@ function clap(puzzleNumber) {
             $.param({ title: title}, true),
             function(result){
                 if(result.win) {
+                    secret_image_url = result.image_url;
+                    secret_title = result.title;
+                    secret_overview = result.overview;
                     win();
                 } else {
                     nb_miss += 1;
@@ -281,11 +287,12 @@ function clap(puzzleNumber) {
         saveDataToCache(title)
         let message = "";
         // // check if you have already won
-        document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">Lien établi !</h4>';
+        document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">👏Clap Clap Clap !👏</h4>';
         message += `<h5>Félicitation, tu as trouvé le titre du film !</h5>`;
        
         document.getElementById("popup-win-msg").innerHTML = message;
-        document.getElementById("div-block-hist").innerHTML = '';
+        document.getElementById("div-block-hist").innerHTML = `<img src=${secret_image_url} width="250"> </img>`;
+        document.getElementById("div-block-hist").style.textAlign = "center";
         modal_win.show();
         // send data to server
     //     $.getJSON(

@@ -42,7 +42,7 @@ def clap():
     set all publications to visible.
     '''
     puzzleNumber = get_puzzle_number()
-    title, overview, overview_redacted, max_score = get_movie_info(puzzleNumber)
+    title, _, overview_redacted, max_score, _ = get_movie_info(puzzleNumber)
     return render_template(
         'clap.html', 
         puzzleNumber = puzzleNumber,
@@ -61,12 +61,13 @@ def clap():
 def check_title():
     guess = request.args.get('title')
     puzzleNumber = get_puzzle_number()
-    title, overview, overview_redacted, max_score = get_movie_info(puzzleNumber)
-    print('*'*300)
-    print(title.lower().strip())
-    print(guess.lower().strip())
+    title, overview, overview_redacted, max_score, image_url = get_movie_info(puzzleNumber)
     if (guess.lower().strip() == title.lower().strip()):
-        data = {'win': True}
+        data = {
+            'overview':overview,
+            'title':title,
+            'image_url': image_url,
+            'win': True}
     else:
         data = {'win': False}
     return jsonify(data)
@@ -88,8 +89,8 @@ def get_movie_info(day):
     cur, con = connect_to_db(CLAP_DB_PATH)
     query = f"SELECT * FROM day{day} LIMIT 1"
     check = cur.execute(query)
-    [title, overview, overview_redacted, max_score] = check.fetchall()[0]
-    return title, overview, overview_redacted, max_score
+    [title, overview, overview_redacted, max_score, image_url] = check.fetchall()[0]
+    return title, overview, overview_redacted, max_score, image_url
 
 def get_redacted_html(text):
     pattern = re.compile(r"[\w]+|[.,!?; '\"]")

@@ -604,7 +604,7 @@
             message = `J'ai trouvé une chaine de mots d'une valeur de ${user_best_score} 🏆`
         }
         message += ` entre les deux mots du jours à #semantus 🔗Link🔗 (jour ${puzzleNumber}) !<br>`;
-        message += "https://www.semantus.fr/link";
+        message += "https://www.semantus.fr/link/";
 
         try {
             await navigator.clipboard.writeText(message.replace(/<br>/g,'\n'));

@@ -594,41 +594,17 @@
 
     async function share() {
         data_day = JSON.parse(storage.getItem("flash_day_"+puzzleNumber));
-        // let score = 0;
-        // let nb_guesses = 0;
-        // let nb_poop = 0;
-        // let nb_no_poop = 0;
-        // if (guesses.length == 0){
-        //     if (data_day.flash_guesses) {
-        //         nb_guesses = data_day.guesses;
-        //         nb_poop = data_day.poop;
-        //         nb_no_poop = data_day.no_poop;
-        //         score = data_day.score;
-        //     } else {
-                
-        //     }
-        // } else {
         nb_guesses = guesses.length;
         [nb_poop, nb_no_poop] = countPoops();
-        // remove the master word
         nb_no_poop -= 1;
         nb_guesses -= 1;
         score = total_points;
-        // }
         
         function strong(text) {return(`<strong>${text}</strong>`)}
         let message = `J'ai fait un score de ${total_points} 🏆 à #semantus ⚡Flash⚡ (jour ${puzzleNumber}) !<br>`
-        // let text_winner = '';
-        // if (data_day.rank == 1)
-        // {
-        //     text_winner = '1er';
-        // } else {
-        //     text_winner = `${data_day.rank}ème`;
-        // }
-        // message += `Je suis le ${strong(text_winner)} a avoir trouvé le mot caché du en ${strong(nb_guesses)} tentatives`
         message += `${nb_guesses} mots trouvés `
         message += `(${nb_poop} 💩 et ${nb_no_poop} 👍🏽)<br>` ;
-        message += `https://www.semantus.fr/flash`;
+        message += `https://www.semantus.fr/flash/`;
 
         try {
             await navigator.clipboard.writeText(message.replace(/<br>/g,'\n'));

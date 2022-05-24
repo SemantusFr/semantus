@@ -127,6 +127,7 @@ const hot_color = '#549415';
 const maxScore = {{max_score}};
 const btn_submit = document.getElementById('go');
 const btn_title = document.getElementById('go-title');
+const poster_placeholder = "{{url_for('clap.static', filename='images/poster-placeholder.png') }}";
 var secret_title = ''
 var secret_overview = ''
 var secret_image_url = ''
@@ -343,7 +344,13 @@ function clap(puzzleNumber) {
                 message += ` et fait ${nb_miss+1} tentatives de titres.<br>`
             
                 document.getElementById("popup-win-msg").innerHTML = message;
-                document.getElementById("div-block-hist").innerHTML = `<img src=${secret_image_url} width="250"> </img>`;
+                if (secret_image_url) {
+                    imgPath = secret_image_url;
+                } else 
+                {
+                    imgPath = poster_placeholder;
+                }
+                document.getElementById("div-block-hist").innerHTML = `<img src=${imgPath} width="250"> </img>`;
                 document.getElementById("div-block-hist").style.textAlign = "center";
                 modal_win.show();
                 }

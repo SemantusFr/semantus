@@ -10,7 +10,7 @@
                     {{yesterday_overview}}
                 </div>
                 <div class="text-center">
-                    <img src="{{yesterday_image_url}}" width="250"> </img>
+                    <img src="{{yesterday_image_url or url_for('clap.static', filename='images/poster-placeholder.png') }}" width="250"> </img>
                 </div>
                 
                 

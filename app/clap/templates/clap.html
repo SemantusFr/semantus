@@ -248,17 +248,17 @@ function clap(puzzleNumber) {
                         guesses[`${id}`] = [word, score];
                         word_span = document.getElementById(`${id}`);
                         word_span.innerHTML = word;
+                        word_span.style.border = "2px";
+                            word_span.style.borderColor = "#FFFFFF";
+                            word_span.style.borderStyle = "solid";
+                            word_span.style.padding = "0.5px";
                         if (score == maxScore)
                         {
                             word_span.style.backgroundColor = '';
                             word_span.style.color = hot_color;
                             word_span.style.fontWeight = "bold"
                         } else {
-                            word_span.style.backgroundColor = `#${rainbow.colourAt(score)}`;
-                            word_span.style.border = "2px";
-                            word_span.style.borderColor = "#FFFFFF";
-                            word_span.style.borderStyle = "solid";
-                            word_span.style.padding = "0.5px";
+                            word_span.style.backgroundColor = `#${rainbow.colourAt(score)}`;      
                         }
                     }
                 });
@@ -270,7 +270,7 @@ function clap(puzzleNumber) {
 
     
     focus();
-    // beta();
+
 
     function removeFrames() {
         var elements = document.querySelectorAll('span.clap-word')
@@ -338,11 +338,16 @@ function clap(puzzleNumber) {
         document.getElementById("div-block-hist").style.textAlign = "center";
         modal_win.show();
         // send data to server
-    //     $.getJSON(
-    //         '/link/win',
-    //         $.param({guess_1: guess_1, guess_2: guess_2, score: total_points, user_id: get_user_id()}, true),
-    //         function(result){});
+        $.getJSON(
+            'win',
+            $.param(
+                {title: secret_title, 
+                 nb_guesses: nb_guesses, 
+                 nb_title_guesses: nb_miss+1, 
+                 user_id: get_user_id()}, true),
+            function(result){});
     }
+
 
     function no_win(title)
     {

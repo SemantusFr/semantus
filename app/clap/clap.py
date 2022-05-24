@@ -44,15 +44,19 @@ def clap():
     set all publications to visible.
     '''
     puzzleNumber = get_puzzle_number()
+    winners_today = get_clap_winners_today()
+    yesterday_title, yesterday_overview, _, _, yesterday_image_url  = get_movie_info(puzzleNumber-1)
     title, _, overview_redacted, max_score, _ = get_movie_info(puzzleNumber)
     return render_template(
         'clap.html', 
         puzzleNumber = puzzleNumber,
         movie_title = title,
         movie_overview = overview_redacted,
-        # yesterday_word = get_yesterday_word(),
-        # winners_yesterday = get_flash_winners(puzzleNumber-1),
-        # winners_today = winners_today,
+        yesterday_title = yesterday_title,
+        winners_yesterday = get_clap_winners(puzzleNumber-1),
+        yesterday_overview = yesterday_overview,
+        yesterday_image_url = yesterday_image_url,
+        winners_today = winners_today,
         max_score = max_score,
         game_mode = 'Clap',
         # game_sub_title = game_catch_phrase,
@@ -60,11 +64,11 @@ def clap():
     )
 
 def get_score(nb_guesses, nb_title_guesses):
-    score = 1000-5*nb_guesses-15*nb_title_guesses
+    score = 1000-3*nb_guesses-15*nb_title_guesses
     return score if score > 0 else 0
 
 @clap_bp.route('/win')
-def link_win():
+def clap_win():
     '''
     Update the database to add the win.
     '''
@@ -74,11 +78,10 @@ def link_win():
     user_id = request.args.get('user_id')
     score = get_score(nb_guesses, nb_title_guesses)
     puzzleNumber = get_puzzle_number()
-    real_title = get_movie_info(puzzleNumber)[0]
+    real_title, overview,_, _, _ = get_movie_info(puzzleNumber)
     already_won = False
-    if not (real_title == title):
+    if not (real_title.lower().strip() == title.lower().strip()):
         return jsonify({})
-
     ip_hash = get_hash_client_ip()
     user_hash = hash(user_id)
     unique_hash = ip_hash+user_hash
@@ -107,6 +110,8 @@ def link_win():
         data = {
             'already_won': already_won,
             'winners': get_clap_winners_today(),
+            'overview': overview,
+            'title': real_title,
         }
         return jsonify(data)
 

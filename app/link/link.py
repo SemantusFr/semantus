@@ -52,8 +52,6 @@ def link():
         colors = COLORS,
     )
 
-
-    
 def get_link_solutions(day, all = False):
     cur, con = connect_to_db(LINK_DB_PATH)
     query = f"SELECT * FROM day{day}_solutions"
@@ -87,7 +85,6 @@ def get_link_best_score():
     best_score = check.fetchone()[0]
     data = {'best_score': best_score}
     return jsonify(data)
-
 
 @link_bp.route('/get_score')
 def get_link_score():
@@ -127,8 +124,6 @@ def link_win():
     query += "(unique_hash TEXT PRIMARY KEY, ip_hash TEXT, user_hash TEXT, guess_1 INT, guess_2 INT, points INT)"
     cur.execute(query)
     con.commit()
-
-
     # check if the same user has already win with a better score
     with con:
         query = f'SELECT points FROM {table_name} WHERE unique_hash = "{unique_hash}"'
@@ -144,9 +139,7 @@ def link_win():
                 query += f"values (\"{unique_hash}\", \"{ip_hash}\", \"{user_hash}\", \"{guess_1}\", \"{guess_2}\", {score})"""
                 cur.execute(query)
                 con.commit()
-    data = {
-        # 'winners':get_flash_winners_today(),
-    }
+    data = {}
     return jsonify(data)
 
 def get_link_winners(day):

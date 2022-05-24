@@ -20,10 +20,9 @@
         <div class="card-header"><h4>Jour {{puzzleNumber}}</h4></div>
             <div class="card-body">
         <p class="card-title">
-            On te donne le premier et le dernier mot d'une séquence de 4 mots.
-            Trouve les deux mots manquants de manière à avoir un lien fort entre chaque paire 
-            de mots voisins. 
-            Il y a plusieurs solutions ! Trouve le lien le plus fort !
+            On te donne le résumé d'un film avec les mots importants cachés. 
+            Propose des mots, les mots proches dans le résumé s'affichent. 
+            Le but est de trouver le titre français exact du film !
     
              <br><br>
             
@@ -36,9 +35,9 @@
             {% endif %}
             aujourd'hui.
 
-            <p class="card-text">La meilleure combinaison d'hier était : 
-                <a href="" style="color:rgb(160, 255, 250);" data-bs-toggle="modal" data-bs-target="#popup_history">
-                    CCC
+            <p class="card-text">Le film d'hier était : 
+                <a href="" style="color:rgb(160, 255, 250);" data-bs-toggle="modal" data-bs-target="#popup_clap_history">
+                    {{yesterday_title}}
                 </a>
             </p>
         </p>
@@ -90,7 +89,7 @@
     {% include '_popup_info.html' %}
 
     <!-- Pop-up Show Previous Related Words-->
-    {% include '_popup_history.html' %}
+    {% include '_popup_clap_history.html' %}
 
     <!-- Pop-up Show Related Words After Win-->
     {% include '_popup_list.html' %}
@@ -118,11 +117,6 @@ var modal_user_history = new bootstrap.Modal(document.getElementById('popup_user
     keyboard: false
 })
 
-var modal_word_list = new bootstrap.Modal(document.getElementById('popup_list'), {
-    keyboard: false
-})
-document.getElementById("list-words-column-name").innerHTML = "Combinaison(s)";
-
 var modal_message = new bootstrap.Modal(document.getElementById('popup_msg'), {
     keyboard: false
 })
@@ -139,8 +133,7 @@ var secret_image_url = ''
 
 
 function clap(puzzleNumber) {
-    document.getElementById("presentation-card").classList.add('bg-link');
-    document.getElementById("history-table-words-title").innerHTML = "Combinaisons"
+    document.getElementById("presentation-card").classList.add('bg-clap');
     
 
     let initalized = 0;
@@ -198,7 +191,7 @@ function clap(puzzleNumber) {
 
     var field_title = document.getElementById("title-field");
     btn_title.addEventListener('click', function(){
-        let title = field_title.value.trim().toLowerCase();
+        var title = field_title.value.trim().toLowerCase();
         $.getJSON(
             'check_title',
             $.param({ title: title}, true),
@@ -207,7 +200,7 @@ function clap(puzzleNumber) {
                     secret_image_url = result.image_url;
                     secret_title = result.title;
                     secret_overview = result.overview;
-                    win();
+                    win(title);
                 } else {
                     nb_miss += 1;
                     no_win(title);
@@ -326,17 +319,7 @@ function clap(puzzleNumber) {
     function win(title)
     {
         saveDataToCache(title)
-        let message = "";
-        // // check if you have already won
-        document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">👏Clap Clap Clap !👏</h4>';
-        message += `<h5>Félicitation, tu as trouvé le titre du film !</h5>`;
-        message += `Tu as utilisé ${nb_guesses} mots (${nb_poop}💩, ${nb_good}👍🏽 et ${nb_great}🤯)`
-        message += ` et fait ${nb_miss+1} tentatives de titres.<br>`
-       
-        document.getElementById("popup-win-msg").innerHTML = message;
-        document.getElementById("div-block-hist").innerHTML = `<img src=${secret_image_url} width="250"> </img>`;
-        document.getElementById("div-block-hist").style.textAlign = "center";
-        modal_win.show();
+        
         // send data to server
         $.getJSON(
             'win',
@@ -345,19 +328,38 @@ function clap(puzzleNumber) {
                  nb_guesses: nb_guesses, 
                  nb_title_guesses: nb_miss+1, 
                  user_id: get_user_id()}, true),
-            function(result){});
+            function(result){
+                if (result) {
+                    if (result.overview)
+                {
+                    document.getElementById("movie-overview").innerHTML = `<h5>${result.title}</h5><br>`;
+                    document.getElementById("movie-overview").innerHTML += result.overview
+                }
+                let message = "";
+                // // check if you have already won
+                document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">👏Clap Clap Clap !👏</h4>';
+                message += `<h5>Félicitation, tu as trouvé le titre du film !</h5>`;
+                message += `Tu as utilisé ${nb_guesses} mots (${nb_poop}💩, ${nb_good}👍🏽 et ${nb_great}🤯)`
+                message += ` et fait ${nb_miss+1} tentatives de titres.<br>`
+            
+                document.getElementById("popup-win-msg").innerHTML = message;
+                document.getElementById("div-block-hist").innerHTML = `<img src=${secret_image_url} width="250"> </img>`;
+                document.getElementById("div-block-hist").style.textAlign = "center";
+                modal_win.show();
+                }
+            });
     }
 
 
     function no_win(title)
     {
-        saveDataToCache(title)
+        saveDataToCache()
         let message = "";
         nb_miss += 1;
         // // check if you have already won
         document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">Nope !</h4>';
         message += `<h5>Le titre du film n'est pas <strong>${title}</strong>.</h5>`;
-        message += "Tu dois donner le titre français exacte (les majuscules ne sont pas importantes)"
+        message += "Tu dois donner le titre français exact (les majuscules ne sont pas importantes)"
        
         document.getElementById("popup-win-msg").innerHTML = message;
         document.getElementById("div-block-hist").innerHTML = '';

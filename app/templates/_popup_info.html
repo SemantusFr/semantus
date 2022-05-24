@@ -148,6 +148,35 @@
                             </div>
                         </div>
                     </div>  
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header"  id="headingClap">
+                        <button class="accordion-button bg-secondary text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseClap" aria-expanded="false" aria-controls="collapseClap">
+                            <strong>Mode <span class="italic text-clap">Clap</span></strong>     
+                        </button>
+                        </h2>
+                        <div id="collapseClap" class="accordion-collapse collapse" aria-labelledby="headingClap" data-bs-parent="#accordion-info">
+                            <div class="accordion-body bg-dark text-white">
+                                <strong>Principe</strong><br>
+                                Chaque jour, découvre un film. 
+                                On te donne le résumé, mais tous mots important sont cachés. 
+                                Teste des mots, si dans le résumé il existe des mots proches, ils sont remplacés par 
+                                le mot que tu as entré. 
+                                La couleur du fond t'indique la proximité entre les mots, rouge si c'est éloigné 
+                                et vers si c'est très proche. 
+                                Si tu as trouvé exactement un mot, il apparait en gras de couleur verte (sans fond coloré). 
+                                Sont encadrés en blanc les mots concerné par le dernier mot rentré. 
+                                <br>
+                                Si tu penses avoir le bon titre, rentre le titre français exacte dans le champ correspondant.<br><br>
+
+                                <strong>Score</strong><br>
+                                Tu commences à 1000 points. 
+                                Chaque mot rentré te retire 3 points et 
+                                chaque tentative de titre te coute 15 points.
+                                <br><br>
+                            </div>
+                        </div>
+                    </div>  
                 
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingCredits">
@@ -157,7 +186,9 @@
                         </h2>
                         <div class="accordion-body bg-dark text-white">
                             <div id="collapseCredits" class="accordion-collapse collapse" aria-labelledby="headingCredits" data-bs-parent="#accordion-info">
-                                Ce jeu est très largement inspiré de <a href="https://cemantix.herokuapp.com/" target="_blank">Cémantix</a> 
+
+                                <strong>Inspirations</strong><br>
+                                Ces jeux sont très largement inspirés de <a href="https://cemantix.herokuapp.com/" target="_blank">Cémantix</a> 
                                 par <a href="https://twitter.com/enigmathix" target="_blank">enigmatix</a>, 
                                 qui lui même est inspiré de
                                 <a href="https://semantle.novalis.org/" target="_blank">Semantle</a> (en langue anglaise)
@@ -175,6 +206,22 @@
                                 <strong>Open source ?</strong><br>
                                 Oui !
                                 <a href="https://github.com/SemantusFr/semantus" target="_blank">Github:SmantusFr/semantus</a>.<br><br>
+
+                                <strong>Sources extérieures :</strong><br>
+                                Code :<br>
+                                <ul>
+                                    <li><strong>Flash</strong> : <a href="https://flask.palletsprojects.com/">flask.palletsprojects.com</a></li>
+                                    <li><strong>Rainbow-vis.js</strong> : <a href="https://github.com/anomal/RainbowVis-JS">github.com/anomal/RainbowVis-JS</a></li>
+                                    <li><strong>Progressbar.js</strong> : <a href="https://kimmobrunfeldt.github.io/progressbar.js/">kimmobrunfeldt.github.io/progressbar.js</a></li>
+                                    <li><strong>Bootstrap</strong> : <a href="https://getbootstrap.com">getbootstrap.com</a></li>
+                                  </ul>
+                                Données :<br>
+                                <ul>
+                                    <li><strong>Modèle de vectorisation de mots</strong> : <a href="https://fauconnier.github.io/#data">fauconnier.github.io</a></li>
+                                    <li><strong>Liste de mots français avec fréquences et lemmes</strong> : <a href="http://www.lexique.org/shiny/openlexicon/">lexique.org/shiny/openlexicon</a></li>
+                                    <li><strong>Base de donnée de films</strong> : <a href="https://www.themoviedb.org/">themoviedb.org</a></li>
+                                </ul> 
+                                
                                 
                             </div>
                         </div>

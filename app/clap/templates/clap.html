@@ -44,7 +44,14 @@
         </p>
     </div>
 {% endblock %}
-
+<style>
+    .clap-word {
+        border: "3px";
+        border-color: "#0000FF";
+        border-style: "solid";
+        padding: "0.5px";    
+    }
+</style>
 {% block content %}
     <div class="container">
         <div class="row">
@@ -53,20 +60,20 @@
             <div class="col-md-3 col-sm-12">
                 <div class="row g-3 align-items-left" style="margin-bottom:15px;">
                     <div class="col-8">
-                        <input id="word-field" style="display: inline-block;" class="form-control" name="ids" required type="text" value="" placeholder="Mot à tester">
+                        <input id="title-field" style="display: inline-block;" class="form-control" name="title-field" required type="text" value="" placeholder="Titre français exact">
                     </div>
                     <div class="col-4">
-                        <input id="go" class="btn btn-primary" type="submit" value="Go!">
+                        <input id="go-title" class="btn btn-primary" type="submit" value="Vérifier">
                     </div>      
                 </div>
             </div>
             <div class="col-md-5 col-sm-12">
                 <div class="row g-3" style="margin-bottom:15px;">
                     <div class="col-8">
-                        <input id="title-field" style="display: inline-block;" class="form-control" name="title-field" required type="text" value="" placeholder="Titre exact">
+                        <input id="word-field" style="display: inline-block;" class="form-control" name="ids" required type="text" value="" placeholder="Mot à tester">
                     </div>
                     <div class="col-4">
-                        <input id="go-title" class="btn btn-primary" type="submit" value="Vérifier">
+                        <input id="go" class="btn btn-primary" type="submit" value="Go!">
                     </div>
                 </div>
                 <div class="row g-3">
@@ -97,6 +104,7 @@
     <!-- Pop-up Win-->
     {% include '_popup_win.html' %}
      
+    
     <!-- <script type="text/javascript" src="{{ url_for('clap.static', filename='js/clap.js') }}"></script> -->
     <script src="{{ url_for('static', filename='js/rainbowvis.js') }}"></script>
     <script>
@@ -138,6 +146,12 @@ function clap(puzzleNumber) {
     let initalized = 0;
     
     var already_won = false;
+    var guesses = {};
+    var nb_miss = 0;
+    var nb_poop = 0;
+    var nb_good = 0;
+    var nb_great = 0;
+    var nb_guesses = 0;
 
     var rainbow = new Rainbow(); 
     rainbow.setNumberRange(1, maxScore);
@@ -147,21 +161,24 @@ function clap(puzzleNumber) {
     if (storagePuzzleNumber != puzzleNumber) {
         storage.removeItem("clap_guesses");
         storage.setItem("clap_puzzleNumber", puzzleNumber);
-        guesses = {};
-        nb_miss = 0;
+        saveDataToCache();
     } else {
         guesses = JSON.parse(storage.getItem("clap_guesses"));
-        if (guesses == null){
-            guesses = {};
-            nb_miss = 0;
-        }
         overview = storage.getItem("clap_overview");
         if (overview) 
         {
             document.getElementById("movie-overview").innerHTML = overview;
         }
         nb_miss = storage.getItem("nb_miss");
-        if (!nb_miss) { nb_miss = 0; }
+        if (!nb_miss) {nb_miss = 0; }
+        nb_poop = storage.getItem("nb_poop");
+        if (!nb_poop) {nb_poop = 0; }
+        nb_good = storage.getItem("nb_good");
+        if (!nb_good) {nb_good = 0; }
+        nb_great = storage.getItem("nb_great");
+        if (!nb_great) {nb_great = 0; }
+        nb_guesses = storage.getItem("nb_guesses");
+        if (!nb_guesses) {nb_guesses = 0; }
     }
 
     
@@ -193,7 +210,7 @@ function clap(puzzleNumber) {
                     win();
                 } else {
                     nb_miss += 1;
-                    no_win();
+                    no_win(title);
                 }
             });
     });
@@ -210,11 +227,22 @@ function clap(puzzleNumber) {
             'check_word',
             $.param({ word: word}, true),
             function(result){
-                console.log(result)
-                if (isEmpty(result)){
+                nb_guesses+=1;
+                if (!result.words){
+                    nb_poop+=1;
+                    saveDataToCache();
                     return
                 }
-                result.forEach(function(entry) {
+                switch (result.evaluation) {
+                    case 'good':
+                        nb_good+=1;
+                        break;
+                    case 'great': 
+                        nb_great+=1;
+                        break;
+                    }
+                removeFrames();
+                result.words.forEach(function(entry) {
                     let [id, value, score] = entry;
                     if (!(id in guesses) || guesses[`${id}`][1] < score) {
                         guesses[`${id}`] = [word, score];
@@ -227,8 +255,11 @@ function clap(puzzleNumber) {
                             word_span.style.fontWeight = "bold"
                         } else {
                             word_span.style.backgroundColor = `#${rainbow.colourAt(score)}`;
+                            word_span.style.border = "2px";
+                            word_span.style.borderColor = "#FFFFFF";
+                            word_span.style.borderStyle = "solid";
+                            word_span.style.padding = "0.5px";
                         }
-                        console.log(rainbow.colourAt(score));
                     }
                 });
                 saveDataToCache();
@@ -236,9 +267,18 @@ function clap(puzzleNumber) {
             field_word.value = "";
         }
     });
+
     
     focus();
     // beta();
+
+    function removeFrames() {
+        var elements = document.querySelectorAll('span.clap-word')
+        elements.forEach(function(entry) {
+            entry.style.border = '0px';
+        });
+    }
+       
 
     function saveDataToCache(secret_title = null) {
         let savedPuzzleNumber = storage.getItem("clap_puzzleNumber");
@@ -253,19 +293,20 @@ function clap(puzzleNumber) {
         if (data_day == null){
             data_day = {};
         }
-        nb_guesses = guesses.length;
         data_day['nb_miss'] = nb_miss;
         data_day['nb_guesses'] = nb_guesses;
+        data_day['nb_poop'] = nb_poop;
+        data_day['nb_good'] = nb_good;
+        data_day['nb_great'] = nb_great;
         if(secret_title) { data_day['secret_title'] = secret_title;}
         storage.setItem("clap_day_"+puzzleNumber, JSON.stringify(data_day));
         
     }
 
     async function share() {
-        let nb_guesses = guesses.length;
         let message = "";
         message = `J'ai trouvé le tire du film caché à #semantus 🎬Clap🎬 (jour ${puzzleNumber}).<br>`
-        message += `J'ai utilisé ${nb_guesses} mots ()`
+        message += `J'ai utilisé ${nb_guesses} mots (${nb_poop}💩, ${nb_good}👍🏽 et ${nb_great}🤯)`
         message += ` et fait ${nb_miss+1} tentatives de titres.<br>`
         message += "https://www.semantus.fr/clap";
 
@@ -289,10 +330,33 @@ function clap(puzzleNumber) {
         // // check if you have already won
         document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">👏Clap Clap Clap !👏</h4>';
         message += `<h5>Félicitation, tu as trouvé le titre du film !</h5>`;
+        message += `Tu as utilisé ${nb_guesses} mots (${nb_poop}💩, ${nb_good}👍🏽 et ${nb_great}🤯)`
+        message += ` et fait ${nb_miss+1} tentatives de titres.<br>`
        
         document.getElementById("popup-win-msg").innerHTML = message;
         document.getElementById("div-block-hist").innerHTML = `<img src=${secret_image_url} width="250"> </img>`;
         document.getElementById("div-block-hist").style.textAlign = "center";
+        modal_win.show();
+        // send data to server
+    //     $.getJSON(
+    //         '/link/win',
+    //         $.param({guess_1: guess_1, guess_2: guess_2, score: total_points, user_id: get_user_id()}, true),
+    //         function(result){});
+    }
+
+    function no_win(title)
+    {
+        saveDataToCache(title)
+        let message = "";
+        nb_miss += 1;
+        // // check if you have already won
+        document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">Nope !</h4>';
+        message += `<h5>Le titre du film n'est pas <strong>${title}</strong>.</h5>`;
+        message += "Tu dois donner le titre français exacte (les majuscules ne sont pas importantes)"
+       
+        document.getElementById("popup-win-msg").innerHTML = message;
+        document.getElementById("div-block-hist").innerHTML = '';
+        document.getElementById("div-popup-win-share").innerHTML = '';
         modal_win.show();
         // send data to server
     //     $.getJSON(

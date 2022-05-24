@@ -75,15 +75,27 @@ def check_title():
 @clap_bp.route('/check_word')   
 def check_word():
     puzzleNumber = get_puzzle_number()
+    _, _,_, max_score, _ = get_movie_info(puzzleNumber)
     word = request.args.get('word')
     cur, con = connect_to_db(CLAP_DB_PATH)
     query = f"SELECT json FROM day{puzzleNumber}_words WHERE word=\"{word}\" LIMIT 1"
     check = cur.execute(query)
     ret = check.fetchall()
+    def check_evaluation(data):
+        best = 0
+        for e in data:
+            if e[-1] > best:
+                best = e[-1]
+            if e[-1] == max_score:
+                return 'great'
+        else:
+            return 'good'
     if ret:
-        return jsonify(json.loads(ret[0][0]))
+        words_data = json.loads(ret[0][0])
+        evaluation = check_evaluation(words_data)
+        return jsonify({'words':words_data, 'evaluation':evaluation})
     else:
-        return jsonify({})
+        return jsonify({'words':None,'evaluation':'poop'})
 
 def get_movie_info(day):
     cur, con = connect_to_db(CLAP_DB_PATH)

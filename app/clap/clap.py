@@ -107,13 +107,14 @@ def clap_win():
         query = f"SELECT * FROM clap_day{puzzleNumber}"
         cur.execute(query)
         res = cur.fetchall()
-        data = {
-            'already_won': already_won,
-            'winners': get_clap_winners_today(),
-            'overview': overview,
-            'title': real_title,
-        }
-        return jsonify(data)
+    data = {
+        'already_won': already_won,
+        'winners': get_clap_winners_today(),
+        'overview': overview,
+        'title': real_title,
+        'score': score,
+    }
+    return jsonify(data)
 
 def get_clap_winners_today():
     puzzleNumber = get_puzzle_number()

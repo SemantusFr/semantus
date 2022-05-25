@@ -146,6 +146,7 @@ function clap(puzzleNumber) {
     var nb_good = 0;
     var nb_great = 0;
     var nb_guesses = 0;
+    var score = 0;
 
     var rainbow = new Rainbow(); 
     rainbow.setNumberRange(1, maxScore);
@@ -175,10 +176,6 @@ function clap(puzzleNumber) {
         if (!nb_guesses) {nb_guesses = 0; }
     }
 
-    
-
-    
-
     var field_word = document.getElementById("word-field");
     field_word.addEventListener("keyup", function(event) {
     // Number 13 is the "Enter" key on the keyboard
@@ -192,10 +189,10 @@ function clap(puzzleNumber) {
 
     var field_title = document.getElementById("title-field");
     btn_title.addEventListener('click', function(){
-        var title = field_title.value.trim().toLowerCase();
+        var title = field_title.value;
         $.getJSON(
             'check_title',
-            $.param({ title: title}, true),
+            $.param({ title: title.trim().toLowerCase()}, true),
             function(result){
                 if(result.win) {
                     secret_image_url = result.image_url;
@@ -300,6 +297,7 @@ function clap(puzzleNumber) {
     async function share() {
         let message = "";
         message = `J'ai trouvé le tire du film caché à #semantus 🎬Clap🎬 (jour ${puzzleNumber}).<br>`
+        message += `Mon score est de ${score} points !<br>`
         message += `J'ai utilisé ${nb_guesses} mots (${nb_poop}💩, ${nb_good}👍🏽 et ${nb_great}🤯)`
         message += ` et fait ${nb_miss+1} tentatives de titres.<br>`
         message += "https://www.semantus.fr/clap";
@@ -325,7 +323,7 @@ function clap(puzzleNumber) {
         $.getJSON(
             'win',
             $.param(
-                {title: secret_title, 
+                {title: secret_title.trim().toLowerCase(), 
                  nb_guesses: nb_guesses, 
                  nb_title_guesses: nb_miss+1, 
                  user_id: get_user_id()}, true),
@@ -336,12 +334,14 @@ function clap(puzzleNumber) {
                     document.getElementById("movie-overview").innerHTML = `<h5>${result.title}</h5><br>`;
                     document.getElementById("movie-overview").innerHTML += result.overview
                 }
+                score = result.score;
                 let message = "";
                 // // check if you have already won
                 document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">👏Clap Clap Clap !👏</h4>';
                 message += `<h5>Félicitation, tu as trouvé le titre du film !</h5>`;
                 message += `Tu as utilisé ${nb_guesses} mots (${nb_poop}💩, ${nb_good}👍🏽 et ${nb_great}🤯)`
                 message += ` et fait ${nb_miss+1} tentatives de titres.<br>`
+                message += `Cela te fait un score de <strong>${score}</strong> points.<br>`
             
                 document.getElementById("popup-win-msg").innerHTML = message;
                 if (secret_image_url) {
@@ -352,6 +352,7 @@ function clap(puzzleNumber) {
                 }
                 document.getElementById("div-block-hist").innerHTML = `<img src=${imgPath} width="250"> </img>`;
                 document.getElementById("div-block-hist").style.textAlign = "center";
+                document.getElementById("div-popup-win-share").classList.remove("invisible");
                 modal_win.show();
                 }
             });
@@ -370,7 +371,7 @@ function clap(puzzleNumber) {
        
         document.getElementById("popup-win-msg").innerHTML = message;
         document.getElementById("div-block-hist").innerHTML = '';
-        document.getElementById("div-popup-win-share").innerHTML = '';
+        document.getElementById("div-popup-win-share").classList.add("invisible");
         modal_win.show();
         // send data to server
     //     $.getJSON(

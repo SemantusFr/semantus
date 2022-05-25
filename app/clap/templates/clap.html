@@ -138,8 +138,6 @@ function clap(puzzleNumber) {
     
 
     let initalized = 0;
-    
-    var already_won = false;
     var guesses = {};
     var nb_miss = 0;
     var nb_poop = 0;
@@ -174,6 +172,11 @@ function clap(puzzleNumber) {
         if (!nb_great) {nb_great = 0; }
         nb_guesses = storage.getItem("nb_guesses");
         if (!nb_guesses) {nb_guesses = 0; }
+        let data_day = JSON.parse(storage.getItem("clap_day_"+puzzleNumber));
+        if (data_day && data_day["secret_title"]){
+            document.getElementById("word-field").value = '';
+            document.getElementById("word-field").disabled = true;
+        }
     }
 
     var field_word = document.getElementById("word-field");

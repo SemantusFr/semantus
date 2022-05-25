@@ -157,7 +157,7 @@ def check_word():
     _, _,_, max_score, _ = get_movie_info(puzzleNumber)
     word = request.args.get('word')
     cur, con = connect_to_db(CLAP_DB_PATH)
-    query = f"SELECT json FROM day{puzzleNumber}_words WHERE word=\"{word}\" LIMIT 1"
+    query = f"SELECT word,json FROM day{puzzleNumber}_words WHERE LOWER(word)=\"{word}\" LIMIT 1"
     check = cur.execute(query)
     ret = check.fetchall()
     def check_evaluation(data):
@@ -170,11 +170,12 @@ def check_word():
         else:
             return 'good'
     if ret:
-        words_data = json.loads(ret[0][0])
+        word, word_data = ret[0]
+        words_data = json.loads(word_data)
         evaluation = check_evaluation(words_data)
-        return jsonify({'words':words_data, 'evaluation':evaluation})
+        return jsonify({'word': word, 'words':words_data, 'evaluation':evaluation})
     else:
-        return jsonify({'words':None,'evaluation':'poop'})
+        return jsonify({'word': None, 'words':None,'evaluation':'poop'})
 
 def get_movie_info(day):
     cur, con = connect_to_db(CLAP_DB_PATH)

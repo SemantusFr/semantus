@@ -244,7 +244,7 @@ function clap(puzzleNumber) {
                     if (!(id in guesses) || guesses[`${id}`][1] < score) {
                         guesses[`${id}`] = [word, score];
                         word_span = document.getElementById(`${id}`);
-                        word_span.innerHTML = word;
+                        word_span.innerHTML = result.word;
                         word_span.style.border = "2px";
                             word_span.style.borderColor = "#FFFFFF";
                             word_span.style.borderStyle = "solid";

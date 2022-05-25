@@ -330,30 +330,33 @@ function clap(puzzleNumber) {
             function(result){
                 if (result) {
                     if (result.overview)
-                {
-                    document.getElementById("movie-overview").innerHTML = `<h5>${result.title}</h5><br>`;
-                    document.getElementById("movie-overview").innerHTML += result.overview
-                }
-                score = result.score;
-                let message = "";
-                // // check if you have already won
-                document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">👏Clap Clap Clap !👏</h4>';
-                message += `<h5>Félicitation, tu as trouvé le titre du film !</h5>`;
-                message += `Tu as utilisé ${nb_guesses} mots (${nb_poop}💩, ${nb_good}👍🏽 et ${nb_great}🤯)`
-                message += ` et fait ${nb_miss+1} tentatives de titres.<br>`
-                message += `Cela te fait un score de <strong>${score}</strong> points.<br>`
-            
-                document.getElementById("popup-win-msg").innerHTML = message;
-                if (secret_image_url) {
-                    imgPath = secret_image_url;
-                } else 
-                {
-                    imgPath = poster_placeholder;
-                }
-                document.getElementById("div-block-hist").innerHTML = `<img src=${imgPath} width="250"> </img>`;
-                document.getElementById("div-block-hist").style.textAlign = "center";
-                document.getElementById("div-popup-win-share").classList.remove("invisible");
-                modal_win.show();
+                    {
+                        document.getElementById("movie-overview").innerHTML = `<h5>${result.title}</h5><br>`;
+                        document.getElementById("movie-overview").innerHTML += result.overview
+                    
+                        score = result.score;
+                        let message = "";
+                        // // check if you have already won
+                        document.getElementById('popup-win-title').innerHTML = '<h4 class="modal-title d-inline-block">👏Clap Clap Clap !👏</h4>';
+                        message += `<h5>Félicitation, tu as trouvé le titre du film !</h5>`;
+                        message += `Tu as utilisé ${nb_guesses} mots (${nb_poop}💩, ${nb_good}👍🏽 et ${nb_great}🤯)`
+                        message += ` et fait ${nb_miss+1} tentatives de titres.<br>`
+                        message += `Cela te fait un score de <strong>${score}</strong> points.<br>`
+                    
+                        document.getElementById("popup-win-msg").innerHTML = message;
+                        if (secret_image_url) {
+                            imgPath = secret_image_url;
+                        } else 
+                        {
+                            imgPath = poster_placeholder;
+                        }
+                        document.getElementById("div-block-hist").innerHTML = `<img src=${imgPath} width="250"> </img>`;
+                        document.getElementById("div-block-hist").style.textAlign = "center";
+                        document.getElementById("div-popup-win-share").classList.remove("invisible");
+                        modal_win.show();
+                        document.getElementById("word-field").value = '';
+                        document.getElementById("word-field").disabled = true;
+                    }
                 }
             });
     }
@@ -390,8 +393,8 @@ function clap(puzzleNumber) {
     function scrollToField()
     {
         // the next line is required to work around a bug in WebKit (Chrome / Safari)
-        location.href = "#guess-1";
-        location.href = "#guess-1";
+        location.href = "#word-field";
+        location.href = "#word-field";
     }
 
     function reload() {

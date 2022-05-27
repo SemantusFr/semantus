@@ -58,33 +58,31 @@
             </div>
             <div class="col-md-3 col-sm-12">
                 <div class="row g-3 align-items-left" style="margin-bottom:15px;">
-                    <div class="col-md-8 col-sm-12">
+                    <div class="col-9 col-md-8">
                         <input id="title-field" style="display: inline-block;" class="form-control" name="title-field" required type="text" value="" placeholder="Titre français exact">
                     </div>
-                    <div class="col-md-4 col-sm-12 text-center">
-                        <input id="go-title" class="btn btn-primary" type="submit" value="Vérifier">
-                    </div>   
-                    <div class="row g-3 align-items-center" style="margin-bottom:15px;">
-                        <div class="col-md-9 col-sm-12">
-                            <p>
-                                <!-- <a id="last-word-link" href="" style="color:rgb(160, 255, 250);" data-bs-toggle="modal" data-bs-target="#popup_list"></a>-->
-                                <span id="last-word-label"></span>
-                                <span id="last-word-link"></span>&nbsp;<span id="last-word-text"></span>
-                        </div>
-                        <div class="col-md-3 col-sm-12 text-center">
-                            <input id="full-list" class="btn btn-primary invisible" type="submit" value="Liste">
-                        </div>
-                        </p>
-                    </div>  
+                    <div class="col-3 col-md-4">
+                        <input id="go-title" class="btn btn-primary w-100" type="submit" value="Vérifier">
+                    </div> 
+                </div>
+                <div class="row g-3 d-flex align-items-center" style="margin-bottom:15px;">
+                    <div class="col-9 text-center">
+                            <!-- <a id="last-word-link" href="" style="color:rgb(160, 255, 250);" data-bs-toggle="modal" data-bs-target="#popup_list"></a>-->
+                            <!-- <span class="align-bottom" id="last-word-label">Dernier :&nbsp;</span> -->
+                            <span class="align-bottom" id="last-word-link"></span>&nbsp;<span class="align-bottom" id="last-word-text"></span>
+                    </div>
+                    <div class="col-3 d-flex">
+                        <input id="full-list" class="btn btn-primary invisible w-100 align-items-center" type="submit" value="Liste">
+                    </div>
                 </div>
             </div>
             <div class="col-md-5 col-sm-12">
                 <div class="row g-3" style="margin-bottom:15px;">
-                    <div class="col-8">
+                    <div class="col-9">
                         <input id="word-field" style="display: inline-block;" class="form-control" name="ids" required type="text" value="" placeholder="Mot à tester">
                     </div>
-                    <div class="col-4">
-                        <input id="go" class="btn btn-primary" type="submit" value="Go!">
+                    <div class="col-3">
+                        <input id="go" class="btn btn-primary w-100" type="submit" value="Go!">
                     </div>
                 </div>
                 <div class="row g-3">
@@ -164,7 +162,7 @@ function clap(puzzleNumber) {
     rainbow.setSpectrum(cold_color, hot_color);
 
     function updateHistory() {
-        document.getElementById("last-word-label").innerHTML = "Dernier mot&nbsp;:";
+        // document.getElementById("last-word-label").innerHTML = "Dernier mot&nbsp;:";
         var btn_list = document.getElementById('full-list');
         btn_list.classList.remove('invisible');         
         btn_list.addEventListener('click', function(){
@@ -201,10 +199,12 @@ function clap(puzzleNumber) {
         }
         guess_hist = JSON.parse(storage.getItem("clap_hist"));
         if (!guess_hist) {guess_hist = {}; } else {
-            updateHistory(); 
             last_guess = Object.keys(guess_hist)[Object.keys(guess_hist).length-1];
-            document.getElementById("last-word-link").innerHTML = last_guess;
-            document.getElementById("last-word-text").innerHTML = guess_hist[last_guess];
+            if(last_guess) {
+                updateHistory(); 
+                document.getElementById("last-word-link").innerHTML = `<strong>${last_guess}</strong>&nbsp;:`;
+                document.getElementById("last-word-text").innerHTML = guess_hist[last_guess];
+            }
         }
         nb_miss = storage.getItem("nb_miss");
         if (!nb_miss) {nb_miss = 0; }
@@ -270,31 +270,31 @@ function clap(puzzleNumber) {
             function(result){
                 nb_guesses+=1;
                 updateHistory();
-                document.getElementById("last-word-link").innerHTML = word;
+                document.getElementById("last-word-link").innerHTML = `<strong>${word}<\strong>&nbsp;:`;
                 if (!result.words){
                     nb_poop+=1;
-                    guess_hist[word] = '💩';
-                    document.getElementById("last-word-text").innerHTML = '💩';
-                    saveDataToCache();
+                    console.log(guess_hist)
+                    if (word in guess_hist) {
+                        document.getElementById("last-word-text").innerHTML = '⏳';
+                    } else {
+                        guess_hist[word] = '💩';
+                        document.getElementById("last-word-text").innerHTML = '💩';
+                        saveDataToCache();
+                    }
                     return
                 }
                 console.log(guess_hist['homme']);
                 switch (result.evaluation) {
                     case 'good':
                         nb_good+=1;
-                        if (!(word in guess_hist)){
-                            guess_hist[word] = '👍🏽';
-                        }
                         break;
                     case 'great': 
                         nb_great+=1;
-                        if (!(word in guess_hist)){
-                            guess_hist[word] = '🤯';
-                        }
                         break;
                     }
-                document.getElementById("last-word-text").innerHTML = guess_hist[word];
+                
                 removeFrames();
+                let words_evals = [0,0];
                 result.words.forEach(function(entry) {
                     let [id, value, score] = entry;
                     if (!(id in guesses) || guesses[`${id}`][1] < score) {
@@ -310,11 +310,31 @@ function clap(puzzleNumber) {
                             word_span.style.backgroundColor = '';
                             word_span.style.color = hot_color;
                             word_span.style.fontWeight = "bold"
+                            words_evals[1]+=1;
                         } else {
-                            word_span.style.backgroundColor = `#${rainbow.colourAt(score)}`;      
+                            word_span.style.backgroundColor = `#${rainbow.colourAt(score)}`;  
+                            words_evals[0]+=1;    
                         }
                     }
                 });
+                words_eval_msg = '';
+                console.log(words_evals);
+                if (words_evals[0] > 0) {
+                    words_eval_msg+=`${words_evals[0]}👍🏽`;
+                }
+                if (words_evals[0] > 0 && words_evals[1] > 0) {
+                    words_eval_msg+=`+`;
+                }
+                if (words_evals[1] > 0) {
+                    words_eval_msg+=`${words_evals[1]}🤯`;
+                }
+                if (!(words_eval_msg)) {
+                    words_eval_msg = '💩';
+                }
+                console.log(guess_hist)
+                
+                guess_hist[word] = words_eval_msg;
+                document.getElementById("last-word-text").innerHTML = words_eval_msg;
                 saveDataToCache();
             });
             field_word.value = "";
@@ -405,7 +425,7 @@ function clap(puzzleNumber) {
                         message += `<h5>Félicitation, tu as trouvé le titre du film !</h5>`;
                         message += `Tu as utilisé ${nb_guesses} mots (${nb_poop}💩, ${nb_good}👍🏽 et ${nb_great}🤯)`
                         message += ` et fait ${nb_miss+1} tentatives de titres.<br>`
-                        message += `Cela te fait un score de <strong>${score}</strong> points.<br>`
+                        message += `Cela te fait un score de <strong>${score}</strong>&nbsp;: points.<br>`
                     
                         document.getElementById("popup-win-msg").innerHTML = message;
                         if (secret_image_url) {

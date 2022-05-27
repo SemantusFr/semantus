@@ -63,7 +63,19 @@
                     </div>
                     <div class="col-md-4 col-sm-12 text-center">
                         <input id="go-title" class="btn btn-primary" type="submit" value="Vérifier">
-                    </div>      
+                    </div>   
+                    <div class="row g-3 align-items-center" style="margin-bottom:15px;">
+                        <div class="col-md-9 col-sm-12">
+                            <p>
+                                <!-- <a id="last-word-link" href="" style="color:rgb(160, 255, 250);" data-bs-toggle="modal" data-bs-target="#popup_list"></a>-->
+                                <span id="last-word-label"></span>
+                                <span id="last-word-link"></span>&nbsp;<span id="last-word-text"></span>
+                        </div>
+                        <div class="col-md-3 col-sm-12 text-center">
+                            <input id="full-list" class="btn btn-primary invisible" type="submit" value="Liste">
+                        </div>
+                        </p>
+                    </div>  
                 </div>
             </div>
             <div class="col-md-5 col-sm-12">
@@ -113,6 +125,10 @@ var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
         keyboard: false
 })
 
+var modal_word_list = new bootstrap.Modal(document.getElementById('popup_list'), {
+    keyboard: false
+})
+
 var modal_user_history = new bootstrap.Modal(document.getElementById('popup_user_history'), {
     keyboard: false
 })
@@ -132,13 +148,10 @@ var secret_title = ''
 var secret_overview = ''
 var secret_image_url = ''
 
-
 function clap(puzzleNumber) {
     document.getElementById("presentation-card").classList.add('bg-clap');
-    
-
-    let initalized = 0;
     var guesses = {};
+    var guess_hist = {};
     var nb_miss = 0;
     var nb_poop = 0;
     var nb_good = 0;
@@ -150,9 +163,33 @@ function clap(puzzleNumber) {
     rainbow.setNumberRange(1, maxScore);
     rainbow.setSpectrum(cold_color, hot_color);
 
+    function updateHistory() {
+        document.getElementById("last-word-label").innerHTML = "Dernier mot&nbsp;:";
+        var btn_list = document.getElementById('full-list');
+        btn_list.classList.remove('invisible');         
+        btn_list.addEventListener('click', function(){
+            modal_word_list.show();
+            document.getElementById("modal-list-title").innerHTML = '<h5 class="modal-title">Historique</h5>';
+            var table_content = '';
+
+            let word_list = [];
+            for (const [key, value] of Object.entries(guess_hist).reverse()) {
+                table_content+=
+                `
+                                <tr>
+                                    <td class="text-white">${key}</td>
+                                    <td class="text-white">${value}</td>
+                                </tr>
+                `
+            }
+            document.getElementById("modal-list-table-content").innerHTML = table_content;            
+        });
+    }
+
     const storagePuzzleNumber = storage.getItem("clap_puzzleNumber");
     if (storagePuzzleNumber != puzzleNumber) {
         storage.removeItem("clap_guesses");
+        storage.removeItem("clap_hist");
         storage.setItem("clap_puzzleNumber", puzzleNumber);
         saveDataToCache();
     } else {
@@ -161,6 +198,13 @@ function clap(puzzleNumber) {
         if (overview) 
         {
             document.getElementById("movie-overview").innerHTML = overview;
+        }
+        guess_hist = JSON.parse(storage.getItem("clap_hist"));
+        if (!guess_hist) {guess_hist = {}; } else {
+            updateHistory(); 
+            last_guess = Object.keys(guess_hist)[Object.keys(guess_hist).length-1];
+            document.getElementById("last-word-link").innerHTML = last_guess;
+            document.getElementById("last-word-text").innerHTML = guess_hist[last_guess];
         }
         nb_miss = storage.getItem("nb_miss");
         if (!nb_miss) {nb_miss = 0; }
@@ -225,19 +269,31 @@ function clap(puzzleNumber) {
             $.param({ word: word}, true),
             function(result){
                 nb_guesses+=1;
+                updateHistory();
+                document.getElementById("last-word-link").innerHTML = word;
                 if (!result.words){
                     nb_poop+=1;
+                    guess_hist[word] = '💩';
+                    document.getElementById("last-word-text").innerHTML = '💩';
                     saveDataToCache();
                     return
                 }
+                console.log(guess_hist['homme']);
                 switch (result.evaluation) {
                     case 'good':
                         nb_good+=1;
+                        if (!(word in guess_hist)){
+                            guess_hist[word] = '👍🏽';
+                        }
                         break;
                     case 'great': 
                         nb_great+=1;
+                        if (!(word in guess_hist)){
+                            guess_hist[word] = '🤯';
+                        }
                         break;
                     }
+                document.getElementById("last-word-text").innerHTML = guess_hist[word];
                 removeFrames();
                 result.words.forEach(function(entry) {
                     let [id, value, score] = entry;
@@ -263,11 +319,12 @@ function clap(puzzleNumber) {
             });
             field_word.value = "";
         }
+
+        focus();
     });
 
-    
     focus();
-
+    // beta();
 
     function removeFrames() {
         var elements = document.querySelectorAll('span.clap-word')
@@ -283,6 +340,7 @@ function clap(puzzleNumber) {
             return;
         }
         storage.setItem("clap_guesses", JSON.stringify(guesses));
+        storage.setItem("clap_hist", JSON.stringify(guess_hist));
         overview = document.getElementById("movie-overview").innerHTML;
         storage.setItem("clap_overview", overview);
 
@@ -369,7 +427,6 @@ function clap(puzzleNumber) {
             });
     }
 
-
     function no_win(title)
     {
         saveDataToCache()
@@ -384,11 +441,6 @@ function clap(puzzleNumber) {
         document.getElementById("div-block-hist").innerHTML = '';
         document.getElementById("div-popup-win-share").classList.add("invisible");
         modal_win.show();
-        // send data to server
-    //     $.getJSON(
-    //         '/link/win',
-    //         $.param({guess_1: guess_1, guess_2: guess_2, score: total_points, user_id: get_user_id()}, true),
-    //         function(result){});
     }
 }
     function isEmpty(object) {
@@ -422,36 +474,6 @@ function clap(puzzleNumber) {
     function sleep(milliseconds) {  
       return new Promise(resolve => setTimeout(resolve, milliseconds));  
     }  
-
-    
-
-    
-
-    
-
-    function unlockHistory() {
-        var btn_list = document.getElementById('full-list');
-        
-        btn_list.classList.remove('invisible');         
-        btn_list.addEventListener('click', function(){
-            modal_word_list.show();
-            document.getElementById("modal-list-title").innerHTML = '<h5 class="modal-title">Combinaisons gagnantes trouvées</h5>';
-            var table_content = '';
-            
-            guesses.forEach(function([guess_1, guess_2, link_1, link_2, link_3, score]) {
-                table_content+=
-                `
-                                <tr>
-                                    <td class="text-white">${guess_1+' + '+guess_2}</td>
-                                    <td class="text-white">${score}</td>
-                                </tr>
-                `
-                
-                }
-            )
-            document.getElementById("modal-list-table-content").innerHTML = table_content;            
-        });
-    }
 
     /**
      * from https://andywalpole.me/blog/140739/using-javascript-create-guid-from-users-browser-information
@@ -499,26 +521,6 @@ function clap(puzzleNumber) {
         document.getElementById("word-field").focus();
     }
 
-    function countPoops()
-    {
-        let nb_poop = 0;
-        let nb_no_poop = 0;
-        guesses.forEach(function (entry, index, arr) {
-            let [word, number, score] = entry;
-            if (score == 0)
-            {
-                nb_poop+=1;
-            } else {
-                nb_no_poop += 1;
-            }
-        });
-        return [nb_poop, nb_no_poop];
-    }
-
-    
-    
-
-
     function beta() {   
         message = 'Bienvenue à Semantus <i class="italic text-clap">Clap</i> !';
         message += "<br><br>Ce jeu est en cours de développement, il est donc possible qu'il y reste des bugs.";
@@ -529,8 +531,6 @@ function clap(puzzleNumber) {
         document.getElementById('btn-close-msg').focus();
         modal_message.show();
     }
-    
-
 
     </script>
     <script type="text/javascript">

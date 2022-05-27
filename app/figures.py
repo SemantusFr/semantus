@@ -3,6 +3,8 @@ import io
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib
+
+from app.common import COLORS
 matplotlib.use('Agg')
 
 params = {"ytick.color" : "w",
@@ -55,11 +57,16 @@ def get_stats_image(data_points, labels):
         data_points = [data_points]
         labels = [labels]
 
+
+    colors = [c for _,c in COLORS.items()]
+    print('>>'*100, colors)
     plt.figure(figsize = (8,6))
-    for d,l in zip(data_points,labels):
+    for d,l,c in zip(data_points,labels,colors):
+        print('++', c)
         sns.lineplot(
             data=d,
             label = l,
+            color = c,
         )
     
     plt.tick_params(axis='both', which='major', labelsize=14)
@@ -67,6 +74,6 @@ def get_stats_image(data_points, labels):
     plt.ylabel(r'Gagnants', fontsize = 18)
     
     my_stringIObytes = io.BytesIO()
-    plt.savefig(my_stringIObytes, format='png', dpi = 100, transparent=True)
+    plt.savefig(my_stringIObytes, format='png', dpi = 200, transparent=True)
     my_stringIObytes.seek(0)
     return Response(my_stringIObytes, mimetype=f'image/png')

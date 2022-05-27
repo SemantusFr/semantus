@@ -98,10 +98,8 @@ def show_stats():
 def get_stats_figure():
     def count_winners(mode):
         prefix =''
-        if mode == 'flash':
-            prefix ='flash_'
-        elif mode == 'link':
-            prefix ='link_'
+        if not mode == 'classique':
+            prefix = mode+'_'
         con, cur = connect_to_db(STAT_DB_PATH)
         winners = []
         for day in range(get_puzzle_number()+1):
@@ -115,11 +113,10 @@ def get_stats_figure():
                 winners.append(0)
         con.close()
         return winners
-    classic_winners = count_winners('classic')
-    flash_winners = count_winners('flash')
-    link_winners = count_winners('link')
-    legends = ['Classique', 'Flash', 'Link']
-    data_points = [classic_winners, flash_winners, link_winners]
+    
+    modes = ['classique','flash','link', 'clap']
+    legends = ['Classique', 'Flash', 'Link', 'Clap']
+    data_points = [count_winners(m) for m in modes]
     return get_stats_image(data_points, legends)
 
 ######################################

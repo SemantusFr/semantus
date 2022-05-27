@@ -283,7 +283,6 @@ function clap(puzzleNumber) {
                     }
                     return
                 }
-                console.log(guess_hist['homme']);
                 switch (result.evaluation) {
                     case 'good':
                         nb_good+=1;
@@ -339,19 +338,17 @@ function clap(puzzleNumber) {
             });
             field_word.value = "";
         }
-
         focus();
     });
 
     focus();
-    // beta();
+    beta();
 
     function removeFrames() {
         var elements = document.querySelectorAll('span.clap-word')
         elements.forEach(function(entry) {
             entry.style.border = '0px';
         });
-    }
        
 
     function saveDataToCache(secret_title = null) {

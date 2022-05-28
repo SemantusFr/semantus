@@ -64,7 +64,7 @@ def clap():
     )
 
 def get_score(nb_guesses, nb_title_guesses):
-    score = 1000-3*nb_guesses-15*nb_title_guesses
+    score = 1000-3*nb_guesses-15*(nb_title_guesses-1)
     return score if score > 0 else 0
 
 @clap_bp.route('/win')

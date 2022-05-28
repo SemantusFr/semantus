@@ -284,14 +284,6 @@ function clap(puzzleNumber) {
                     }
                     return
                 }
-                // switch (result.evaluation) {
-                //     case 'good':
-                //         nb_good+=1;
-                //         break;
-                //     case 'great': 
-                //         nb_great+=1;
-                //         break;
-                //     }
                 removeFrames();
                 let words_evals = [0,0];
                 result.words.forEach(function(entry) {
@@ -383,7 +375,7 @@ function clap(puzzleNumber) {
 
     async function share() {
         let message = "";
-        message = `J'ai trouvé le tire du film caché à #semantus 🎬Clap🎬 (jour ${puzzleNumber}).<br>`
+        message = `J'ai trouvé le titre du film caché à #semantus 🎬Clap🎬 (jour ${puzzleNumber}).<br>`
         message += `Mon score est de ${score} points !<br>`
         message += `J'ai utilisé ${nb_guesses} mots (${nb_poop}💩, ${nb_good}👍🏽 et ${nb_great}🤯)`
         message += ` et fait ${nb_miss+1} tentatives de titres.<br>`

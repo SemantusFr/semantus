@@ -273,7 +273,6 @@ function clap(puzzleNumber) {
                 document.getElementById("last-word-link").innerHTML = `<strong>${word}<\strong>&nbsp;:`;
                 if (!result.words){
                     nb_poop+=1;
-                    console.log(guess_hist)
                     if (word in guess_hist) {
                         document.getElementById("last-word-text").innerHTML = '⏳';
                     } else {
@@ -317,7 +316,6 @@ function clap(puzzleNumber) {
                     }
                 });
                 words_eval_msg = '';
-                console.log(words_evals);
                 if (words_evals[0] > 0) {
                     words_eval_msg+=`${words_evals[0]}👍🏽`;
                 }
@@ -330,8 +328,6 @@ function clap(puzzleNumber) {
                 if (!(words_eval_msg)) {
                     words_eval_msg = '💩';
                 }
-                console.log(guess_hist)
-                
                 guess_hist[word] = words_eval_msg;
                 document.getElementById("last-word-text").innerHTML = words_eval_msg;
                 saveDataToCache();
@@ -342,13 +338,14 @@ function clap(puzzleNumber) {
     });
 
     focus();
-    beta();
+    // beta();
 
     function removeFrames() {
         var elements = document.querySelectorAll('span.clap-word')
         elements.forEach(function(entry) {
             entry.style.border = '0px';
         });
+    }
        
 
     function saveDataToCache(secret_title = null) {

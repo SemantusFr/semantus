@@ -206,23 +206,25 @@ function clap(puzzleNumber) {
                 document.getElementById("last-word-text").innerHTML = guess_hist[last_guess];
             }
         }
-        nb_miss = storage.getItem("nb_miss");
-        if (!nb_miss) {nb_miss = 0; }
-        nb_poop = storage.getItem("nb_poop");
-        if (!nb_poop) {nb_poop = 0; }
-        nb_good = storage.getItem("nb_good");
-        if (!nb_good) {nb_good = 0; }
-        nb_great = storage.getItem("nb_great");
-        if (!nb_great) {nb_great = 0; }
-        nb_guesses = storage.getItem("nb_guesses");
-        if (!nb_guesses) {nb_guesses = 0; }
         let data_day = JSON.parse(storage.getItem("clap_day_"+puzzleNumber));
-        if (data_day && data_day["secret_title"]){
-            document.getElementById("word-field").value = '';
-            document.getElementById("word-field").disabled = true;
-            document.getElementById("title-field").value = data_day["secret_title"];
-            document.getElementById("title-field").disabled = true;
-            btn_submit.disabled = true;
+        if (data_day){
+            nb_miss = data_day["nb_miss"]
+            if (!nb_miss) {nb_miss = 0; }
+            nb_poop = data_day["nb_poop"]
+            if (!nb_poop) {nb_poop = 0; }
+            nb_good = data_day["nb_good"]
+            if (!nb_good) {nb_good = 0; }
+            nb_great = data_day["nb_great"]
+            if (!nb_great) {nb_great = 0; }
+            nb_guesses = data_day["nb_guesses"]
+            if (!nb_guesses) {nb_guesses = 0; }
+            if (data_day["secret_title"]){
+                document.getElementById("word-field").value = '';
+                document.getElementById("word-field").disabled = true;
+                document.getElementById("title-field").value = data_day["secret_title"];
+                document.getElementById("title-field").disabled = true;
+                btn_submit.disabled = true;
+            }
         }
     }
 
@@ -272,25 +274,24 @@ function clap(puzzleNumber) {
                 updateHistory();
                 document.getElementById("last-word-link").innerHTML = `<strong>${word}<\strong>&nbsp;:`;
                 if (!result.words){
-                    nb_poop+=1;
                     if (word in guess_hist) {
                         document.getElementById("last-word-text").innerHTML = '⏳';
                     } else {
+                        nb_poop+=1;
                         guess_hist[word] = '💩';
                         document.getElementById("last-word-text").innerHTML = '💩';
                         saveDataToCache();
                     }
                     return
                 }
-                switch (result.evaluation) {
-                    case 'good':
-                        nb_good+=1;
-                        break;
-                    case 'great': 
-                        nb_great+=1;
-                        break;
-                    }
-                
+                // switch (result.evaluation) {
+                //     case 'good':
+                //         nb_good+=1;
+                //         break;
+                //     case 'great': 
+                //         nb_great+=1;
+                //         break;
+                //     }
                 removeFrames();
                 let words_evals = [0,0];
                 result.words.forEach(function(entry) {
@@ -324,9 +325,17 @@ function clap(puzzleNumber) {
                 }
                 if (words_evals[1] > 0) {
                     words_eval_msg+=`${words_evals[1]}🤯`;
+                    if (words_eval_msg) {nb_great+=1;} 
+                } else if (words_evals[0] > 0) {
+                    nb_good+=1;
                 }
                 if (!(words_eval_msg)) {
-                    words_eval_msg = '💩';
+                    if (word in guess_hist) {
+                        words_eval_msg = '⏳';
+                    } else {
+                        words_eval_msg = '💩';
+                        nb_poop+=1;
+                    }
                 }
                 guess_hist[word] = words_eval_msg;
                 document.getElementById("last-word-text").innerHTML = words_eval_msg;

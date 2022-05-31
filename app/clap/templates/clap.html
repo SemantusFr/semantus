@@ -420,7 +420,7 @@ function clap(puzzleNumber) {
                         message += `<h5>Félicitation, tu as trouvé le titre du film !</h5>`;
                         message += `Tu as utilisé ${nb_guesses} mots (${nb_poop}💩, ${nb_good}👍🏽 et ${nb_great}🤯)`
                         message += ` et fait ${nb_miss+1} tentatives de titre.<br>`
-                        message += `Cela te fait un score de <strong>${score}</strong>&nbsp;: points.<br>`
+                        message += `Cela te fait un score de : <strong>${score}</strong>&nbsp;points.<br>`
                     
                         document.getElementById("popup-win-msg").innerHTML = message;
                         if (secret_image_url) {

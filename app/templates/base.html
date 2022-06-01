@@ -157,51 +157,55 @@
     }
   </style>
 </head>
-    <div class="jumbotron mt-4 p-4 bg-dark text-white text-center">
-        <h1>Sémantus <i class="italic text-{{game_mode.lower()}}">{{game_mode}}</i></h1>
-        <h5>{{game_sub_title}}</h5>
-    </div>
-    <div class="container text-center" style="margin-bottom: 20px;">
-        <a  href="#" class="icon" data-bs-toggle="modal" data-bs-target="#popup_info">
-            <i class="icon-information_white"></i>
-        </a>
-        <a  href="#" class="icon" id="link-user-history">
-            <i class="icon-trophy"></i>
-        </a>
-        <a  class="icon" href="https://twitter.com/intent/tweet?screen_name=semantusFr&ref_src=twsrc%5Etfw" target="_blank">
-            <i class="icon-twitter"></i>
-        </a>
-    </div>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-2 col-sm-0">
-            </div>
-            <div class="col-md-8 col-sm-12">
-                {% block card %}
-                {% endblock %}  
-                
-            </div>
-            <div class="col-md-2 col-sm-0">
-            </div>
-        </div>
-    </div>
 
-    <div class="container">
-        <div class="row mb-3">
-            <div class="col-md-2 col-sm-0">
-            </div>
-            <div class="col-md-8 col-sm-12 text-center">
-                <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                    <a href="/" id="classic-link" class="btn btn-success"><i class="italic">Classique</i></a>
-                    <a href="/clap" id="flash-clap" class="btn bg-clap text-white"><i class="italic">Clap</i></a>
-                    <a href="/flash" id="flash-link" class="btn bg-flash text-white"><i class="italic">Flash</i></a>
-                    <a href="/link" id="flash-link" class="btn bg-link text-white"><i class="italic">Link</i></a>
-                </div>
-            </div>
-            <div class="col-md-2 col-sm-0">
-            </div>
+{% block jumbotron %}
+<div class="jumbotron mt-4 p-4 bg-dark text-white text-center">
+    <h1>Sémantus <i class="italic text-{{game_mode.lower()}}">{{game_mode}}</i></h1>
+    <h5>{{game_sub_title}}</h5>
+</div>
+<div class="container text-center" style="margin-bottom: 20px;">
+    <a  href="#" class="icon" data-bs-toggle="modal" data-bs-target="#popup_info">
+        <i class="icon-information_white"></i>
+    </a>
+    <a  href="#" class="icon" id="link-user-history">
+        <i class="icon-trophy"></i>
+    </a>
+    <a  class="icon" href="https://twitter.com/intent/tweet?screen_name=semantusFr&ref_src=twsrc%5Etfw" target="_blank">
+        <i class="icon-twitter"></i>
+    </a>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-2 col-sm-0">
+        </div>
+        <div class="col-md-8 col-sm-12">
+            {% block card %}
+            {% endblock %}  
+            
+        </div>
+        <div class="col-md-2 col-sm-0">
         </div>
     </div>
+</div>
+
+<div class="container">
+    <div class="row mb-3">
+        <div class="col-md-2 col-sm-0">
+        </div>
+        <div class="col-md-8 col-sm-12 text-center">
+            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                <a href="/" id="classic-link" class="btn btn-success"><i class="italic">Classique</i></a>
+                <a href="/clap" id="flash-clap" class="btn bg-clap text-white"><i class="italic">Clap</i></a>
+                <a href="/flash" id="flash-link" class="btn bg-flash text-white"><i class="italic">Flash</i></a>
+                <a href="/link" id="flash-link" class="btn bg-link text-white"><i class="italic">Link</i></a>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-0">
+        </div>
+    </div>
+</div>
+{% endblock %}
+    
 
 {% block content %}
 {% endblock %}

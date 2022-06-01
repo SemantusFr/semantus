@@ -159,6 +159,28 @@ def get_master_word_lists():
 ################ CLASSIQUE #################
 ############################################
 
+
+@app.route('/classic/bare')
+def bare_classic():
+    puzzleNumber = get_puzzle_number()
+    yesterday_list = get_history(puzzleNumber-1)
+    yesterday_list = [[w,s] for w,_,_,s in yesterday_list]
+    winners_today = get_winners_today()
+    game_mode = "Classique"
+    game_catch_phrase = "Trouve le mot caché plus rapidement que ton beau-frère."
+
+    return render_template(
+        'classic_bare.html', 
+        puzzleNumber = get_puzzle_number(),
+        yesterday_word = get_yesterday_word(),
+        yesterday_list = yesterday_list,
+        winners_yesterday = get_winners(puzzleNumber-1),
+        winners_today = winners_today,
+        game_mode = game_mode,
+        game_sub_title = game_catch_phrase,
+        colors = COLORS,
+    )
+
 @app.route('/')
 def index():
     puzzleNumber = get_puzzle_number()

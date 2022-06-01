@@ -1,0 +1,22 @@
+{% extends "clap.html" %}
+
+{% block jumbotron %}
+<div class="text-center card text-white mb-3 bg-clap" id = "presentation-card" >
+        <div class="card-body">
+    <p class="card-title">
+        On te donne le résumé d'un film avec les mots importants cachés. 
+        Propose des mots, les mots proches dans le résumé s'affichent. 
+        Le but est de trouver le titre français exact du film !
+
+        <p class="card-text">Le film d'hier était : 
+            <a href="" style="color:rgb(160, 255, 250);" data-bs-toggle="modal" data-bs-target="#popup_clap_history">
+                {{yesterday_title}}
+            </a>
+        </p>
+    </p>
+</div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

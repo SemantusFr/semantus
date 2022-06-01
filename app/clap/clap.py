@@ -38,6 +38,32 @@ STOP_WORDS = ['à', 'le', 'la', 'les', 'l','d', 'de', 'des', 'du', 'une','en','u
 
 clap_bp = Blueprint('clap', __name__, template_folder='templates', static_folder='static')
 
+@clap_bp.route('/bare')
+def clap_bare():
+    '''
+    set all publications to visible.
+    '''
+    puzzleNumber = get_puzzle_number()
+    winners_today = get_clap_winners_today()
+    yesterday_title, yesterday_overview, _, _, yesterday_image_url  = get_movie_info(puzzleNumber-1)
+    title, _, overview_redacted, max_score, _ = get_movie_info(puzzleNumber)
+    game_catch_phrase = 'Trouve le titre du film !'
+    return render_template(
+        'clap_bare.html', 
+        puzzleNumber = puzzleNumber,
+        movie_title = title,
+        movie_overview = overview_redacted,
+        yesterday_title = yesterday_title,
+        winners_yesterday = get_clap_winners(puzzleNumber-1),
+        yesterday_overview = yesterday_overview,
+        yesterday_image_url = yesterday_image_url,
+        winners_today = winners_today,
+        max_score = max_score,
+        game_mode = 'Clap',
+        game_sub_title = game_catch_phrase,
+        colors = COLORS,
+    )
+
 @clap_bp.route('/')
 def clap():
     '''

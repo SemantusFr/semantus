@@ -36,10 +36,9 @@ def get_puzzle_number():
     assert(delta_days > 0)
     return delta_days
 
-def get_day_from_puzzle_number():
-    number = int(request.args.get('number'))
+def get_day_from_puzzle_number(puzzle_number):
     day0 = date(*app.config['DAY0'])
-    day = day0+ timedelta(days=number)
+    day = day0+ timedelta(days=puzzle_number)
     return day
 
 def connect_to_db(db_path):

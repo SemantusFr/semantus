@@ -75,8 +75,9 @@ def get_lemma(word):
 
 @app.route('/get_date_from_puzzle_number')   
 def get_date_from_puzzle_number():
-    day = jsonify()
-    jsonify({'date': day.strftime('%d-%m-%Y')})
+    number = int(request.args.get('number'))
+    day = get_day_from_puzzle_number(number)
+    return jsonify({'date': day.strftime('%d-%m-%Y')})
 
 @app.route('/get_message')
 def get_message():

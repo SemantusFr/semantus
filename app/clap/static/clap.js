@@ -31,21 +31,50 @@ function clap(puzzleNumber) {
     var word_bottom = "";
     var bestLinkScore = 0;
     
+    // Get the modals to open popups from JS
+    var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
+        keyboard: false
+    })
 
-    $.getJSON(
-            '/link/get_best_score',
-            $.param({}, true),
-            function(result){
-                bestLinkScore = parseInt(result.best_score);
-            });
+    var modal_user_history = new bootstrap.Modal(document.getElementById('popup_user_history'), {
+        keyboard: false
+    })
 
-    if (isMobileDevice()) {
-        fontSizeText = fontSizeTextSmallScreen;
-        fontSizeEmoji = fontSizeEmojiSmallScreen;
-        circleSize = circleSizeSmallScreen;
+    var modal_word_list = new bootstrap.Modal(document.getElementById('popup_list'), {
+        keyboard: false
+    })
+    document.getElementById("list-words-column-name").innerHTML = "Combinaison(s)";
+
+    var modal_message = new bootstrap.Modal(document.getElementById('popup_msg'), {
+        keyboard: false
+        })
+
+    // $.getJSON(
+    //         '/link/get_best_score',
+    //         $.param({}, true),
+    //         function(result){
+    //             bestLinkScore = parseInt(result.best_score);
+    //         });
+
+    const storagePuzzleNumber = storage.getItem("clap_puzzleNumber");
+    if (storagePuzzleNumber != puzzleNumber) {
+        // storage.removeItem("link_guesses");
+        // storage.setItem("link_puzzleNumber", puzzleNumber);
+        // guesses = [];
+    } else {
+        // guesses = JSON.parse(storage.getItem("link_guesses"));
+        // if (guesses == null){
+        //     guesses = [];
+        // } else {
+        //     guesses.sort(function(x,y){return y[5]-x[5]});
+        //     unlockHistory();
+        // }
     }
 
-    document.getElementById("circle-container").style = `height: ${circleSize};`;
+    var btn_submit = document.getElementById('go');
+    btn_submit.addEventListener('click', function(){
+        
+    });
 }
     
 
@@ -70,38 +99,9 @@ function clap(puzzleNumber) {
         if (storagePuzzleNumber && storagePuzzleNumber != puzzleNumber) { reload(); }
     }
 
-    const storagePuzzleNumber = storage.getItem("link_puzzleNumber");
-    if (storagePuzzleNumber != puzzleNumber) {
-        storage.removeItem("link_guesses");
-        storage.setItem("link_puzzleNumber", puzzleNumber);
-        guesses = [];
-    } else {
-        guesses = JSON.parse(storage.getItem("link_guesses"));
-        if (guesses == null){
-            guesses = [];
-        } else {
-            guesses.sort(function(x,y){return y[5]-x[5]});
-            unlockHistory();
-        }
-    }
     
-    // Get the modals to open popups from JS
-    var modal_win = new bootstrap.Modal(document.getElementById('popup_win'), {
-        keyboard: false
-    })
-
-    var modal_user_history = new bootstrap.Modal(document.getElementById('popup_user_history'), {
-        keyboard: false
-    })
-
-    var modal_word_list = new bootstrap.Modal(document.getElementById('popup_list'), {
-        keyboard: false
-    })
-    document.getElementById("list-words-column-name").innerHTML = "Combinaison(s)";
-
-    var modal_message = new bootstrap.Modal(document.getElementById('popup_msg'), {
-        keyboard: false
-        })
+    
+    
 
     function sleep(milliseconds) {  
       return new Promise(resolve => setTimeout(resolve, milliseconds));  
@@ -132,189 +132,12 @@ function clap(puzzleNumber) {
         modal_user_history.show();
     }
 
-    function getLinearProgressBar(id) {
-        var bar = new ProgressBar.Line(`#progress-link-${id}`, {
-        strokeWidth: 10,
-        easing: 'easeInOut',
-        duration: 800,
-        color: '#FFEA82',
-        trailColor: '#999',
-        trailWidth: 10,
-        svgStyle: {width: '100%', height: '100%'},
-        from: {color: cold_color},
-        to: {color: hot_color},
-        step: (state, bar) => {
-            bar.path.setAttribute('stroke', state.color);
-        }
-        });
-        return bar
-    }
-    progress_link_1 = getLinearProgressBar(1)
-    progress_link_2 = getLinearProgressBar(2)
-    progress_link_3 = getLinearProgressBar(3)
-    var field_guess_1 = document.getElementById("guess-1");
-    var field_guess_2 = document.getElementById("guess-2");
+    
 
-    bar = new ProgressBar.Circle(progress, {
-        strokeWidth: 10,
-        trailWidth: 2,
-        easing: 'easeInOut',
-        duration: 1500,
-        text: {
-            autoStyleContainer: true
-        },
-        from: { color: cold_color, width: 10 },
-        to: { color: hot_color, width: 10 },
-        // Set default step function for all animate calls
-        step: function(state, circle) {
-            circle.path.setAttribute('stroke', state.color);
-            circle.path.setAttribute('stroke-width', state.width);
-            var value = circle.value();
-            var score = Math.round(value*bestLinkScore);
-            if (emoji) {
-                circle.setText(emoji);
-            } else {
-                circle.setText(score);
-            }
-            circle.text.style.color = state.color;
-        }
-        });
-        bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
-        bar.text.style.fontSize = fontSizeText;
 
-    // get THE word
-    $.getJSON(
-        'link/get_words',
-        {},
-        function(result){
-            word_top = result.words[0];
-            word_bottom = result.words[1];
-            document.getElementById('word-top').value = word_top;
-            document.getElementById('word-bottom').value = word_bottom;
-        });
-        
-    field_guess_1.addEventListener("keyup", function(event) {
-    // Number 13 is the "Enter" key on the keyboard
-    if (event.keyCode === 13) {
-        // Cancel the default action, if needed
-        event.preventDefault();
-        // Trigger the button element with a click
-        document.getElementById("go").click();  
-        }
-    });
+    
 
-    field_guess_2.addEventListener("keyup", function(event) {
-    // Number 13 is the "Enter" key on the keyboard
-    if (event.keyCode === 13) {
-        // Cancel the default action, if needed
-        event.preventDefault();
-        // Trigger the button element with a click
-        document.getElementById("go").click();  
-        }
-    });
-
-    var btn_submit = document.getElementById('go');
-    btn_submit.addEventListener('click', function(){
-        progress_link_1.animate(0.5);
-        progress_link_2.animate(0.5);
-        progress_link_3.animate(0.5);
-        sleep(800).then(() => {
-            let guess_1 = field_guess_1.value.trim().toLowerCase();
-            let guess_2 = field_guess_2.value.trim().toLowerCase();
-            if(guess_1 || guess_2) {
-                $.getJSON(
-                    '/link/get_score',
-                    $.param({ guess_1: guess_1, guess_2: guess_2}, true),
-                    function(result){
-                        let score = result.score; 
-                        let link_1 = result.link_1;
-                        let link_2 = result.link_2;
-                        let link_3 = result.link_3;
-                        if (score >0) {
-                            // document.getElementById("score_message").innerHTML = `${score} points`;
-                            bar.animate(parseFloat(score)/parseFloat(bestLinkScore));
-                            sleep(1600).then(() => {
-                                    win(guess_1, guess_2, score);
-                                }) 
-                            
-                        }
-                        if (guess_1 == null || guess_1 == '') {
-                            document.getElementById("value-link-1").innerHTML = "❌";
-                            progress_link_1.animate(0.)
-                        } else if (link_1 > 0) {
-                            progress_link_1.animate(parseFloat(link_1)/maxLink)
-                            document.getElementById("value-link-1").innerHTML = link_1;
-                        } else if (link_1 == -1) {
-                            document.getElementById("value-link-1").innerHTML = "🤔";
-                            progress_link_1.animate(0.)
-                        } else {
-                            document.getElementById("value-link-1").innerHTML = "💩";
-                            progress_link_1.animate(0.)
-                        }
-                        if (link_2 > 0) {
-                            progress_link_2.animate(parseFloat(link_2)/maxLink)
-                            document.getElementById("value-link-2").innerHTML = link_2;
-                        } else {
-                            if (link_1 > 0 && link_3 > 0) {
-                                document.getElementById("value-link-2").innerHTML = "💩";
-                            } else {
-                                document.getElementById("value-link-2").innerHTML = "❌";
-                            }
-                            progress_link_2.animate(0.)
-                        }
-                        if (guess_2 == null || guess_2 == '') {
-                            document.getElementById("value-link-3").innerHTML = "❌";
-                            progress_link_3.animate(0.)
-                        } else if(link_3 > 0) {
-                            progress_link_3.animate(parseFloat(link_3)/maxLink)
-                            document.getElementById("value-link-3").innerHTML = link_3;
-                        } else if (link_3 == -1) {
-                            document.getElementById("value-link-3").innerHTML = "🤔";
-                            progress_link_3.animate(0.)
-                        } else {
-                            document.getElementById("value-link-3").innerHTML = "💩";
-                            progress_link_3.animate(0.)
-                        }
-                        if (link_1 > -1 && link_2 >-1) {
-                            addGuessToList(guess_1, guess_2, link_1, link_2, link_3, score);
-                        }
-                        
-                        // empty the input field
-                        // field_guess_1.value = "";
-                        // field_guess_2.value = "";
-                        if (isMobileDevice()) {
-                            scrollToField();
-                        }
-                        focus();
-                    }
-                );
-                
-            } else {
-                progress_link_1.animate(0.)
-                progress_link_2.animate(0.)
-                progress_link_3.animate(0.)
-            }
-        })
-    });
-
-    function addGuessToList(guess_1, guess_2, link_1, link_2, link_3, score) {
-        isNew = true;
-        guesses.forEach(function(entry) {
-            let old_guess_1 = entry[0];
-            let old_guess_2 = entry[1];
-            if (old_guess_1 == guess_1 && old_guess_2 == guess_2) {
-                isNew = false;  
-            }
-        });
-        if (isNew) {
-            console.log(score)
-            if (score) {
-                guesses.push([guess_1, guess_2, link_1, link_2, link_3, score]);
-                guesses.sort(function(x,y){return y[5]-x[5]});
-            }
-        }          
-    }
-
+    
     var btn_share = document.getElementById('button-share')
         btn_share.addEventListener('click', function(){
             share();

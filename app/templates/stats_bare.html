@@ -1,0 +1,121 @@
+{% extends "classic.html" %}
+
+{% block jumbotron %}
+<div class="text-center card text-white bg-success mb-3" id = "presentation-card" >
+    <div class="card-body">
+    <p class="card-title">
+        Mon historiques des jeux
+    </p>
+</div>
+</div>
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-2 col-sm-0"></div>
+        <div class="col-md-8 col-sm-12">
+            <div class="tbl-container bdr">
+                <h5 class="text-classique">Classique</h5>
+                <div class="table-responsive">
+                    <table class="table  table-hover"; id="user-history-table">
+                        <tbody class = "insidetable"; id="user-classic-history-table-content">
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Première partie :</td>
+                                    <td class="text-white" id="hist-since">0-0-0000</td>
+                                </tr>
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Parties jouées :</td>
+                                    <td class="text-white" id="hist-nb-games">0</td>
+                                </tr>
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Parties gagnées :</td>
+                                    <td class="text-white" id="hist-nb-wins">0</td>
+                                </tr>
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Parties non finies :</td>
+                                    <td class="text-white" id="hist-nb-no-win">0</td>
+                                </tr>
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Série de victoires en cours :</td>
+                                    <td class="text-white" id="hist-win-streak">0</td>
+                                </tr>
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Nombre moyen d'éssais :</td>
+                                    <td class="text-white" id="hist-average-guesses">0</td>
+                                </tr>
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Nombre moyen d'indices :</td>
+                                    <td class="text-white" id="hist-average-hints">0</td>
+                                </tr>
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Score moyen :</td>
+                                    <td class="text-white" id="hist-average-points">0</td>
+                                </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <h5 class="text-flash">Flash</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <tbody class = "insidetable"; id="user-flash-history-table-content">
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Première partie :</td>
+                                    <td class="text-white" id="hist-since">0-0-0000</td>
+                                </tr>
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Parties jouées :</td>
+                                    <td class="text-white" id="hist-nb-games">0</td>
+                                </tr>
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Nombre moyen de mots :</td>
+                                    <td class="text-white" id="hist-average-guesses">0</td>
+                                </tr>
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Nombre moyen de :</td>
+                                    <td class="text-white" id="hist-average-poop">0</td>
+                                </tr>
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Nombre moyen de :</td>
+                                    <td class="text-white" id="hist-average-no-poop">0</td>
+                                </tr>
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Score moyen :</td>
+                                    <td class="text-white" id="hist-average-points">0</td>
+                                </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <h5 class="text-link">Link</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <tbody class = "insidetable"; id="user-link-history-table-content">
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Première partie :</td>
+                                    <td class="text-white" id="hist-since">0-0-0000</td>
+                                </tr>
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Parties jouées :</td>
+                                    <td class="text-white" id="hist-nb-games">0</td>
+                                </tr>
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Nombre moyen de combinaisons trouvées :</td>
+                                    <td class="text-white" id="hist-average-guesses">0</td>
+                                </tr>
+                                <tr class="table-dark table-striped">
+                                    <td class="text-white">Score moyen :</td>
+                                    <td class="text-white" id="hist-average-points">0</td>
+                                </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div> 
+        </div>
+        <div class="col-md-2 col-sm-0"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

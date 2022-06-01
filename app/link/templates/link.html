@@ -243,31 +243,6 @@
       return new Promise(resolve => setTimeout(resolve, milliseconds));  
     }  
 
-    // Fill information for the user stat popup
-    var userHistoryLink = document.getElementById("link-user-history");
-    userHistoryLink.onclick = function() {
-        data_stats = getStatsFromStorage();
-        document.getElementById("user-history-table-content").innerHTML = '' 
-        function add_row(name, value) {
-            document.getElementById("user-history-table-content").innerHTML += 
-            `<tr class="table-dark table-striped">
-                <td class="text-white">${name}</td>
-                <td class="text-white">${value}</td>
-            </tr>`
-        }        
-        $.getJSON(
-            'get_date_from_puzzle_number',
-            $.param({ number: data_stats.first_game}, true),
-            function(result){
-                add_row('Première partie :', result.date);
-                add_row('Parties jouées :', data_stats.nb_games);
-                add_row('Nombre moyen de mots trouvés :', (data_stats.nb_mean_guesses).toFixed(1));
-                add_row('Nombre de moyen de 👍🏽 :', (data_stats.nb_mean_no_poop).toFixed(1));
-                add_row('Nombre de moyen de 💩 :', (data_stats.nb_mean_poop).toFixed(1));
-            });
-        modal_user_history.show();
-    }
-
     function getLinearProgressBar(id) {
         var bar = new ProgressBar.Line(`#progress-link-${id}`, {
         strokeWidth: 10,

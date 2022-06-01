@@ -27,6 +27,27 @@ FLASH_DB_PATH = f"{Path(__file__).parent.parent.parent}/flash.db"
 
 flash_bp = Blueprint('flash', __name__, template_folder='templates', static_folder='static')
 
+
+@flash_bp.route('/bare')
+def bare_flash():
+    puzzleNumber = get_puzzle_number()
+    # yesterday_list = get_history(puzzleNumber-1)
+    # yesterday_list = [[w,s] for w,_,_,s in yesterday_list]
+    winners_today = get_flash_winners_today()
+    game_mode = "Flash"
+    game_catch_phrase = "Trouve plus de mots que Martine de la compta."
+
+    return render_template(
+        'flash_bare.html', 
+        puzzleNumber = get_puzzle_number(),
+        # yesterday_word = get_yesterday_word(),
+        winners_yesterday = get_flash_winners(puzzleNumber-1),
+        winners_today = winners_today,
+        game_mode = game_mode,
+        game_sub_title = game_catch_phrase,
+        colors = COLORS,
+    )
+
 @flash_bp.route('/')
 def flash():
     puzzleNumber = get_puzzle_number()

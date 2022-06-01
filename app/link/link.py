@@ -29,6 +29,29 @@ LINK_DB_PATH = f"{Path(__file__).parent.parent.parent}/link.db"
 
 link_bp = Blueprint('link', __name__, template_folder='templates', static_folder='static')
 
+@link_bp.route('/bare')
+def link_bare():
+    puzzleNumber = get_puzzle_number()
+    yesterday_solutions = get_link_solutions(puzzleNumber-1)
+    yesterday_solutions = [[w1+'-'+w2,s] for _,w1,w2,s in yesterday_solutions]
+    yesterday_words = _get_link_words(puzzleNumber-1)
+    winners_today = get_link_winners_today()
+    game_mode = "Link"
+    game_catch_phrase = "Trouve le lien le plus fort entre deux mots qui n'ont rien à voir !"
+    # best_yesterday_combination = get
+
+    return render_template(
+        'link_bare.html', 
+        puzzleNumber = puzzleNumber,
+        yesterday_words = yesterday_words,
+        yesterday_list = yesterday_solutions,
+        winners_today = winners_today,
+        game_mode = game_mode,
+        maxLink = 300,
+        game_sub_title = game_catch_phrase,
+        colors = COLORS,
+    )
+
 @link_bp.route('/')
 def link():
     puzzleNumber = get_puzzle_number()

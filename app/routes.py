@@ -160,6 +160,13 @@ def get_master_word_lists():
 ################ CLASSIQUE #################
 ############################################
 
+@app.route('/stats/bare')
+def bare_stats():
+    return render_template(
+        'stats_bare.html', 
+        puzzleNumber = get_puzzle_number(),
+        colors = COLORS,
+    )
 
 @app.route('/classic/bare')
 def bare_classic():

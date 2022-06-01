@@ -1,0 +1,26 @@
+{% extends "link.html" %}
+
+{% block jumbotron %}
+<div class="text-center card text-white bg-success mb-3" id = "presentation-card" >
+    <div class="card-body">
+        <p class="card-title">
+            On te donne le premier et le dernier mot d'une séquence de 4 mots.
+            Trouve les deux mots manquants de manière à avoir un lien fort entre chaque paire 
+            de mots voisins. 
+            Il y a plusieurs solutions ! Trouve le lien le plus fort !
+        </p>
+        <p class="card-text">La meilleure combinaison d'hier était : 
+            <a href="" style="color:rgb(160, 255, 250);" data-bs-toggle="modal" data-bs-target="#popup_history">
+                <b>{{yesterday_words[0]}}-{{yesterday_list[0][0]}}-{{yesterday_words[1]}}</b>
+            </a>
+        </p>
+        
+</div>
+</div>
+{% endblock %}
+
+{% block stat_script %}
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

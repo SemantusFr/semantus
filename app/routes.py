@@ -168,6 +168,13 @@ def bare_stats():
         colors = COLORS,
     )
 
+@app.route('/info/bare')
+def bare_info():
+    return render_template(
+        'info_bare.html',
+        colors = COLORS,
+    )
+
 @app.route('/classic/bare')
 def bare_classic():
     puzzleNumber = get_puzzle_number()

@@ -1,0 +1,32 @@
+{% extends "classic.html" %}
+
+{% block jumbotron %}
+{% endblock %}
+
+{% block content %}
+<p> <h4><strong>C'est quoi l'idée</strong></h4> </p>
+{% include 'info/general.html' %}
+
+<h4><strong>Mode <span class="italic text-classique">Classique</span></strong>  </h4>
+{% include 'info/classic.html' %}
+
+<h4><strong>Mode <span class="italic text-clap">Clap</span></strong>  </h4>
+{% include 'info/clap.html' %}
+
+<h4><strong>Mode <span class="italic text-flash">Flash</span></strong>  </h4>
+{% include 'info/flash.html' %}
+
+<h4><strong>Mode <span class="italic text-link">Link</span></strong>  </h4>
+{% include 'info/link.html' %}
+
+<h4><strong>Crédits</strong>  </h4>
+{% include 'info/credits.html' %}
+
+{% endblock %}
+
+{% block stat_script %}
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
+

@@ -14,20 +14,7 @@
                         </h2>
                         <div id="collapseZero" class="accordion-collapse collapse" aria-labelledby="headingZero" data-bs-parent="#accordion-info">
                             <div class="accordion-body bg-dark text-white">
-                                <strong>Distance entre les mots</strong> <br>
-                                Dans la discipline du <i>NLP</i> (natural language programming en anglais, 
-                                ou traitement du langage naturel), 
-                                sous discipline du machine learning qui traite du langage, 
-                                il est pratique de représenter les mots par des <i>vecteurs</i> de grande dimension. 
-                                Ces vecteurs ne représentent pas grand chose, mais la distance entre ces vecteurs 
-                                renseigne sur la proximité entre les mots. 
-                                On entraine alors un algorithme de deep learning sur une très grande base de donnée, 
-                                constituée d'une collection de textes d'un même langage (merci internet). 
-                                Le modèle ainsi entrainé permet d'associer un vecteur à un mot. 
-                                Des mots qui apparaissent souvent proches l'un de l'autre dans un texte vont être 
-                                représentés par des vecteurs ayant une distance proche. 
-                                Cela ne veux pas dire pour autant que les mots ont un sense proche ni même 
-                                qu'ils font parti du même champ lexical !
+                                {% include 'info/general.html' %}
                             </div>
                         </div>
                     </div>
@@ -41,54 +28,7 @@
                         </h2>
                         <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordion-info">
                             <div class="accordion-body bg-dark text-white">
-                                <strong>Liste de mots</strong><br>
-                                Chaque jour, un mot est choisi, et on trouve la liste des 1000 mots les plus proches 
-                                dans le modèle. 
-                                On vous donne pour commencer le mot le plus éloigné de cette liste 
-                                et vous devez proposer des mots en espérant vous approcher du mot caché. 
-                                Le cheminement n'est pas forcént linéaire et peut même sembler illogique, 
-                                mais c'est la base de donnée d'entrainement utilisée qui présente des rapprochement 
-                                entre les différents mots qui guide la classement.<br><br>
-
-                                <strong>Comment ça marche ?</strong><br> 
-                                Tape ton mot et clique sur le bouton. Il y a alors quatre possibilités :
-                                <ul >
-                                    <li>
-                                        <strong>Le mot est le mot caché. Félicitation&nbsp;!</strong>
-                                        L'emoji 🤯 apparait. 
-                                        Tu peux désormais partager ton score et narguer tes collègues.
-                                    </li>
-                                    <li>
-                                        <strong>Le mot est dans le top 1000. Cool&nbsp;!</strong>
-                                        Le pourcentage (plus c'est proche de 100, plus vous êtes proche) 
-                                        le mot est ajouté avec son score (de 1 à 1000) à la liste.
-                                    </li>
-                                    <li>
-                                        <strong>Le mot existe mais n'est pas dans le top 1000.</strong>
-                                        L'emoji 💩 s'affiche. 
-                                        Il est ajouté à la liste avec 💩, ce qui correspond à un score de 0. 
-                                    </li>
-                                    <li>
-                                        <strong>Le mot n'existe pas ou ne correspond pas aux critères.</strong>
-                                        L'emoji 🤔 s'affiche. Le mot n'est pas rajouté à la liste.
-                                    </li>
-                                    
-                                    </ul><br>
-
-                                    <strong>Critères</strong><br>
-                                    Les noms et adjectifs sont uniquement au singulier masculin et les verbes à l'infinitif.<br><br>
-
-                                    <strong>Indices</strong><br>
-                                    Toutes les 5 tentatives (nouveaux mots uniquement), tu as le droit à un nouvel indice. 
-                                    Le mot sera à la position juste au dessus de ton meilleur mot. 
-                                    Donc si ton meilleurs mot est à la position 498, 
-                                    tu recevras le mot 499.<br><br>
-
-                                    <strong>Score</strong><br>
-                                    Lorsque tu trouves le mot, on calcule ton score en fonction du nombre de tentatives et
-                                    du nombre d'indices que tu as reçu. 
-                                    Tu pars à 1000 points et tu pers 2 points par tentative (sauf la première qui est gratuite) 
-                                    et 10 points par indice (sauf l'indice de départ qui est gratuit aussi).
+                                {% include 'info/classic.html' %}
                             </div>
                         </div>
                     </div>    
@@ -101,16 +41,7 @@
                         </h2>
                         <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordion-info">
                             <div class="accordion-body bg-dark text-white">
-                                <strong>Le mot du jour</strong><br>
-                                Chaque jour, un mot est choisi, et on trouve encore une fois la liste des 1000 mots 
-                                les plus proches dans le modèle. 
-                                Mais cette fois il n'est pas caché, au contraire, on te le donne !
-                                Clique sur <span class="italic">C'est partie !</span> et tu as 2 minutes pour trouver 
-                                le plus possibles de mot dans la liste des 1000. 
-                                Quant tu en trouves un, il est révélé, et son score (entre 1 et 999) 
-                                est ajouté à ton total de points. 
-                                Fais le plus grand score, mais attention, tu n'as qu'un seul essai par jour !
-                                <br><br>
+                                {% include 'info/flash.html' %}
                             </div>
                         </div>
                     </div>  
@@ -123,28 +54,7 @@
                         </h2>
                         <div id="collapseLink" class="accordion-collapse collapse" aria-labelledby="headingLink" data-bs-parent="#accordion-info">
                             <div class="accordion-body bg-dark text-white">
-                                <strong>Principe</strong><br>
-                                Chaque jour, une paire de mot est choisie au hasard. 
-                                Ils constuent le premier et le dernier maillons d'une chaine de quatre mots. 
-                                Les deux maillons du centre manquent, à toi de trouver les mots qui donnent 
-                                la chaine qui vaut le plus de points !<br><br>
-
-                                <strong>Score</strong><br>
-                                Entre chaque paire de mots se trouve une barre de progression 
-                                qui va de 0 à 300. 
-                                Si le second mot est proche du premier, cette barre va se remplir et 
-                                le score corrspondant va s'afficher à côté. 
-                                Si le mot n'est pas reconnu, l'emoji 🤔 va apparaitre à la place 
-                                du score du lien. 
-                                Si le mot n'est pas dans le top 300 du premier mot, 💩 va s'afficher.
-                                Il en va de même entre le troisième mot et le quatrième mot. 
-                                Si ces deux liens donnent des scores non nuls, alors le dernier lien 
-                                entre les deuxième et troisième mots est estimé. 
-                                Sinon, le symbole ❌ apparaît. 
-                                Si les trois lien sont bons, bravo, tu as trouvé une chaine complète. 
-                                Cependant, il existe souvent un grand nombre de combinaisons possibles, 
-                                si tu n'as pas trouvé la meilleure, tu peux continuer à jouer !
-                                <br><br>
+                                {% include 'info/link.html' %}
                             </div>
                         </div>
                     </div>  
@@ -157,30 +67,7 @@
                         </h2>
                         <div id="collapseClap" class="accordion-collapse collapse" aria-labelledby="headingClap" data-bs-parent="#accordion-info">
                             <div class="accordion-body bg-dark text-white">
-                                <strong>Principe</strong><br>
-                                Chaque jour, découvre un film. 
-                                On te donne le résumé, mais tous mots important sont cachés. 
-                                Teste des mots, si dans le résumé il existe des mots proches, ils sont remplacés par 
-                                le mot que tu as entré. 
-                                La couleur du fond t'indique la proximité entre les mots, rouge si c'est éloigné 
-                                et vers si c'est très proche. 
-                                Si tu as trouvé exactement un mot, il apparait en gras de couleur verte (sans fond coloré). 
-                                Sont encadrés en blanc les mots concerné par le dernier mot rentré. 
-                                Pour chaque mot tapé apparait un récapitulatif : 
-                                💩 si le mot n'y est pas ou qu'il ne fait pas mieux que les mots précédemment tapés, 
-                                👍🏽 par nombre de fois ou le mot apparait sans être le mot exact et 
-                                🤯 par occurence exacte du mot. 
-                                ⏳ signifie que le mot à déjà été tenté. 
-                                (Attention, un même mot peut être compté 💩 ou 👍🏽 suivant l'ordre dans lequel il a été joué, si il
-                                est proche d'un mot mais que des mots plus proches on déjà été joués, il compte pour 💩.)
-                                <br>
-                                Lorsque tu penses avoir le bon titre, rentre le titre français exacte dans le champ correspondant.<br><br>
-
-                                <strong>Score</strong><br>
-                                Tu commences à 1000 points. 
-                                Chaque mot rentré te retire 2 points et 
-                                chaque tentative de titre te coute 10 points.
-                                <br><br>
+                                {% include 'info/clap.html' %}
                             </div>
                         </div>
                     </div>  
@@ -193,45 +80,7 @@
                         </h2>
                         <div class="accordion-body bg-dark text-white">
                             <div id="collapseCredits" class="accordion-collapse collapse" aria-labelledby="headingCredits" data-bs-parent="#accordion-info">
-
-                                <strong>Inspirations</strong><br>
-                                Ces jeux sont très largement inspirés de <a href="https://cemantix.herokuapp.com/" target="_blank">Cémantix</a> 
-                                par <a href="https://twitter.com/enigmathix" target="_blank">enigmatix</a>, 
-                                qui lui même est inspiré de
-                                <a href="https://semantle.novalis.org/" target="_blank">Semantle</a> (en langue anglaise)
-                                par <a href="https://gitlab.com/novalis_dt/semantle" target="_blank">David Turner</a>. 
-                                Comme Cémantix, il utilise les données générées par 
-                                <a href="https://fauconnier.github.io/#data" target="_blank">Jean-Philippe Fauconnier</a>.<br><br>
-                                <strong>Mais alors, pourquoi faire un autre jeu ?</strong><br>
-                                L'idée est d'avoir un jeu rapide et surtout de ne pas être bloqué 
-                                lorsque l'on tombe dans un champ sémantique qui, 
-                                par le hasard des bases de données, 
-                                se retrouve assez éloigné du mot caché. 
-                                L'utilisation d'indices est censé palier à cela, mais je suis ouvert 
-                                à toute idée ou critique sur ce sujet.<br><br>
-
-                                <strong>Open source ?</strong><br>
-                                Oui !
-                                <a href="https://github.com/SemantusFr/semantus" target="_blank">Github:SmantusFr/semantus</a>.<br><br>
-
-                                <strong>Sources extérieures :</strong><br>
-                                Code :<br>
-                                <ul>
-                                    <li><strong>Flask</strong> : <a href="https://flask.palletsprojects.com/">flask.palletsprojects.com</a></li>
-                                    <li><strong>Rainbow-vis.js</strong> : <a href="https://github.com/anomal/RainbowVis-JS">github.com/anomal/RainbowVis-JS</a></li>
-                                    <li><strong>Progressbar.js</strong> : <a href="https://kimmobrunfeldt.github.io/progressbar.js/">kimmobrunfeldt.github.io/progressbar.js</a></li>
-                                    <li><strong>Bootstrap</strong> : <a href="https://getbootstrap.com">getbootstrap.com</a></li>
-                                  </ul>
-                                Données :<br>
-                                <ul>
-                                    <li><strong>Modèle de vectorisation de mots</strong> : <a href="https://fauconnier.github.io/#data">fauconnier.github.io</a></li>
-                                    <li><strong>Liste de mots français avec fréquences et lemmes</strong> : <a href="http://www.lexique.org/shiny/openlexicon/">lexique.org/shiny/openlexicon</a></li>
-                                    <li><strong>Base de donnée de films</strong> : <a href="https://www.themoviedb.org/">themoviedb.org</a></li>
-                                </ul> 
-                                Autre :
-                                <ul>
-                                    <li><strong>Icones</strong> : <a href="https://mfglabs.github.io/mfglabs-iconset/">mfglabs.github.io/mfglabs-iconset</a></li>
-                                </ul>                                 
+                                {% include 'info/credits.html' %}
                             </div>
                         </div>
                     </div>

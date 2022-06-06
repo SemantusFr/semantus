@@ -39,7 +39,7 @@ message_hint = [
     "C'est mieux avec ça&nbsp;?",
     "Je ne vais pas faire tout le boulot&nbsp;!",
     "Encore un indice&nbsp;!",
-    "Tu ne peux la jouer tout seul comme un grand&nbsp;?",
+    "Tu ne peux pas jouer tout seul comme un grand&nbsp;?",
 ]
 
 message_already_guessed = [
